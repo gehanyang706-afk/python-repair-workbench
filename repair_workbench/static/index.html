@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>修复工作台 · Python Repair Workbench</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand"><span class="brand-icon">↳</span><div>修复工作台<small>PYTHON REPAIR WORKBENCH</small></div></div>
+  <button class="primary new-task" id="new-task">＋ 新建修复任务</button>
+  <div class="section-label">最近任务 <span id="task-count">0</span></div>
+  <nav id="task-list" aria-label="修复任务列表"></nav>
+  <div class="sidebar-footer"><span class="online-dot"></span> 本机工作空间<small id="model-label">正在连接服务…</small></div>
+</aside>
+<main>
+  <header><div class="breadcrumb">工作空间 <span>/</span> <span id="breadcrumb-task">任务概览</span></div><div class="badge neutral">原仓库保持不变</div></header>
+  <div id="global-error" class="error" role="alert" hidden></div>
+  <section id="empty-state" class="welcome">
+    <div class="eyebrow">FROM FAILURE TO VERIFIED PATCH</div>
+    <h1>让每一次修复<br>都有验证依据。</h1>
+    <p>从失败测试出发，定位原因、生成候选修改，再用原始测试独立验证。<br>你审查最终补丁，决定是否采用。</p>
+    <button class="primary" id="empty-new">创建第一个任务 <span>→</span></button>
+    <div class="features"><div><b>01</b><h3>固定输入</h3><p>从 Git 提交建立独立快照</p></div><div><b>02</b><h3>受控修复</h3><p>只修改你批准的源文件</p></div><div><b>03</b><h3>验证交付</h3><p>保留测试结果与补丁差异</p></div></div>
+  </section>
+  <section id="detail" hidden>
+    <div class="task-heading"><div><div class="eyebrow" id="task-id"></div><h1 id="task-title"></h1><p id="task-meta"></p></div><button id="cancel-task" class="secondary">取消任务</button></div>
+    <div class="status-strip"><div><span id="status-dot" class="status-dot"></span><strong id="task-status"></strong><span id="task-phase"></span></div><span id="task-updated"></span></div>
+    <div class="steps" id="steps"></div>
+    <div class="tabs" role="tablist"><button class="active" data-tab="overview" role="tab" aria-selected="true">验证结果</button><button data-tab="patch" role="tab" aria-selected="false">补丁差异</button><button data-tab="events" role="tab" aria-selected="false">执行记录</button><button data-tab="logs" role="tab" aria-selected="false">测试日志</button></div>
+    <section id="panel-overview" class="panel"><div id="result-summary"></div><div class="metrics" id="metrics"></div><div class="card"><div class="card-title">候选修改 <span id="attempt-count"></span></div><div id="attempts"></div></div><div class="scope card"><div><span class="section-label">允许修改的文件</span><div id="allowed-files"></div></div><a id="download-report" class="secondary" download>下载任务报告 ↓</a></div></section>
+    <section id="panel-patch" class="panel" hidden><div class="card"><div class="card-title">通过验证的补丁<a id="download-patch" class="secondary" download hidden>下载 .diff ↓</a></div><p class="hint">补丁保存在独立副本中，尚未应用到原仓库。测试通过后，仍需审查业务语义与无关改动。</p><pre id="patch-content" class="code">尚无通过验证的补丁。</pre></div></section>
+    <section id="panel-events" class="panel" hidden><div class="card"><div class="card-title">执行时间线<span class="hint">记录随任务更新</span></div><ol id="events"></ol></div></section>
+    <section id="panel-logs" class="panel" hidden><div class="card"><div class="card-title"><label for="log-attempt">测试日志</label><select id="log-attempt"><option value="0">原始基线</option></select></div><pre class="code" id="log-content">等待日志生成。</pre><button class="secondary" id="more-log" hidden>继续加载</button></div></section>
+  </section>
+</main>
+<dialog id="new-dialog">
+<form id="task-form">
+  <div class="dialog-header"><div><div class="eyebrow">NEW REPAIR TASK</div><h2>新建修复任务</h2></div><button type="button" id="close-dialog" class="icon-button" aria-label="关闭">×</button></div>
+  <p class="hint">选择已提交的 Python 仓库，确认修复目标和允许修改的文件。</p>
+  <label for="repo">仓库路径</label><input id="repo" required placeholder="/path/to/your-python-project" autocomplete="off"><small id="root-hint"></small>
+  <div class="form-row"><div><label for="revision">分支或提交</label><input id="revision" value="HEAD" required></div><button class="secondary" type="button" id="inspect">读取仓库</button></div>
+  <div id="file-section" hidden><div class="card-title">允许修改的源文件 <span id="selection-count">已选 0 项</span></div><p class="hint" id="commit-hint"></p><input id="file-filter" placeholder="搜索文件名" aria-label="搜索源文件"><div id="file-list"></div></div>
+  <label for="task-description">需要解决的问题</label><textarea id="task-description" required rows="3" maxlength="12000" placeholder="描述预期行为、当前错误以及需要保持不变的约束"></textarea>
+  <details><summary>执行设置</summary><div class="form-row"><div><label for="max-attempts">最多候选次数</label><input id="max-attempts" type="number" value="3" min="1" max="5"></div><div><label for="deadline">修复期限（秒）</label><input id="deadline" type="number" value="180" min="10" max="600"></div></div><p class="hint" id="environment-hint"></p></details>
+  <p class="hint">所选提交中的代码与测试日志会发送给已配置的模型服务。工作台只生成补丁，不自动修改原仓库。</p>
+  <div id="form-error" class="error" role="alert" hidden></div>
+  <div class="dialog-actions"><span>先复现失败，再启动修复</span><button class="primary" type="submit" id="submit-task" disabled>加入任务队列 →</button></div>
+</form>
+</dialog>
+</body></html>

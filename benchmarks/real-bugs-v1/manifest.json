@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "name": "real-bugs-v1",
+  "scope": "Isolated complete upstream modules; custom regression tests; not full-repository evaluation.",
+  "tasks": [
+    {
+      "id": "bits-negative-index",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "19bd337cad0760945dfe0245434d8253156ee390",
+      "fix_commit": "5eb6cc045560abf320712f262346ae95fb66d448",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/5eb6cc045560abf320712f262346ae95fb66d448",
+      "allowed_paths": [
+        "boltons/mathutils.py"
+      ],
+      "task": "Bits 的负索引应与 Python 序列一致，越界时抛出 IndexError。保持正索引及切片行为。",
+      "files": {
+        "source/boltons/mathutils.py": "3d81dc8b44136299857373a8f53d50dbf0be7aabfa34e7bcfee7c6b41b3b3236",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/mathutils.py": "0aeac3312b66b3919ec93f35e9785c62f3d79bf6db82d60f3b5a3140b3d30ae5",
+        "visible/test_regression.py": "50a4226239afeff59e04ff5299b4c216dc03670ac56554db27d6b0ec91c89b0e",
+        "holdout/test_holdout.py": "4882288bcdf303faa253fccf99875113fc71c8483241fa7f4f7f165283715f9f"
+      }
+    },
+    {
+      "id": "bits-empty-conversion",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "5eb6cc045560abf320712f262346ae95fb66d448",
+      "fix_commit": "efff866a3b66fdafc817894390742e1d8bc025e5",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/efff866a3b66fdafc817894390742e1d8bc025e5",
+      "allowed_paths": [
+        "boltons/mathutils.py"
+      ],
+      "task": "空 Bits 在二进制、十六进制和字节转换后应保持空值，并支持空值往返转换。非空转换不能回归。",
+      "files": {
+        "source/boltons/mathutils.py": "0aeac3312b66b3919ec93f35e9785c62f3d79bf6db82d60f3b5a3140b3d30ae5",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/mathutils.py": "c4f32563bb0a9281d5b7a3770c661e5a3ae3c6c3ae2644f5ff0a608edce2d5e6",
+        "visible/test_regression.py": "1a9aced76b59cdb172e8d62e0d127320287f521cfd3e14bd6f67c6a757158ebe",
+        "holdout/test_holdout.py": "b592157c89184e33feca7d549188c696793b0c4005327a46dbb562f534cd18d5"
+      }
+    },
+    {
+      "id": "named-empty-name",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "9decba3e5736f61180eec274420ced0e572e30e6",
+      "fix_commit": "970051b66474ac37383c5d990c169c794e20eb88",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/970051b66474ac37383c5d990c169c794e20eb88",
+      "allowed_paths": [
+        "boltons/namedutils.py"
+      ],
+      "task": "namedtuple 和 namedlist 收到空类型名或空字段名时应抛出 ValueError；保留 rename=True 的自动重命名行为。",
+      "files": {
+        "source/boltons/namedutils.py": "13f1273386f5695c474099cf22fcc00dcfcccda3719e1ff30df8a138c3dcdf96",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/namedutils.py": "0f5a4a0e196c7d918762928bfd9157c29d411a9d827ae7f45a53c43328887224",
+        "visible/test_regression.py": "daa022ceca528f2b399ee8729dc9964720e20cfc2c3bcd8898f19fa9435535ca",
+        "holdout/test_holdout.py": "3d0eb8473fdab633e2e859c41c51067d35913df4b41b123bc254744d1a5bf925"
+      }
+    },
+    {
+      "id": "jsonl-end-seek",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "574393a4c349d5b81ee328a9e450c34dd0614635",
+      "fix_commit": "5150802911edbf8ade1e7d1bfb346fed52c88d05",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/5150802911edbf8ade1e7d1bfb346fed52c88d05",
+      "allowed_paths": [
+        "boltons/jsonutils.py"
+      ],
+      "task": "JSONLIterator 应接受显式 rel_seek=1.0 定位文件末尾，反向迭代应返回逆序记录，保持非法范围校验。",
+      "files": {
+        "source/boltons/jsonutils.py": "df39d7d0bde25e1470719b7cdc5fdde043458c560a081ecc5cefce7e6303f9b1",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/jsonutils.py": "14fc155b3cb606a8d05da4b72aca2d736cf0ac1df7913b3d596aa7559d1ea204",
+        "visible/test_regression.py": "ce2328e7922a4a74de5b7529a8746bf340168da9297dbbc1f200225b720dbb73",
+        "holdout/test_holdout.py": "c195c35cbd19741aa9fbd9e3fe477b13927b690347233d81b7bc9b1556fce972"
+      }
+    }
+  ]
+}

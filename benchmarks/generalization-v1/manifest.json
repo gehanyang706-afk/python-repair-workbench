@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "name": "generalization-v1",
+  "scope": "New held-out tasks for reliability-v2; isolated whole modules from the same upstream project, not cross-project validation.",
+  "tasks": [
+    {
+      "id": "multireplace-empty-map",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "0a3084e3058fd814684b1fc98343ec2e76d13ddc",
+      "fix_commit": "435774ef8b10c1355bf77483a837945034011754",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/435774ef8b10c1355bf77483a837945034011754",
+      "allowed_paths": [
+        "boltons/strutils.py"
+      ],
+      "task": "MultiReplace 在空替换映射下应原样返回文本。保留非空映射和正则模式的替换行为。",
+      "files": {
+        "source/boltons/strutils.py": "81e6696057db543d3cc7e099c33840d1f598bd6f39b98b165d21251d62a1737b",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/strutils.py": "fdd710629c8757dd94bb8481ac91ab1f59b70690d40e5e4edb3d10dc46fa5912",
+        "visible/test_regression.py": "776b3cca0ae003029311fac594ccfa5fa6193f9d9c60ebc49415ef0fb3609f84",
+        "holdout/test_holdout.py": "74f254d7f9580116097141d813133583b4c1471c95cbf846720c67b1214b952c"
+      }
+    },
+    {
+      "id": "backoff-unit-factor",
+      "upstream": "https://github.com/mahmoud/boltons",
+      "base_commit": "57cb026b7f47cd2765a0d5acdc83849ed5f1f6a3",
+      "fix_commit": "ead236e278ca0466bf468de746b5960fb12d7e5b",
+      "fix_url": "https://github.com/mahmoud/boltons/commit/ead236e278ca0466bf468de746b5960fb12d7e5b",
+      "allowed_paths": [
+        "boltons/iterutils.py"
+      ],
+      "task": "对于有效参数 stop>0，backoff_iter 在 factor=1 且未指定 count 时：start==stop 返回单个值，start!=stop 抛出 ValueError；显式 count 的常数序列及原有参数校验仍正常工作。",
+      "files": {
+        "source/boltons/iterutils.py": "c5cf8da7231fcb72f14f7f5507ff7c0b8778e5c495d69c596c4eb2ef48e8cfda",
+        "source/boltons/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "source/LICENSE": "c301912653a8d8c99eab6212aa3aea8d164ea249d8ad53c941e0558a0a5ac1e3",
+        "oracle/boltons/iterutils.py": "77ec0e8d53b060f236d06f7c3c8ed107d34818dd8cf1b2a6b986bdea1167effe",
+        "visible/test_regression.py": "d66245c57279da54216916f4176c8852be29124417acd9bbca277ff5957c5a49",
+        "holdout/test_holdout.py": "13ddb854e1a7a908d156ea83d0d785e0999bc35656e953ac35e6fb0a7561301d"
+      }
+    }
+  ]
+}

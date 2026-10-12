@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "name": "cross-project-v1",
+  "scope": "Two pinned historical more-itertools fixes; extends boltons coverage to a second project. Isolated package subset, not full upstream suite.",
+  "tasks": [
+    {
+      "id": "bucket-falsey-validator",
+      "upstream": "https://github.com/more-itertools/more-itertools",
+      "base_commit": "1ea82a711c69f590054987b5cb194157f8ce8ac4",
+      "fix_commit": "67fcf640477c78605580f5ee703a54c73c1e7a8a",
+      "fix_url": "https://github.com/more-itertools/more-itertools/commit/67fcf640477c78605580f5ee703a54c73c1e7a8a",
+      "allowed_paths": [
+        "more_itertools/more.py"
+      ],
+      "task": "bucket 应尊重所有显式传入的可调用 validator，包括布尔值为假的可调用对象；分桶读取、成员判断和键迭代应一致遵守该验证器。未传入 validator 时继续允许所有键，保持正常分桶与缓存行为。",
+      "files": {
+        "source/more_itertools/__init__.py": "19cb2d318e8d45eb7d56136a55f1452c9469d21597571c31d752aa8232a2c07b",
+        "source/more_itertools/more.py": "bc51d6f1c05613084fb566a8310771ab946864f0bb4815d26d4c6bb8d44bf9ff",
+        "source/more_itertools/recipes.py": "ea9ac19767d3949d72bd0fc24f51aff33f24a693201b5d8e595a0d58ef8f4b1c",
+        "source/LICENSE": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+        "oracle/more_itertools/more.py": "1bdc5f323ea18906436a42268b942d5b4d15ac8b3ff17c1211a59fb192fa068e",
+        "visible/test_regression.py": "db10811ab136bf3149b53074e9989d73a66e6070821f8fafac4b3541d6863226",
+        "holdout/test_holdout.py": "eb1415a31f72120a8f5caaf56c28439c796765c9745741c3815351716ba62c2c"
+      }
+    },
+    {
+      "id": "batches-nonpositive-count",
+      "upstream": "https://github.com/more-itertools/more-itertools",
+      "base_commit": "19ddb972845ab0e5b9b7449d3fd5930781407441",
+      "fix_commit": "d032cab7798c7a072ecbb8ade4dfa50030c75cb5",
+      "fix_url": "https://github.com/more-itertools/more-itertools/commit/d032cab7798c7a072ecbb8ade4dfa50030c75cb5",
+      "allowed_paths": [
+        "more_itertools/more.py"
+      ],
+      "task": "constrained_batches 的 max_count 若显式给定，必须大于零；零和负数应抛出 ValueError。保留 max_count=None 的不限数量行为、有效数量上限、max_size 校验及 strict 参数语义。",
+      "files": {
+        "source/more_itertools/__init__.py": "19cb2d318e8d45eb7d56136a55f1452c9469d21597571c31d752aa8232a2c07b",
+        "source/more_itertools/more.py": "e9fe99a88dbd42ca8938e7889b453f30e518ee667f4d0924d7c1fa742ab28dd7",
+        "source/more_itertools/recipes.py": "e73ba8f1d785f6e3c3b5222bf5ec499977c53555b85970f625cf986d5f4be4db",
+        "source/LICENSE": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+        "oracle/more_itertools/more.py": "660aa64c4c42429b8b6f6f042f6abfdbfdbbadd47195535d8c9b384f6d40f301",
+        "visible/test_regression.py": "2a5ceeb5621992b81184101d6ca005e48637e87b61efed76811dbaa63b22bf73",
+        "holdout/test_holdout.py": "91ba85215361e19ba0e22185942ca8148d1726c78638b068bf090a1789ac0912"
+      }
+    }
+  ]
+}

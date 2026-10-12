@@ -1,0 +1,32 @@
+[project]
+name = "python-repair-workbench"
+version = "1.0.0"
+description = "Isolated Python test reproduction and repair verification"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+agent = [
+    "deepagents==0.7.20",
+    "langchain==1.4.3",
+    "langgraph==1.2.12",
+    "langchain-community==0.4.2",
+    "dashscope==1.27.7",
+    "python-dotenv==1.2.4",
+]
+web = ["fastapi==0.141.1", "uvicorn==0.53.0"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["repair_workbench*"]
+
+[tool.setuptools.package-data]
+repair_workbench = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["fixtures", "runtime"]
+python_files = ["test_*.py"]
