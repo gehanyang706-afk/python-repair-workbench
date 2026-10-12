@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from repair_workbench.evaluation import load_dataset, summarize, compare as assess_reports
+from repair_workbench.evaluation import load_dataset, selected_tasks, summarize, compare as assess_reports
 from repair_workbench.snapshot import verify_snapshot, snapshot_id
 
 
@@ -21,15 +21,16 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def inspect(run, dataset):
+def inspect(run, dataset, names=None, *, check_current_code=True):
     record = read(run)
     manifest, sha = load_dataset(dataset)
     require(record['dataset_sha256'] == sha, 'dataset mismatch')
-    require([r['id'] for r in record['rows']] == [t['id'] for t in manifest['tasks']], 'task selection mismatch')
+    require([r['id'] for r in record['rows']] == [t['id'] for t in selected_tasks(manifest, names)], 'task selection mismatch')
     require(record['summary'] == summarize(record['rows'], 'run'), 'summary mismatch')
-    for name, sha in record['agent_version']['code'].items():
-        require(hashlib.sha256((ROOT/'repair_workbench'/name).read_bytes()).hexdigest() == sha,
-                'runtime changed during evaluation')
+    if check_current_code:
+        for name, sha in record['agent_version']['code'].items():
+            require(hashlib.sha256((ROOT/'repair_workbench'/name).read_bytes()).hexdigest() == sha,
+                    'runtime changed during evaluation')
     observed = Counter()
     tasks = []
     snapshots = 0

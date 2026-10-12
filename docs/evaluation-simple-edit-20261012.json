@@ -1,0 +1,245 @@
+{
+  "audit": "passed",
+  "git_revision": "7303817dc46359b82461c054d375949ddf592dd8",
+  "current_code_matches": true,
+  "snapshots_verified": 22,
+  "model_calls": 42,
+  "approved_max_calls": 48,
+  "token_usage": {
+    "input_tokens": 266642,
+    "output_tokens": 10583,
+    "reports": 42
+  },
+  "task_elapsed_seconds": 278.879,
+  "batch_elapsed_seconds": 279.432,
+  "usage_cost_cny_non_thinking": 0.23448,
+  "usage_cost_cny_thinking_output": 0.297978,
+  "cost_scope": "Usage estimate at Beijing <=128k/request rates; not a provider invoice.",
+  "rows": [
+    {
+      "id": "bits-empty-conversion",
+      "profile": "v2",
+      "outcome": "model_call_limit",
+      "public_passed": false,
+      "independent_passed": false,
+      "stop_reason": "model_call_limit",
+      "submission_counts": {
+        "requests": 0,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 0,
+        "docker_verifications": 0
+      },
+      "syntax_passed_candidates": 0,
+      "first_candidate_submission_call": null,
+      "calls_before_first_candidate": null,
+      "model_calls": 12,
+      "token_usage": {
+        "input_tokens": 78752,
+        "output_tokens": 3110,
+        "reports": 12
+      },
+      "finish_reasons": {
+        "tool_calls": 12
+      },
+      "invalid_tool_calls": 0,
+      "source_read_requests": 9,
+      "source_read_telemetry_available": false,
+      "successful_source_reads": null,
+      "returned_source_characters": null,
+      "fully_repeated_read_ranges": null,
+      "overlap_line_ratio": null,
+      "source_read_rejections": null,
+      "framework_read_file_requests": 1,
+      "invalid_tool_recoveries": 0,
+      "max_model_response_seconds": 54.052,
+      "max_input_tokens_per_call": 10325,
+      "elapsed_seconds": 82.941,
+      "patch_lines": 0,
+      "run": "boltons-v2",
+      "dataset": "benchmarks/real-bugs-v1"
+    },
+    {
+      "id": "bits-empty-conversion",
+      "profile": "simple_edit",
+      "outcome": "holdout_target_not_fixed",
+      "public_passed": true,
+      "independent_passed": false,
+      "stop_reason": "agent_finished",
+      "submission_counts": {
+        "requests": 1,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 1,
+        "docker_verifications": 1
+      },
+      "syntax_passed_candidates": 1,
+      "first_candidate_submission_call": 5,
+      "calls_before_first_candidate": 4,
+      "model_calls": 6,
+      "token_usage": {
+        "input_tokens": 29212,
+        "output_tokens": 2271,
+        "reports": 6
+      },
+      "finish_reasons": {
+        "tool_calls": 5,
+        "stop": 1
+      },
+      "invalid_tool_calls": 0,
+      "source_read_requests": 3,
+      "source_read_telemetry_available": true,
+      "successful_source_reads": 3,
+      "returned_source_characters": 8589,
+      "fully_repeated_read_ranges": 0,
+      "overlap_line_ratio": 0.08058608058608059,
+      "source_read_rejections": 0,
+      "framework_read_file_requests": 0,
+      "invalid_tool_recoveries": 0,
+      "max_model_response_seconds": 39.928,
+      "max_input_tokens_per_call": 8264,
+      "elapsed_seconds": 58.569,
+      "patch_lines": 30,
+      "run": "boltons-simple",
+      "dataset": "benchmarks/real-bugs-v1"
+    },
+    {
+      "id": "bucket-falsey-validator",
+      "profile": "v2",
+      "outcome": "model_call_limit",
+      "public_passed": false,
+      "independent_passed": false,
+      "stop_reason": "model_call_limit",
+      "submission_counts": {
+        "requests": 0,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 0,
+        "docker_verifications": 0
+      },
+      "syntax_passed_candidates": 0,
+      "first_candidate_submission_call": null,
+      "calls_before_first_candidate": null,
+      "model_calls": 12,
+      "token_usage": {
+        "input_tokens": 72106,
+        "output_tokens": 950,
+        "reports": 12
+      },
+      "finish_reasons": {
+        "tool_calls": 12
+      },
+      "invalid_tool_calls": 0,
+      "source_read_requests": 6,
+      "source_read_telemetry_available": false,
+      "successful_source_reads": null,
+      "returned_source_characters": null,
+      "fully_repeated_read_ranges": null,
+      "overlap_line_ratio": null,
+      "source_read_rejections": null,
+      "framework_read_file_requests": 4,
+      "invalid_tool_recoveries": 0,
+      "max_model_response_seconds": 4.358,
+      "max_input_tokens_per_call": 8858,
+      "elapsed_seconds": 30.605,
+      "patch_lines": 0,
+      "run": "more-itertools-v2",
+      "dataset": "benchmarks/cross-project-v1"
+    },
+    {
+      "id": "bucket-falsey-validator",
+      "profile": "simple_edit",
+      "outcome": "passed",
+      "public_passed": true,
+      "independent_passed": true,
+      "stop_reason": "model_call_limit",
+      "submission_counts": {
+        "requests": 1,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 1,
+        "docker_verifications": 1
+      },
+      "syntax_passed_candidates": 1,
+      "first_candidate_submission_call": 12,
+      "calls_before_first_candidate": 11,
+      "model_calls": 12,
+      "token_usage": {
+        "input_tokens": 86572,
+        "output_tokens": 4252,
+        "reports": 12
+      },
+      "finish_reasons": {
+        "tool_calls": 12
+      },
+      "invalid_tool_calls": 0,
+      "source_read_requests": 9,
+      "source_read_telemetry_available": true,
+      "successful_source_reads": 6,
+      "returned_source_characters": 23612,
+      "fully_repeated_read_ranges": 0,
+      "overlap_line_ratio": 0.367816091954023,
+      "source_read_rejections": 3,
+      "framework_read_file_requests": 0,
+      "invalid_tool_recoveries": 0,
+      "max_model_response_seconds": 75.294,
+      "max_input_tokens_per_call": 15507,
+      "elapsed_seconds": 106.764,
+      "patch_lines": 13,
+      "run": "more-itertools-simple",
+      "dataset": "benchmarks/cross-project-v1"
+    }
+  ],
+  "model": "qwen-plus",
+  "image_id": "sha256:6beb75435772a990eda22f9b97c44d529121c8652e899d5419f2ca6b47e7e302",
+  "limits": {
+    "calls_per_run": 12,
+    "attempts_per_run": 3,
+    "deadline_per_run": 240,
+    "test_timeout": 30
+  },
+  "datasets": {
+    "benchmarks/real-bugs-v1": "469fb897059715fc53a849459c9c1366cf4a038acba720a28ad95e9802de33fc",
+    "benchmarks/cross-project-v1": "4734629af8b6f5bab9953a089e257c7fa6251925d163d099a892795974ed8708"
+  },
+  "model_configuration": {
+    "max_tokens": 4096,
+    "timeout": 30,
+    "max_retries": 0,
+    "temperature": "provider default",
+    "thinking": "provider default"
+  },
+  "negative_audit_checks": [
+    {
+      "case": "configuration_drift",
+      "rejected": true,
+      "reason": "paired configuration mismatch"
+    },
+    {
+      "case": "per_call_token_tamper",
+      "rejected": true,
+      "reason": "token total mismatch"
+    },
+    {
+      "case": "forged_independent_success",
+      "rejected": true,
+      "reason": "success scoring mismatch"
+    },
+    {
+      "case": "global_budget_breach",
+      "rejected": true,
+      "reason": "batch call limit mismatch"
+    },
+    {
+      "case": "protected_test_tamper",
+      "rejected": true,
+      "reason": "副本已改变，请建立新的候选版本，不能覆盖原始测试基线"
+    },
+    {
+      "case": "task_selection_drift",
+      "rejected": true,
+      "reason": "task selection mismatch"
+    }
+  ],
+  "evidence_scope": "Sanitized summary; raw local runtime artifacts are not included."
+}
