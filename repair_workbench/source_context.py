@@ -5,7 +5,8 @@ import difflib
 from pathlib import Path
 
 PROFILES = {'v2': (False, False), 'observe': (False, False),
-            'context': (True, False), 'review': (False, True), 'full': (True, True)}
+            'context': (True, False), 'review': (False, True), 'full': (True, True),
+            'simple_edit': (False, False)}
 
 
 def units(text):

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import math
+import secrets
 import threading
 import time
 from pathlib import Path, PurePosixPath
@@ -26,10 +27,18 @@ class RepairSession:
         if profile not in PROFILES:
             raise ValueError("unknown repair profile")
         self.profile = profile
+        self.simple_edit_enabled = profile == 'simple_edit'
+        self.closed = False
         self.context_enabled, self.review_enabled = PROFILES[profile]
         self.task = ""
         self.repair_plan = None
         self.read_receipts = {}
+        self.source_refs = {}
+        self.invalid_tool_fingerprint = None
+        self.invalid_tool_recoveries = 0
+        self.submission_counts = {'requests': 0, 'schema_rejections': 0,
+                                  'preflight_rejections': 0, 'materialized': 0,
+                                  'docker_verifications': 0}
         self.seen_lines = set()
         self.context_stats = {"reads": 0, "returned_characters": 0, "unique_lines": 0, "repeated_reads": 0, "suppressed_reads": 0, "invalid_requests": 0}
         self.event_sink = event_sink
@@ -115,6 +124,8 @@ class RepairSession:
                 'allowed_paths': sorted(self.allowed_paths)}
 
     def read_source(self, path: str, start_line: int = 1, line_count: int = 120, raw: bool = False, force: bool = False):
+        if self.simple_edit_enabled and self.closed:
+            raise EditRejected('session_closed')
         self.reserve_tool('read_source')
         return self._read_source(path,start_line,line_count,raw,force)
 
@@ -139,6 +150,12 @@ class RepairSession:
                 'truncated': len(excerpt) > 16000, 'content_format': 'raw' if raw else 'numbered',
                 'start_line': start_line,
                 'sha256': next(f['sha256'] for f in self.manifest['files'] if f['path'] == path)}
+        if self.simple_edit_enabled and raw and result['content']:
+            ref = secrets.token_urlsafe(24)
+            self.source_refs[ref] = {'baseline_id': snapshot_id(self.manifest),
+                                     'path': path, 'sha256': result['sha256'],
+                                     'content': result['content'], 'start_line': start_line}
+            result['source_ref'] = ref
         if self.profile != 'v2':
             key = (path, start_line, line_count, raw)
             previous = self.read_receipts.get(key)
@@ -276,6 +293,45 @@ class RepairSession:
         return self._submit(lambda: apply_edits(self.baseline, edits, set(self.allowed_paths)),
                             diagnosis, 'submit_edits', assessment)
 
+    def submit_ref_edits(self, edits: list[dict], diagnosis: str):
+        """Resolve opaque read references before the existing candidate pipeline."""
+        if self.closed:
+            raise EditRejected('expired_source_ref')
+        return self._submit(lambda: self._resolve_ref_edits(edits), diagnosis,
+                            'submit_ref_edits')
+
+    def _resolve_ref_edits(self, edits):
+        if not self.simple_edit_enabled:
+            raise EditRejected('reference_edits_not_enabled')
+        if self.closed:
+            raise EditRejected('expired_source_ref')
+        if not isinstance(edits, list) or not 1 <= len(edits) <= 32:
+            raise EditRejected('invalid_edit_count', maximum=32)
+        try:
+            verify_snapshot(self.baseline)
+        except (ValueError, OSError):
+            raise EditRejected('baseline_version_changed') from None
+        resolved = []
+        for index, edit in enumerate(edits):
+            if not isinstance(edit, dict) or set(edit) != {'source_ref', 'old_text', 'new_text'}:
+                raise EditRejected('invalid_edit_fields', index=index)
+            ref = self.source_refs.get(edit['source_ref']) if isinstance(edit['source_ref'], str) else None
+            if ref is None or ref['baseline_id'] != snapshot_id(self.manifest):
+                raise EditRejected('invalid_source_ref', index=index)
+            path, old, new = ref['path'], edit['old_text'], edit['new_text']
+            if path not in self.allowed_paths:
+                raise EditRejected('path_not_allowed', index=index)
+            if not isinstance(old, str) or not old or not isinstance(new, str):
+                raise EditRejected('invalid_edit_content', index=index)
+            if ref['content'].find(old) < 0:
+                raise EditRejected('text_outside_read_range', index=index)
+            if ref['content'].find(old, ref['content'].find(old) + 1) >= 0:
+                raise EditRejected('text_not_unique_in_read_range', index=index)
+            resolved.append({'path': path, 'sha256': ref['sha256'],
+                             'start_line': ref['start_line'] + ref['content'].count('\n', 0, ref['content'].find(old)),
+                             'old_text': old, 'new_text': new})
+        return apply_edits(self.baseline, resolved, set(self.allowed_paths))
+
     def _submit(self, build_changes, diagnosis, tool_name, assessment=None):
         # 同一任务的候选执行串行化，避免并行工具调用绕过预算或覆盖记录。
         with self.lock:
@@ -287,6 +343,7 @@ class RepairSession:
             if not isinstance(diagnosis, str) or not diagnosis.strip() or len(diagnosis) > 8000:
                 raise ValueError('必须提供不超过 8000 字符的诊断依据')
             number = len(self.attempts) + 1
+            self.submission_counts['requests'] += 1
             attempt = {'number': number, 'status': 'running', 'diagnosis': diagnosis,
                        'phase': 'preflight', 'submission_tool': tool_name}
             self.attempts.append(attempt)
@@ -312,6 +369,7 @@ class RepairSession:
                        for path, content in changes.items()):
                     raise EditRejected('empty_patch')
                 manifest = create_candidate(self.baseline, root / 'candidate', changes, set(self.allowed_paths))
+                self.submission_counts['materialized'] += 1
                 fingerprint = content_id(manifest)
                 attempt['content_id'] = fingerprint
                 if fingerprint in self.candidate_fingerprints:
@@ -328,6 +386,7 @@ class RepairSession:
                 attempt['phase'] = 'verification'
                 self.check_budget()
                 remaining = self.deadline_seconds - (time.monotonic() - self.started)
+                self.submission_counts['docker_verifications'] += 1
                 verdict = verify_candidate(self.baseline, root / 'candidate', root / 'verification',
                                            set(self.allowed_paths), min(self.test_timeout, remaining))
                 attempt.update(verdict)
@@ -338,6 +397,7 @@ class RepairSession:
                             attempt['test_log_excerpt'] = stream.read(4000).decode('utf-8', errors='replace')
                     attempt['next_action'] = 'Read the candidate log with read_test_log(attempt=number); revise against the original baseline.'
             except EditRejected as exc:
+                self.submission_counts['preflight_rejections'] += 1
                 attempt.update(status='inconclusive', reason=exc.reason, **exc.details,
                                next_action=('Review the reported requirement/scope/risk issue and update the plan or assessment before resubmitting; this rejection consumed an attempt.' if self.review_enabled and exc.reason in {'repair_plan_required','assessment_plan_mismatch','incomplete_requirement_coverage','risk_review_required','change_outside_declared_scope'} else 'Use read_source(raw=True) for current sha256 and exact content; correct edits against the original baseline. Do not repeat this candidate.'))
             except BudgetExceeded as exc:
@@ -355,6 +415,8 @@ class RepairSession:
 
     def save(self, state, **extra):
         with self.lock:
+            if self.simple_edit_enabled and state in {'completed', 'stopped'}:
+                self.closed = True
             passed = next((a for a in self.attempts if a.get('status') == 'passed'), None)
             result = {'state': state, 'status': 'passed' if passed else
                       self.attempts[-1]['status'] if self.attempts else 'inconclusive',
@@ -365,6 +427,8 @@ class RepairSession:
                       'token_usage': self.token_usage, 'last_model_observation': self.last_model_observation,
                       'submission_policy': 'v3: submissions including review rejections consume attempts; review-only corrections may resubmit identical unexecuted content' if self.review_enabled else 'v2: every accepted submission request consumes one attempt, including preflight rejection',
                       'profile': self.profile, 'context_stats': self.context_stats,
+                      'submission_counts': self.submission_counts,
+                      'invalid_tool_recoveries': self.invalid_tool_recoveries,
                       'repair_plan': self.repair_plan,
                       'limits': {'attempts': self.max_attempts, 'model_calls': self.max_model_calls,
                                  'deadline_seconds': self.deadline_seconds},
