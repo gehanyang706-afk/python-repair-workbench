@@ -16,9 +16,11 @@ from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.tools import tool
 from langsmith import tracing_context
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from .session import BudgetExceeded, RepairSession
+from .tool_recovery import collect_errors, feedback
+from .model_transport import ProviderRequestError
 
 
 class ProviderAccountUnavailable(RuntimeError):
@@ -59,6 +61,7 @@ class BudgetedModel(BaseChatModel):
     inner: Any = Field(exclude=True, repr=False)
     session: Any = Field(exclude=True, repr=False)
     bound: Any = Field(default=None, exclude=True, repr=False)
+    tool_loop: bool = False
     model_name: str = 'repair-workbench:bounded'
 
     @property
@@ -66,7 +69,7 @@ class BudgetedModel(BaseChatModel):
         return 'repair-workbench'
 
     def bind_tools(self, tools, **kwargs):
-        return self.model_copy(update={'bound': self.inner.bind_tools(tools, **kwargs)})
+        return self.model_copy(update={'bound': self.inner.bind_tools(tools, **kwargs),'tool_loop':bool(tools)})
 
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
         runnable = self.bound if self.bound is not None else self.inner
@@ -80,12 +83,13 @@ class BudgetedModel(BaseChatModel):
                     self.session.token_usage['reports'] += 1
             known = {'list_sources', 'read_source', 'read_test_log', 'submit_candidate',
                      'submit_edits', 'submit_ref_edits', 'read_file', 'write_todos',
-                     'source_outline', 'search_source', 'read_symbol', 'set_repair_plan'}
+                     'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary'}
             reason = message.response_metadata.get('finish_reason')
             if reason not in {'stop', 'length', 'tool_calls', 'function_call', 'content_filter', 'null', None}:
                 reason = 'other'
             observation = {
                 'call': self.session.model_calls, 'finish_reason': reason,
+                'call_role':'tool_loop' if self.tool_loop else 'framework',
                 'tools': [c['name'] if c['name'] in known else 'unknown_tool' for c in message.tool_calls],
                 'invalid_tool_call_count': len(message.invalid_tool_calls),
                 'invalid_tool_names': [c.get('name') if c.get('name') in known else 'unknown_tool'
@@ -102,45 +106,34 @@ class BudgetedModel(BaseChatModel):
                     if call.get('name') == 'submit_ref_edits' and isinstance(args, dict):
                         edits = args.get('edits')
                         self.session.record('tool_call_shape', tool='submit_ref_edits',
-                            fields=sorted(str(key) for key in args),
+                            fields=sorted(key if key in {'edits','diagnosis'} else 'unknown_field' for key in args),
                             edits_type=type(edits).__name__,
                             edit_count=len(edits) if isinstance(edits, list) else None,
-                            first_edit_fields=(sorted(str(key) for key in edits[0])
+                            first_edit_fields=(sorted(key if key in {'source_ref','old_text','new_text'} else 'unknown_field' for key in edits[0])
                                                if isinstance(edits, list) and edits and isinstance(edits[0], dict)
                                                else None))
             self.session.save('running')
         while True:
-            if self.session.simple_edit_enabled and pending and isinstance(pending[-1], ToolMessage):
-                prior = pending[-1]
-                if prior.status == 'error' and prior.name == 'submit_ref_edits':
-                    field_error = re.search(
-                        r'^\s*([A-Za-z][A-Za-z0-9_.]*): Input should be a valid '
-                        r'(string|integer|list|dictionary|boolean|number)',
-                        str(prior.content), flags=re.MULTILINE)
-                    issue = (f'{field_error.group(1)}:{field_error.group(2)}' if field_error
-                             else hashlib.sha256(str(prior.content).encode()).hexdigest())
-                    fingerprint = hashlib.sha256(f'submit_ref_edits:{issue}'.encode()).hexdigest()
-                    self.session.submission_counts['schema_rejections'] += 1
-                    self.session.record('schema_rejected', tool='submit_ref_edits',
-                                        error_fingerprint=fingerprint,
-                                        field=field_error.group(1) if field_error else None,
-                                        expected_type=field_error.group(2) if field_error else None)
-                    if self.session.invalid_tool_fingerprint == fingerprint:
-                        raise BudgetExceeded('repeated_schema_error')
-                    self.session.invalid_tool_fingerprint = fingerprint
-                    self.session.invalid_tool_recoveries += 1
-                    if self.session.invalid_tool_recoveries > 2:
-                        raise BudgetExceeded('invalid_tool_recovery_limit')
-                    pending = pending + [HumanMessage(content=(
-                        'submit_ref_edits 参数类型不符合工具 Schema。检查工具错误中的字段和预期类型。'
-                        '最小结构：{"edits":[{"source_ref":"<已返回的引用>",'
-                        '"old_text":"<原文>","new_text":"<新内容>"}],"diagnosis":"<原因>"}。'
-                        '不要猜测缺失的引用。'))]
-                elif prior.status != 'error':
-                    self.session.invalid_tool_fingerprint = None
+            errors = collect_errors(self.session, pending) if self.session.simple_edit_enabled and self.tool_loop else []
+            if errors:
+                fingerprint = hashlib.sha256(json.dumps(sorted(errors, key=lambda x: json.dumps(x, sort_keys=True)),
+                                                        sort_keys=True).encode()).hexdigest()
+                if self.session.invalid_tool_fingerprint == fingerprint:
+                    raise BudgetExceeded('repeated_schema_error' if all(e['kind'] == 'schema' for e in errors)
+                                         else 'repeated_invalid_tool_call')
+                if self.session.invalid_tool_recoveries >= 2:
+                    raise BudgetExceeded('invalid_tool_recovery_limit')
+                self.session.invalid_tool_fingerprint = fingerprint
+                pending = pending + [HumanMessage(content=feedback(errors))]
             self.session.reserve_model()
+            if errors:
+                self.session.invalid_tool_recoveries += 1
+                self.session.record('tool_recovery_started', recovery=self.session.invalid_tool_recoveries,
+                                    call=self.session.model_calls, error_count=len(errors))
             try:
-                message = runnable.invoke(pending, stop=stop, **kwargs)
+                message = (runnable.invoke_controlled(pending, self.session, stop=stop, **kwargs)
+                           if hasattr(runnable, 'invoke_controlled')
+                           else runnable.invoke(pending, stop=stop, **kwargs))
             except Exception as exc:
                 # Do not persist provider responses or request identifiers.
                 failure = str(exc)
@@ -148,47 +141,39 @@ class BudgetedModel(BaseChatModel):
                     and re.search(r'status_code:\s*400\b', failure)
                     and re.search(r'code:\s*Arrearage\b', failure))
                 auth_block = bool(re.search(r'(?i)(?:status_code:\s*401\b|invalid.api.key|authentication.failed)', failure))
-                provider_code = 'Arrearage' if billing_block else 'AuthenticationFailed' if auth_block else None
+                provider_code = (exc.code if isinstance(exc, ProviderRequestError) else
+                                 'Arrearage' if billing_block else 'AuthenticationFailed' if auth_block else None)
                 self.session.record('model_failed', call=self.session.model_calls,
                     error_type=type(exc).__name__, provider_error_code=provider_code)
                 self.session.save('running')
-                if provider_code:
+                if provider_code in {'Arrearage', 'AuthenticationFailed'}:
                     raise ProviderAccountUnavailable(provider_code) from None
                 raise
             observe(message)
-            if (self.session.simple_edit_enabled and message.invalid_tool_calls
-                    and message.response_metadata.get('finish_reason') == 'length'):
-                self.session.submission_counts['schema_rejections'] += 1
-                self.session.record('invalid_tool_call', call=self.session.model_calls,
-                                    names=[c.get('name') for c in message.invalid_tool_calls],
-                                    error_kind='model_output_truncated')
-                break
-            if not (self.session.simple_edit_enabled and message.invalid_tool_calls
-                    and not message.tool_calls):
-                if not message.tool_calls:
-                    self.session.invalid_tool_fingerprint = None
-                break
-            names = sorted((c.get('name') or 'unknown') for c in message.invalid_tool_calls)
-            fingerprint = hashlib.sha256(json.dumps([(c.get('name'), c.get('error'))
-                for c in message.invalid_tool_calls], sort_keys=True).encode()).hexdigest()
-            self.session.submission_counts['schema_rejections'] += 1
-            error_kind = ('json_parse' if any(re.search(r'(?i)json|parse', str(c.get('error')))
-                                              for c in message.invalid_tool_calls) else 'tool_parse')
-            self.session.record('invalid_tool_call', call=self.session.model_calls,
-                                names=names, error_kind=error_kind,
-                                error_fingerprint=fingerprint)
-            if self.session.invalid_tool_fingerprint == fingerprint:
-                raise BudgetExceeded('repeated_invalid_tool_call')
-            self.session.invalid_tool_fingerprint = fingerprint
-            self.session.invalid_tool_recoveries += 1
-            if self.session.invalid_tool_recoveries > 2:
-                raise BudgetExceeded('invalid_tool_recovery_limit')
-            pending = pending + [message, HumanMessage(content=(
-                '工具调用无法解析。arguments 需要是 JSON 对象；请根据错误字段和预期类型重试。'
-                'submit_ref_edits 的最小结构：'
-                '{"edits":[{"source_ref":"<read_source 返回值>",'
-                '"old_text":"<原文>","new_text":"<新内容>"}],"diagnosis":"<原因>"}。'
-                '不要猜测 source_ref，不要补造代码。'))]
+            if self.session.simple_edit_enabled and self.tool_loop:
+                self.session.active_tool_round = ({'call': self.session.model_calls,
+                    'ids': {call['id']: call['name'] for call in message.tool_calls}} if message.tool_calls else None)
+                for invalid in message.invalid_tool_calls:
+                    self.session.submission_counts['schema_rejections'] += 1
+                    truncated = message.response_metadata.get('finish_reason') == 'length'
+                    kind = 'model_output_truncated' if truncated else 'json_parse'
+                    self.session.record('invalid_tool_call', call=self.session.model_calls,
+                        names=['submit_ref_edits' if invalid.get('name') == 'submit_ref_edits' else 'unknown_tool'],
+                        error_kind=kind)
+                    if not truncated:
+                        self.session.pending_parse_errors.append({'kind': kind, 'tool':invalid.get('name')
+                            if invalid.get('name') in {'submit_ref_edits','read_source','read_symbol'} else 'unknown_tool', 'field': 'arguments',
+                            'error_digest':hashlib.sha256(str(invalid.get('error')).encode()).hexdigest(),
+                                                                 'expected_type': 'JSON object'})
+                self.session.check_budget()
+                if message.invalid_tool_calls and not message.tool_calls:
+                    if message.response_metadata.get('finish_reason') == 'length':
+                        break
+                    pending = pending + [message]
+                    continue
+            else:
+                self.session.check_budget()
+            break
         return ChatResult(generations=[ChatGeneration(message=message)])
 
 
@@ -201,7 +186,8 @@ def build_agent(session: RepairSession, model: BaseChatModel):
         except EditRejected as exc:
             if session.profile != 'v2':
                 session.context_stats['invalid_requests'] += 1
-                session.record('operation_rejected', operation=function.__name__, reason=exc.reason)
+                session.record('operation_rejected', operation=function.__name__, reason=exc.reason,
+                               field=exc.details.get('field'),allowed=exc.details.get('allowed'))
             return {'status':'rejected','reason':exc.reason,**exc.details}
         except (ValueError, OSError, TypeError, SyntaxError, RecursionError) as exc:
             if session.profile != 'v2':
@@ -221,8 +207,8 @@ def build_agent(session: RepairSession, model: BaseChatModel):
         return safe_call(session.read_source, path=path, start_line=start_line, line_count=line_count, raw=raw, force=force)
 
     @tool('read_source')
-    def read_source_for_edit(path: str, start_line: int = 1, line_count: int = 120) -> dict:
-        """读取基线源码片段，返回无行号原文和本 Session 的 source_ref。path 是快照清单中的相对路径。"""
+    def read_source_for_edit(path: str, start_line: StrictInt = 1, line_count: StrictInt = 120) -> dict:
+        """读取无行号基线原文和 source_ref。path 为快照规范相对路径，start_line 从1开始；line_count 为1–200，单次最多16000字符。"""
         return safe_call(session.read_source, path=path, start_line=start_line,
                          line_count=line_count, raw=True)
 
@@ -274,6 +260,11 @@ def build_agent(session: RepairSession, model: BaseChatModel):
         """
         return safe_call(session.set_repair_plan,requirements=requirements,scope=scope)
 
+    @tool
+    def record_behavior_summary(change: str, preserve: str, related_entries: list[str] = []) -> dict:
+        """记录简短行为分析：需要改变什么、保留什么、关联哪些入口。每段1–2000字符，入口最多8项。无需哈希或计划ID，摘要不是提交硬门槛。"""
+        return safe_call(session.record_behavior_summary,change=change,preserve=preserve,related_entries=related_entries)
+
     business_tools=[list_sources,read_source,read_test_log,submit_candidate,submit_edits]
     prompt=SYSTEM_PROMPT
     if session.simple_edit_enabled:
@@ -291,7 +282,13 @@ old_text 必须在已返回的源码中且在整个基线文件中唯一；多�
             raise RuntimeError('simple edit prompt contract missing')
     if session.context_enabled:
         business_tools += [source_outline,search_source,read_symbol]
-        prompt += "\n优先利用初始文件结构和失败日志，按符号或搜索定位相关入口，不要反复从头读取整个文件。重复范围可以force=True重新获取，但会消耗工具预算。保留足够调用额度完成提交和验证。"
+        if session.simple_edit_enabled:
+            prompt += "\n先利用初始公开失败位置和源码片段，复用source_ref；按符号或字面搜索查关联入口。搜索附带函数和短原文引用；不要从文件头盲读。重复范围会重新交付，但仍有成本，保留提交和验证额度。"
+        else:
+            prompt += "\n优先利用初始文件结构和失败日志，按符号或搜索定位相关入口，不要反复从头读取整个文件。重复范围可以force=True重新获取，但会消耗工具预算。保留足够调用额度完成提交和验证。"
+    if session.advisory_enabled:
+        business_tools += [record_behavior_summary]
+        prompt += "\n简短分析需要改变与应保留的行为，可用record_behavior_summary记录；它不阻断提交。检查关联入口、正反向路径、空值、类型、边界与非法输入的既有行为，不只照单个断言修补。提交返回真实diff风险报告；它是审核提示，不是正确性证明。"
     if session.review_enabled:
         business_tools += [set_repair_plan]
         prompt += """\n提交前先用set_repair_plan登记任务要求和必须保持的约束，两类都要有可见源码/公开测试依据。
@@ -335,8 +332,12 @@ def run_agent(session: RepairSession, model: BaseChatModel, task: str) -> dict:
             response = str(messages[-1].content) if messages else ''
     except BudgetExceeded as exc:
         stop_reason = str(exc)
+    except KeyboardInterrupt:
+        stop_reason = 'cancel_requested'
     except ProviderAccountUnavailable as exc:
         stop_reason, error_type = 'provider_account_unavailable', str(exc)
+    except ProviderRequestError as exc:
+        stop_reason, error_type = str(exc), type(exc).__name__
     except Exception as exc:
         stop_reason, error_type = 'agent_error', type(exc).__name__
     (session.output / 'model_response.txt').write_text(response, encoding='utf-8')

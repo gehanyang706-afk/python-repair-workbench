@@ -1,5 +1,13 @@
 # 验证记录
 
+## 请求可靠性与轻量上下文验收
+
+2026-10-13。修复混合工具结果遗漏、SDK 传输超时参数和请求生命周期、具体读取错误；新增可独立关闭的失败上下文、轻量行为摘要与非阻断实际 diff 审查。默认仍为 `v2`，没有真实模型调用或新增修复成绩。
+
+完整 Docker 回归 148 项全部通过、0 跳过，44.840 秒；`runtime/light-context-20261013-verified-tests.log`。两道跨项目回归任务资格核验通过，八个任务/配置组合的上下文边界检查通过，三份数据集清单及所有文件哈希未变。历史成对评测审计通过，当前实现指纹变化单独记录。离线 wheel 构建及 22 个源码/静态文件逐字节校验通过；pip check 通过。验收证据：`runtime/light-context-20261013-final-acceptance.json`、`runtime/light-context-20261013-final-history-audit.json` 和 `runtime/light-context-20261013-package-check.json`。
+
+修复根因、业务链与历史计数/停止差异见[工程交接](reliability-context-20261013.md)；新配置还需要真实模型验证，下一轮[对照计划](light-context-evaluation-plan.md)待批准。
+
 日期：2026-10-10。
 
 执行：`RUN_DOCKER_TESTS=1 python3 -m unittest discover -s tests -v`。

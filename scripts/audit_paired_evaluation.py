@@ -9,6 +9,7 @@ from compare_evaluations import ROOT, inspect, read, require
 from repair_workbench.evaluation import fingerprint, load_dataset, compare as assess_reports
 from repair_workbench.runner import classify_result
 from repair_workbench.snapshot import verify_snapshot
+from repair_workbench.source_context import SIMPLE_PROFILES, PROFILES
 
 
 def validate_artifacts(run, record, task):
@@ -77,7 +78,7 @@ def metrics(run, row):
     require(counters['requests'] == len(agent['attempts']), 'submission count mismatch')
     require(counters['materialized'] == len(list((case / 'agent').glob('attempt-*/candidate/manifest.json'))),
             'materialized count mismatch')
-    if agent['profile'] == 'simple_edit':
+    if agent['profile'] in SIMPLE_PROFILES:
         require(counters['schema_rejections'] == sum(event['event'] in {'schema_rejected', 'invalid_tool_call'}
                                                    for event in events), 'schema rejection count mismatch')
     latencies = []
@@ -122,6 +123,9 @@ def audit(root, *, check_current_code=True):
     if check_current_code:
         require(current_fingerprint == experiment['code_fingerprint'], 'current runtime differs from frozen experiment')
     rows, configuration, pairs = [], None, {}
+    expected_profiles=experiment.get('profiles',['v2','simple_edit'])
+    require(len(expected_profiles)>=2 and len(set(expected_profiles))==len(expected_profiles)
+            and set(expected_profiles)<=set(PROFILES),'invalid experiment profile matrix')
     names = set()
     snapshots = 0
     for selection in experiment['run_order']:
@@ -160,7 +164,7 @@ def audit(root, *, check_current_code=True):
         rows.append(row)
         pair = pairs.setdefault((selection['dataset'], selection['task']), [])
         pair.append(selection['profile'])
-    require(all(len(pair) == 2 and set(pair) == {'v2', 'simple_edit'} for pair in pairs.values()),
+    require(all(len(pair) == len(expected_profiles) and set(pair) == set(expected_profiles) for pair in pairs.values()),
             'unpaired task selection')
     totals = {key: sum(row['token_usage'][key] for row in rows) for key in ('input_tokens', 'output_tokens', 'reports')}
     calls = sum(row['model_calls'] for row in rows)

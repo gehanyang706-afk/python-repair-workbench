@@ -1,6 +1,8 @@
 """Evidence-bound requirements and deterministic scope review, not a semantic oracle."""
 import hashlib
 import json
+import ast
+import difflib
 
 from .edits import EditRejected
 from .source_context import units, change_review
@@ -103,3 +105,40 @@ def review_changes(session, changes, assessment):
     return {'plan_id':plan['plan_id'],'coverage':coverage,'touched':touched,
             'risks':risks,'risk_acknowledgements':acknowledgements,
             'assurance':'Scope/evidence checks passed; model-authored coverage is not a semantic proof.'}
+
+
+def advisory_review(session, changes):
+    """Report actual scope and changed checks without rejecting semantic changes."""
+    touched=[];risks=[];hunks=[]
+    reasons={'comparison_changed':'A comparison boundary changed; check required and preserved inputs.',
+             'exception_changed':'Raised exceptions changed; check invalid-input compatibility.',
+             'signature_changed':'The callable API changed; review existing callers.',
+             'definition_added_or_removed':'Definitions changed; review affected entry points.',
+             'module_or_class_state_changed':'State or initialization changed; review downstream effects.',
+             'text_only_change':'Text changed without a corresponding AST behavior change.'}
+    for path,new in changes.items():
+        old=(session.baseline/'workspace'/path).read_bytes().decode('utf-8')
+        try:
+            c,r=change_review(old,new,path);touched.extend(c)
+            risks.extend({**item,'reason':reasons.get(item['kind'],'Review changed behavior.')} for item in r)
+            before,after=ast.parse(old),ast.parse(new)
+            for cls,kind,why in [(ast.ExceptHandler,'exception_handler_changed','Exception handling changed.'),
+                                  (ast.Assert,'validation_changed','Assertion validation changed.'),
+                                  (ast.If,'condition_changed','Branch conditions changed; check both paths.')]:
+                def shapes(tree):
+                    return [ast.dump(node.test if isinstance(node,ast.If) else node)[:600]
+                            for node in ast.walk(tree) if isinstance(node,cls)][:64]
+                a,b=shapes(before),shapes(after)
+                if a!=b:risks.append({'kind':kind,'path':path,'before':a[:8],'after':b[:8],'reason':why})
+        except (ValueError,SyntaxError,RecursionError):
+            touched.append({'path':path,'symbol':'unknown'})
+            risks.append({'kind':'static_analysis_incomplete','path':path,
+                          'reason':'Static analysis could not resolve all symbols; inspect the diff.'})
+        for tag,i,j,k,l in difflib.SequenceMatcher(a=old.splitlines(),b=new.splitlines(),autojunk=False).get_opcodes():
+            if tag!='equal':hunks.append({'path':path,'old_start':i+1,'old_lines':j-i,'new_start':k+1,'new_lines':l-k})
+    if len({(item['path'],item['symbol']) for item in touched})>1:
+        risks.append({'kind':'multiple_symbols_changed','reason':'Multiple symbols changed; confirm each belongs to the task.'})
+    return {'changed_paths':sorted(changes),'touched':touched[:32],'hunks':hunks[:32],
+            'risks':risks[:32],'truncated':len(touched)>32 or len(hunks)>32 or len(risks)>32,
+            'behavior_summary':session.behavior_summary,
+            'assurance':'Advisory static report only; neither model summaries nor risks prove semantic correctness.'}

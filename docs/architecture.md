@@ -6,6 +6,8 @@
 
 `--profile full` 显式启用 `source_context.py` 与 `repair_contract.py` 的 v3 导航及需求审查；它不改变 Session、Docker 或 Verification 的权限边界。真实 Bug 评测由 `evaluation.py` 独立编排，额外使用模型不可见的验收测试评分，不属于普通网页任务的完成判定。网页任务的“验证通过”只表示原始测试范围通过。
 
+简化编辑实验链路：公开失败复现 → 可选有界失败上下文 → `agent.py` 经 `model_transport.py` 管理单次模型请求 → `tool_recovery.py` 按调用 ID 收集结果及有限恢复 → `session.py` 交付引用绑定的源码、可选轻量行为摘要 → `edits.py` 原子修改与预检 → 可选 `repair_contract.py` 实际 diff 风险报告 → 原有候选重建、Docker 验证和人工审核。`simple_context` 与 `simple_review` 独立启用两项机制，`simple_full` 同时启用；风险只是审核信息，不构成正确性证明或新的否决规则。请求进程仅隔离 SDK 请求生命周期，系统仍为单 Agent。详见[工程验收](reliability-context-20261013.md)。
+
 本机服务只监听 `127.0.0.1`，单执行器串行处理任务。`storage.py` 保留完成结果、事件和重启后的中断状态；不会自动重放中断的模型调用。详细运行和边界见 [本机工作台](web-workbench.md)、[Agent 运行](agent-runtime.md)及[本机部署](deployment.md)。
 
 ## 数据流与模块边界

@@ -20,6 +20,7 @@ from .candidate import create_candidate
 from .runner import run_tests
 from .snapshot import create_snapshot, git, verify_snapshot
 from .verification import assess_repair, test_outcomes
+from .settings import model_configuration
 
 
 def digest(data):
@@ -249,8 +250,7 @@ def evaluate(root, output, image, *, mode='validate', names=None, timeout=30,
     record = {'schema_version': 1, 'mode': mode, 'profile':profile, 'dataset_sha256': dataset_hash,
               'dataset': manifest, 'image_id': image_id, 'agent_version': fingerprint(),
               'created_at': datetime.now(timezone.utc).isoformat(), 'model': model_name,
-              'model_configuration': {'max_tokens': 4096, 'timeout': 30, 'max_retries': 0,
-                                      'temperature': 'provider default', 'thinking': 'provider default'},
+              'model_configuration': model_configuration(),
               'limits': {'calls_per_task': max_calls, 'attempts_per_task': max_attempts,
                          'deadline_per_task': deadline, 'test_timeout': timeout},
               'rows': [{'id': t['id'], 'state': 'pending'} for t in tasks]}

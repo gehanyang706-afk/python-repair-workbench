@@ -25,6 +25,12 @@ class ModelSettings:
         return cls(model=name, api_key=key)
 
     def create_model(self):
-        from langchain_community.chat_models import ChatTongyi
-        return ChatTongyi(model=self.model, api_key=self.api_key, max_retries=0,
-                          model_kwargs={'timeout': 30, 'max_tokens': 4096}, cache=False)
+        from .model_transport import ManagedTongyi
+        return ManagedTongyi(model_name=self.model, api_key=self.api_key, cache=False)
+
+
+def model_configuration():
+    return {'max_tokens':4096, 'max_retries':0, 'sdk_connection_retries':0,
+            'connect_timeout':5, 'read_timeout':30, 'call_wall_timeout':30,
+            'transport':'reaped_request_process', 'temperature':'provider default',
+            'thinking':'provider default'}

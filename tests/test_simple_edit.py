@@ -14,7 +14,7 @@ from pydantic import Field
 from test_agent import ScriptedModel, call, fixture
 from repair_workbench.agent import BudgetedModel, run_agent
 from repair_workbench.edits import EditRejected
-from repair_workbench.session import RepairSession
+from repair_workbench.session import RepairSession,BudgetExceeded
 
 
 class SchemaCaptureModel(ScriptedModel):
@@ -177,6 +177,8 @@ class SimpleEditTests(unittest.TestCase):
             self.session.submit_ref_edits([{'source_ref':ref,
                 'old_text':'amount > 100','new_text':'amount >= 100'}], 'late edit')
         self.assertEqual(error.exception.reason,'expired_source_ref')
+        with self.assertRaisesRegex(BudgetExceeded,'session_closed'):
+            self.session.read_symbol('pricing.py','discounted_price')
         self.assertEqual(json.loads((self.session.output/'result.json').read_text())['state'],'completed')
 
     def test_deterministic_agent_replay_uses_actual_read_reference(self):

@@ -34,6 +34,7 @@ class TaskService:
         self.lock_file = None
         self.model_name = None
         self.model_factory = model_factory
+        self.request_cleanup_failed = False
         if model_factory is None:
             try:
                 settings = ModelSettings.load(env_file)
@@ -102,6 +103,8 @@ class TaskService:
                 # 仍在执行时不释放进程锁，避免第二个执行器接管同一目录。
                 raise RuntimeError('当前操作尚未停止；执行器锁仍被保留')
         if self.lock_file:
+            if self.request_cleanup_failed:
+                raise RuntimeError('请求进程清理未确认；执行器锁仍被保留，请检查事件中的 PID')
             self.lock_file.close()
             self.lock_file = None
 
@@ -155,6 +158,9 @@ class TaskService:
             from .agent import run_agent
             session.record('model_configured', provider='dashscope', model=self.model_name)
             outcome['agent'] = run_agent(session, self.model_factory(), request['task'])
+            if outcome['agent'].get('stop_reason')=='model_worker_cleanup_failed':
+                self.request_cleanup_failed=True
+                self.stopping.set()
         except Exception as exc:
             self.store.finish(task_id, outcome, error_type=type(exc).__name__)
             return
