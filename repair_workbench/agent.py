@@ -76,6 +76,9 @@ class BudgetedModel(BaseChatModel):
         pending = list(messages)
         def observe(message):
             usage = message.usage_metadata or message.response_metadata.get('token_usage')
+            if not (isinstance(usage,dict) and all(type(usage.get(key)) is int and usage[key]>=0
+                    for key in ('input_tokens','output_tokens'))):
+                usage=None
             if usage:
                 with self.session.lock:
                     for key in ('input_tokens', 'output_tokens'):
@@ -100,6 +103,9 @@ class BudgetedModel(BaseChatModel):
             }
             self.session.last_model_observation = observation
             self.session.record('model_finished', **observation)
+            if self.tool_loop:
+                for call in message.tool_calls+message.invalid_tool_calls:
+                    self.session.record_tool_statistic(call.get('name'))
             if self.session.simple_edit_enabled:
                 for call in message.tool_calls:
                     args = call.get('args')
@@ -114,7 +120,9 @@ class BudgetedModel(BaseChatModel):
                                                else None))
             self.session.save('running')
         while True:
-            errors = collect_errors(self.session, pending) if self.session.simple_edit_enabled and self.tool_loop else []
+            errors = collect_errors(self.session, pending) if self.tool_loop else []
+            if not self.session.simple_edit_enabled:
+                errors=[]  # Observation only; legacy profiles do not gain recovery calls.
             if errors:
                 fingerprint = hashlib.sha256(json.dumps(sorted(errors, key=lambda x: json.dumps(x, sort_keys=True)),
                                                         sort_keys=True).encode()).hexdigest()
@@ -144,29 +152,32 @@ class BudgetedModel(BaseChatModel):
                 provider_code = (exc.code if isinstance(exc, ProviderRequestError) else
                                  'Arrearage' if billing_block else 'AuthenticationFailed' if auth_block else None)
                 self.session.record('model_failed', call=self.session.model_calls,
-                    error_type=type(exc).__name__, provider_error_code=provider_code)
+                    error_type=type(exc).__name__, provider_error_code=provider_code,
+                    stop_reason=(str(exc) if isinstance(exc,(BudgetExceeded,ProviderRequestError)) else None),
+                    usage_reported=False)
                 self.session.save('running')
                 if provider_code in {'Arrearage', 'AuthenticationFailed'}:
                     raise ProviderAccountUnavailable(provider_code) from None
                 raise
             observe(message)
-            if self.session.simple_edit_enabled and self.tool_loop:
+            if self.tool_loop:
                 self.session.active_tool_round = ({'call': self.session.model_calls,
                     'ids': {call['id']: call['name'] for call in message.tool_calls}} if message.tool_calls else None)
                 for invalid in message.invalid_tool_calls:
-                    self.session.submission_counts['schema_rejections'] += 1
+                    category=self.session.record_tool_statistic(invalid.get('name'),schema_error=True)
                     truncated = message.response_metadata.get('finish_reason') == 'length'
                     kind = 'model_output_truncated' if truncated else 'json_parse'
                     self.session.record('invalid_tool_call', call=self.session.model_calls,
-                        names=['submit_ref_edits' if invalid.get('name') == 'submit_ref_edits' else 'unknown_tool'],
+                        names=[invalid.get('name') if category!='unknown' else 'unknown_tool'],
+                        category=category,
                         error_kind=kind)
-                    if not truncated:
+                    if not truncated and self.session.simple_edit_enabled:
                         self.session.pending_parse_errors.append({'kind': kind, 'tool':invalid.get('name')
                             if invalid.get('name') in {'submit_ref_edits','read_source','read_symbol'} else 'unknown_tool', 'field': 'arguments',
                             'error_digest':hashlib.sha256(str(invalid.get('error')).encode()).hexdigest(),
                                                                  'expected_type': 'JSON object'})
                 self.session.check_budget()
-                if message.invalid_tool_calls and not message.tool_calls:
+                if self.session.simple_edit_enabled and message.invalid_tool_calls and not message.tool_calls:
                     if message.response_metadata.get('finish_reason') == 'length':
                         break
                     pending = pending + [message]

@@ -81,6 +81,15 @@ def metrics(run, row):
     if agent['profile'] in SIMPLE_PROFILES:
         require(counters['schema_rejections'] == sum(event['event'] in {'schema_rejected', 'invalid_tool_call'}
                                                    for event in events), 'schema rejection count mismatch')
+    statistics=agent.get('tool_statistics')
+    if statistics is not None:
+        require(statistics['calls']==sum(len(event['tools'])+event['invalid_tool_call_count'] for event in models),
+                'tool proposal count mismatch')
+        for field in ('calls','schema_rejections'):
+            require(statistics[field]==sum(value[field] for value in statistics['by_tool'].values())
+                    ==sum(value[field] for value in statistics['by_category'].values()),
+                    'tool category total mismatch')
+        require(statistics['schema_rejections']==counters['schema_rejections'],'legacy schema total mismatch')
     latencies = []
     starts = {event['call']: event['elapsed_seconds'] for event in events if event['event'] == 'model_started'}
     for event in models:
@@ -92,6 +101,9 @@ def metrics(run, row):
         'id': row['id'], 'profile': agent['profile'], 'outcome': row['outcome'],
         'public_passed': agent['status'] == 'passed', 'independent_passed': row['outcome'] == 'passed',
         'stop_reason': agent.get('stop_reason'), 'submission_counts': counters,
+        'tool_statistics':statistics,
+        'usage_complete':agent['token_usage']['reports']==agent['model_calls'],
+        'usage_missing_calls':agent['model_calls']-agent['token_usage']['reports'],
         'syntax_passed_candidates': sum(attempt.get('phase') == 'verification' for attempt in agent['attempts']),
         'first_candidate_submission_call': first_call,
         'calls_before_first_candidate': first_call - 1 if first_call is not None else None,
@@ -102,6 +114,12 @@ def metrics(run, row):
         'source_read_telemetry_available': telemetry,
         'successful_source_reads': len(reads) if telemetry else None,
         'returned_source_characters': sum(event['returned_characters'] for event in reads) if telemetry else None,
+        'source_characters_by_purpose':dict(Counter({purpose:sum(event['returned_characters'] for event in reads
+                if event.get('purpose','tool')==purpose) for purpose in
+                {event.get('purpose','tool') for event in reads}})) if telemetry else None,
+        'read_failure_reasons':dict(Counter(event.get('reason') for event in events
+            if event['event']=='operation_rejected' and event.get('operation') in
+            {'read_source','read_symbol','source_outline','search_source','read_test_log'})) if telemetry else None,
         'fully_repeated_read_ranges': sum(event['repeated'] for event in reads) if telemetry else None,
         'overlap_line_ratio': overlap / delivered if delivered else None,
         'source_read_rejections': sum(event.get('operation') == 'read_source' for event in events

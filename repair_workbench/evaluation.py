@@ -183,6 +183,9 @@ def summarize(rows, mode):
     context_totals={key:sum(r.get('agent',{}).get('context_stats',{}).get(key,0) for r in rows) for key in context_fields}
     candidate_reasons=Counter(a.get('reason','unknown') for r in live for a in r['agent'].get('attempts',[]) if a.get('status') != 'passed')
     blocked=any(r.get('outcome') in {'provider_account_unavailable','not_run_provider_account_unavailable'} for r in rows)
+    categorized={category:{field:sum(r['agent'].get('tool_statistics',{}).get('by_category',{}).get(category,{}).get(field,0)
+                 for r in live) for field in ('calls','schema_rejections')}
+                 for category in ('edit','read_search','analysis','framework','unknown')}
     return {'mode': mode, 'selected': len(rows), 'completed': len(completed),
             'qualified': sum(bool(r.get('qualification', {}).get('qualified')) for r in rows),
             'visible_passed': sum(r.get('agent', {}).get('status') == 'passed' for r in rows),
@@ -197,6 +200,10 @@ def summarize(rows, mode):
             'context_totals':context_totals, 'candidate_failure_reasons':dict(candidate_reasons),
             'patch_lines': sum(r.get('patch_lines', 0) for r in rows),
             'token_usage': usage,
+            **({'tool_categories':categorized,
+                'tool_category_statistics_available':all('tool_statistics' in r['agent'] for r in live),
+                'usage_missing_calls':calls-usage['reports']}
+               if any('tool_statistics' in r['agent'] for r in live) else {}),
             'usage_complete': all(r.get('state') == 'completed' for r in rows) and usage['reports'] == calls,
             'elapsed_seconds': round(sum(r.get('elapsed_seconds', 0) for r in rows), 3)}
 
@@ -217,6 +224,7 @@ def reports(output, record):
              f"Visible passes: {summary['visible_passed']}; holdout passes: {summary['holdout_passed']}.",
              f"Model calls: {summary['model_calls']}; reported usage: {summary['token_usage']}.",
              f"Context: {summary['context_totals']}; rejected candidates: {summary['candidate_failure_reasons']}.",
+             f"Tool categories (proposal calls / Schema rejections): {summary.get('tool_categories')}; available: {summary.get('tool_category_statistics_available',False)}.",
              '', '| Task | State | Outcome |', '| --- | --- | --- |']
     lines += [f"| {r['id']} | {r['state']} | {r.get('outcome', '')} |" for r in record['rows']]
     lines += ['', 'Qualification uses official fixes and is not Agent performance. Success rates use all selected tasks.',

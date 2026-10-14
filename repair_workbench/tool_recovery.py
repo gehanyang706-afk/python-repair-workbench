@@ -3,8 +3,8 @@ import hashlib
 import json
 import re
 from langchain_core.messages import AIMessage, ToolMessage
-BUSINESS_TOOLS = {'submit_ref_edits','read_source','read_test_log','list_sources',
-                  'read_symbol','source_outline','search_source','record_behavior_summary'}
+BUSINESS_TOOLS = {'submit_ref_edits','submit_edits','submit_candidate','read_source','read_test_log','list_sources',
+                  'read_symbol','source_outline','search_source','record_behavior_summary','set_repair_plan'}
 
 
 def digest(value):
@@ -40,8 +40,9 @@ def collect_errors(session, messages):
                 error = {'kind': 'schema', 'tool':tool,'field': field, 'expected_type': expected}
                 batch['had_errors'] = True
                 errors.append(error)
-                session.submission_counts['schema_rejections'] += 1
+                category=session.record_tool_statistic(tool,schema_error=True)
                 session.record('schema_rejected', tool=tool, round=batch['call'],
+                               category=category,
                                tool_call_id_sha256=digest(result.tool_call_id),
                                error_fingerprint=digest(json.dumps(error, sort_keys=True)),
                                field=field, expected_type=expected)

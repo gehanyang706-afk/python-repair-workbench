@@ -93,3 +93,27 @@ class RecoveryBatchTests(unittest.TestCase):
         result,_=self.run_case([bad,AIMessage(content='done')])
         self.assertEqual(result['submission_counts']['schema_rejections'],1)
         self.assertEqual(result['invalid_tool_recoveries'],1)
+
+    def test_schema_errors_and_call_denominators_are_classified(self):
+        message=AIMessage(content='',tool_calls=[
+            {'name':'submit_ref_edits','args':{'edits':False,'diagnosis':'fix'},'id':'edit'},
+            {'name':'read_source','args':{'path':'pricing.py','start_line':True},'id':'read'},
+            {'name':'search_source','args':{'query':[]},'id':'search'},
+            {'name':'list_sources','args':{},'id':'ok'}])
+        result,events=self.run_case([message,AIMessage(content='done')])
+        stats=result['tool_statistics']
+        self.assertEqual(stats['calls'],4)
+        self.assertEqual(stats['schema_rejections'],3)
+        self.assertEqual(stats['by_category']['edit'],{'calls':1,'schema_rejections':1})
+        self.assertEqual(stats['by_category']['read_search'],{'calls':3,'schema_rejections':2})
+        self.assertEqual(stats['by_tool']['search_source'],{'calls':1,'schema_rejections':1})
+        self.assertEqual(result['submission_counts']['requests'],0)
+        self.assertEqual(result['submission_counts']['schema_rejections'],3)
+        self.assertEqual(len([e for e in events if e['event']=='schema_rejected']),3)
+
+    def test_invalid_json_is_counted_under_its_tool_category(self):
+        message=AIMessage(content='',invalid_tool_calls=[
+            {'name':'read_source','args':'{','id':'bad','error':'invalid JSON'}])
+        result,_=self.run_case([message,AIMessage(content='done')])
+        self.assertEqual(result['tool_statistics']['by_category']['read_search'],
+                         {'calls':1,'schema_rejections':1})

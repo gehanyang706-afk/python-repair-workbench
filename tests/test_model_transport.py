@@ -166,6 +166,33 @@ class TransportTests(unittest.TestCase):
         second=TaskService(self.root/'guard-data',[self.root/'source'],'offline-image',model_factory=ScriptedModel)
         with self.assertRaisesRegex(RuntimeError,'只能运行一个'):second.start()
 
+    def test_network_timeout_reasons_match_worker_and_agent_records(self):
+        from repair_workbench.provider_worker import classify_error
+        from requests.exceptions import ConnectTimeout,ReadTimeout
+        for exception,reason in ((ConnectTimeout,'provider_connect_timeout'),(ReadTimeout,'provider_read_timeout')):
+            with self.subTest(reason=reason),tempfile.TemporaryDirectory() as directory:
+                self.assertEqual(classify_error(exception('private-network-location')),reason)
+                root=Path(directory);s=RepairSession(fixture(root),root/'agent',{'pricing.py'})
+                command=[sys.executable,'-c','import json,sys;json.load(sys.stdin);print(json.dumps({"error":"'+reason+'"}))']
+                model=SlowManagedModel(api_key='offline-placeholder',command=command,payload={},call_timeout=3)
+                result=run_agent(s,model,'fix pricing')
+                self.assertEqual(result['stop_reason'],reason)
+                self.assertEqual(result['usage_missing_calls'],1)
+                events=[json.loads(line) for line in (s.output/'events.jsonl').read_text().splitlines()]
+                worker=next(e for e in events if e['event']=='model_worker_finished')
+                failure=next(e for e in events if e['event']=='model_failed')
+                self.assertTrue(worker['cleanup_ok']);self.assertEqual(worker['reason'],reason)
+                self.assertEqual(failure['stop_reason'],reason);self.assertFalse(failure['usage_reported'])
+
+    def test_partial_token_report_is_not_counted_as_complete(self):
+        from langchain_core.messages import AIMessage
+        s=self.session()
+        result=run_agent(s,ScriptedModel(responses=[AIMessage(content='no candidate',
+            response_metadata={'token_usage':{'input_tokens':100}})]),'fix pricing')
+        self.assertFalse(result['usage_complete'])
+        self.assertEqual(result['usage_missing_calls'],1)
+        self.assertEqual(result['token_usage']['reports'],0)
+
 
 @unittest.skipUnless(os.environ.get('RUN_DOCKER_TESTS')=='1','requires local Docker image')
 class ServiceCancellationTests(unittest.TestCase):

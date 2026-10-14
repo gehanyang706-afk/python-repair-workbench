@@ -44,6 +44,9 @@ class RepairSession:
         self.submission_counts = {'requests': 0, 'schema_rejections': 0,
                                   'preflight_rejections': 0, 'materialized': 0,
                                   'docker_verifications': 0}
+        self.tool_statistics = {'calls':0,'schema_rejections':0,'by_tool':{},
+            'by_category':{name:{'calls':0,'schema_rejections':0}
+                           for name in ('edit','read_search','analysis','framework','unknown')}}
         self.seen_lines = set()
         self.context_stats = {"reads": 0, "returned_characters": 0, "unique_lines": 0, "repeated_reads": 0, "suppressed_reads": 0, "invalid_requests": 0}
         self.event_sink = event_sink
@@ -97,6 +100,27 @@ class RepairSession:
                 stream.write(json.dumps(entry, ensure_ascii=False) + '\n')
             if self.event_sink:
                 self.event_sink(entry)
+
+    def record_tool_statistic(self, tool, *, schema_error=False):
+        if tool in {'submit_ref_edits','submit_edits','submit_candidate'}:
+            category='edit'
+        elif tool in {'read_source','read_test_log','list_sources','source_outline','read_symbol','search_source'}:
+            category='read_search'
+        elif tool in {'record_behavior_summary','set_repair_plan'}:
+            category='analysis'
+        elif tool in {'read_file','write_todos'}:
+            category='framework'
+        else:
+            tool,category='unknown_tool','unknown'
+        with self.lock:
+            field='schema_rejections' if schema_error else 'calls'
+            self.tool_statistics[field]+=1
+            self.tool_statistics['by_category'][category][field]+=1
+            self.tool_statistics['by_tool'].setdefault(tool,{'calls':0,'schema_rejections':0})[field]+=1
+            if schema_error:
+                # Legacy aggregate retained; it is not an edit-only denominator.
+                self.submission_counts['schema_rejections']+=1
+        return category
 
     def check_budget(self):
         if self.simple_edit_enabled and self.closed:
@@ -487,6 +511,8 @@ class RepairSession:
                       'attempts': self.attempts, 'model_calls': self.model_calls, 'tool_calls': self.tool_calls,
                       'token_usage': self.token_usage, 'last_model_observation': self.last_model_observation,
                       'usage_complete':self.token_usage['reports']==self.model_calls,
+                      'usage_missing_calls':self.model_calls-self.token_usage['reports'],
+                      'tool_statistics':self.tool_statistics,
                       'tool_recovery_policy':('revision 2: per-call-ID error receipts; at most two admitted recovery rounds; shared model budget'
                                               if self.simple_edit_enabled else 'legacy: no added application schema recovery; shared model budget'),
                       'submission_policy': 'v3: submissions including review rejections consume attempts; review-only corrections may resubmit identical unexecuted content' if self.review_enabled else 'v2: every accepted submission request consumes one attempt, including preflight rejection',

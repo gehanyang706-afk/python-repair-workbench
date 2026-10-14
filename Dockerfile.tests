@@ -1,0 +1,9 @@
+# Reference image for the workbench's pure-Python test fixtures, not all projects.
+ARG PYTHON_IMAGE=mirror.gcr.io/library/python:3.13.16-slim-trixie@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f
+FROM ${PYTHON_IMAGE}
+ENV PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+COPY requirements-test-image.lock /tmp/requirements-test-image.lock
+RUN python -m pip install --no-cache-dir -r /tmp/requirements-test-image.lock \
+    && python -m pip check
+WORKDIR /workspace
+CMD ["python", "-m", "pytest", "tests", "-q", "-p", "no:cacheprovider"]
