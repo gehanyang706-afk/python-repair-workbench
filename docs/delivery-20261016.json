@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-16",
+  "version": "1.1.0.dev0",
+  "stable_tag": "v1.0.0",
+  "runtime_fingerprint": {
+    "code": {
+      "__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "__main__.py": "897ec056f1484f0d7106695b76e52893572d01473e5eb7bf092470f8715e893c",
+      "agent.py": "b3cf40bb18045823a4f2e2fc61929df527ca49b8c47ff8b5449fea9b45851d64",
+      "api.py": "bd084ac019dbf40ef7f61495d9a76c2ba87de8ab6b4dd52f4ddab78d8a09a817",
+      "candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "model_transport.py": "8ffaffb3d876ff7cc270f5d32b41923564b41aa8b50a3f28326e3efbad560290",
+      "provider_worker.py": "bf88578cb90e6280d8f98cce19f3a729a83af0fb4d565f61d482ec5f158fea01",
+      "repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "runner.py": "992dc4195614b49824d80462273ef102a798d7e257f0d6bdacdcc77e7973aba1",
+      "service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "session.py": "f982dcfdc64079ce0b2a02365a1b37ea4b39004e949838abae4c88f9c2a1d73f",
+      "settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "source_context.py": "bb31a61591805a20381d236700be27275afc8c9700db146f69b2ea85275f1e36",
+      "storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "tool_recovery.py": "13522abdedd1c5eb0bf5edf08c14ba08d91b76223caf838d4b05f58d5f21c2ca",
+      "verification.py": "efaf71c39c27bdd73141ae2c8b818a64ce434da5f7a00f8b6413444747caf691"
+    },
+    "dependencies": {
+      "deepagents": "0.7.20",
+      "langchain": "1.4.3",
+      "langgraph": "1.2.12",
+      "langchain-community": "0.4.2",
+      "dashscope": "1.27.7"
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "default_profile": "v2",
+  "default_choice": "conservative retention; not a measured four-profile winner",
+  "offline_tests": {
+    "count": 152,
+    "skipped": 0,
+    "seconds": 52.897,
+    "result": "passed",
+    "docker_enabled": true
+  },
+  "clean_environment_acceptance": "docs/delivery-20261014.json",
+  "wheel": {
+    "sha256": "82c4f12699e95c14916cc45e83119524de7db57cb122b93191a86e78c755170b",
+    "verified_files": 22
+  },
+  "datasets": [
+    {
+      "dataset": "cross-project-v1",
+      "tasks": 2,
+      "sha256": "4734629af8b6f5bab9953a089e257c7fa6251925d163d099a892795974ed8708"
+    },
+    {
+      "dataset": "delivery-heldout-v1",
+      "tasks": 2,
+      "sha256": "1dfdd11805005b8fab95d1b17e64d5a599084be30e6775ae11db42f19be83301"
+    },
+    {
+      "dataset": "generalization-v1",
+      "tasks": 2,
+      "sha256": "53cc892a79ea4848a8dbb7f5c505cc7b3bcfa7516dd36b0df97d24a886995e27"
+    },
+    {
+      "dataset": "real-bugs-v1",
+      "tasks": 4,
+      "sha256": "469fb897059715fc53a849459c9c1366cf4a038acba720a28ad95e9802de33fc"
+    }
+  ],
+  "real_model_preflight": {
+    "date": "2026-10-14",
+    "calls": 4,
+    "input_tokens": 12971,
+    "output_tokens": 511,
+    "usage_complete": true,
+    "request_cleanup_complete": true,
+    "state": "paused",
+    "formal_matrix_runs": 0,
+    "report": "evaluation-client-preflight-20261014.json"
+  },
+  "new_tasks": {
+    "repository_qualified": 1,
+    "module_qualified": 1,
+    "model_calls": 0,
+    "report": "new-task-qualification-20261016.json"
+  },
+  "ci": {
+    "configuration_prepared": true,
+    "remote_run": false
+  },
+  "published": false,
+  "phase_complete": false,
+  "remaining": [
+    "four-profile comparison not admitted",
+    "new-task Agent execution requires separate approval"
+  ],
+  "evidence_scope": "Sanitized summary; source, raw records and candidate evidence preserved separately."
+}

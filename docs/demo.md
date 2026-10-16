@@ -29,7 +29,7 @@ docker build -f Dockerfile.tests -t repair-workbench-test:reference .
   --env-file /path/to/private-model.env
 ```
 
-模型文件放在仓库外，包含 `DASHSCOPE_API_KEY` 和 `REPAIR_MODEL=qwen-plus`。启动服务和打开页面本身不调用模型；提交失败任务会产生费用，按事先批准的额度执行。当前 `v2` 是沿用的默认，尚未根据新矩阵冻结最终选择；演示要记录实际选择，不自动切换至功能最多的配置。
+模型文件放在仓库外，包含 `DASHSCOPE_API_KEY` 和 `REPAIR_MODEL=qwen-plus`。启动服务和打开页面本身不调用模型；提交失败任务会产生费用，按事先批准的额度执行。当前交付保守固定 `v2`；四配置矩阵未启动，不把沿用默认解释为测得最优。演示记录实际选择，不自动切换至功能最多的配置。
 
 1. 打开 `http://127.0.0.1:8765`，选择新仓库、修订 `HEAD`，批准 `pricing.py`。
 2. 填写：“金额达到 100 时应享受折扣；保持其他金额和非法输入的既有行为。”最多 3 个候选、12 次模型调用，页面默认 180 秒修复期限、30 秒测试上限。

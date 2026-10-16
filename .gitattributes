@@ -1,0 +1,2 @@
+# Preserve this pinned upstream file byte-for-byte, including its final blank line.
+benchmarks/delivery-heldout-v1/cache-replace-growth-repository/source/.gitignore whitespace=-blank-at-eof

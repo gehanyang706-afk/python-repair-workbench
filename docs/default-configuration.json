@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-14",
+  "status": "conservative_delivery_freeze",
+  "source_commit": "6161c6d",
+  "profile": "v2",
+  "model": "qwen-plus",
+  "product_defaults": {
+    "model_calls": 12,
+    "attempts": 3,
+    "repair_session_seconds": 180,
+    "docker_test_seconds": 30,
+    "connect_timeout_seconds": 5,
+    "read_timeout_seconds": 30,
+    "call_wall_seconds": 30
+  },
+  "basis": [
+    "The new four-profile matrix was not admitted because the client preflight failed its tool-execution gate.",
+    "No evidence supports promoting context or advisory review to the default.",
+    "Retain the existing simpler v2 business flow, protected by the complete offline and Docker regression.",
+    "Historical v2 repair results do not establish reliability of the current stricter model lifecycle."
+  ],
+  "scope": "Single-user controlled local Python repositories; human-reviewed patches; original-test scope only.",
+  "uncertainty": "Not a measured winner among four profiles; not a claim of stable semantic repair.",
+  "rollback": "Use the frozen delivery source and --profile v2. New features remain explicit experiment profiles."
+}

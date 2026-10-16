@@ -53,3 +53,7 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check dataset hashes
         run: python scripts/check_delivery.py
+      - name: Qualify delivery cases without model calls
+        run: |
+          docker build -f benchmarks/delivery-heldout-v1/Dockerfile --build-arg TEST_IMAGE="$REPAIR_TEST_IMAGE" -t repair-workbench-heldout:ci benchmarks/delivery-heldout-v1
+          python scripts/qualify_delivery_cases.py --image repair-workbench-heldout:ci --output runtime/ci-heldout-qualification

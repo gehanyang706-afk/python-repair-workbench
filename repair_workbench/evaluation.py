@@ -228,7 +228,7 @@ def reports(output, record):
              '', '| Task | State | Outcome |', '| --- | --- | --- |']
     lines += [f"| {r['id']} | {r['state']} | {r.get('outcome', '')} |" for r in record['rows']]
     lines += ['', 'Qualification uses official fixes and is not Agent performance. Success rates use all selected tasks.',
-              'This small, single-project module-level dataset does not measure full-repository or general repair ability.',
+              'Task scope follows the pinned dataset manifest. Report module-level subsets and repository snapshots separately; small samples do not measure general repair ability.',
               'Holdout tests are evaluator-only during execution, but public upstream bugs can have training contamination.']
     (output / 'report.md').write_text('\n'.join(lines) + '\n')
 
