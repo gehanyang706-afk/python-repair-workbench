@@ -1,2 +1,4 @@
 # Preserve this pinned upstream file byte-for-byte, including its final blank line.
 benchmarks/delivery-heldout-v1/cache-replace-growth-repository/source/.gitignore whitespace=-blank-at-eof
+# Unified diff context includes significant space-only lines; keep recorded bytes.
+docs/recorded-cases/*.patch -whitespace

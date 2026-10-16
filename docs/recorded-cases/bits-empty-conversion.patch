@@ -1,0 +1,30 @@
+diff --git a/boltons/mathutils.py b/boltons/mathutils.py
+index 668cda6..eba1f44 100644
+--- a/boltons/mathutils.py
++++ b/boltons/mathutils.py
+@@ -208,9 +208,13 @@ class Bits:
+         return [c == '1' for c in self.as_bin()]
+ 
+     def as_bin(self):
++        if self.len == 0:
++            return ''
+         return f'{{0:0{self.len}b}}'.format(self.val)
+ 
+     def as_hex(self):
++        if self.len == 0:
++            return ''
+         # make template to pad out to number of bytes necessary to represent bits
+         tmpl = f'%0{2 * (self.len // 8 + ((self.len % 8) != 0))}X'
+         ret = tmpl % self.val
+@@ -220,7 +224,10 @@ class Bits:
+         return self.val
+ 
+     def as_bytes(self):
+-        return binascii.unhexlify(self.as_hex())
++        hex_str = self.as_hex()
++        if not hex_str:
++            return b''
++        return binascii.unhexlify(hex_str)
+ 
+     @classmethod
+     def from_list(cls, list_):

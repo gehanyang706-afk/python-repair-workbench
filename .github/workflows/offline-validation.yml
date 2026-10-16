@@ -57,3 +57,5 @@ jobs:
         run: |
           docker build -f benchmarks/delivery-heldout-v1/Dockerfile --build-arg TEST_IMAGE="$REPAIR_TEST_IMAGE" -t repair-workbench-heldout:ci benchmarks/delivery-heldout-v1
           python scripts/qualify_delivery_cases.py --image repair-workbench-heldout:ci --output runtime/ci-heldout-qualification
+      - name: Reverify recorded success and miss without model calls
+        run: python scripts/replay_recorded_cases.py --image "$REPAIR_TEST_IMAGE" --output runtime/ci-recorded-replay

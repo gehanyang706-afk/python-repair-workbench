@@ -1,0 +1,125 @@
+{
+  "scope": "Recorded patch replay only; not a new model benchmark.",
+  "real_model_calls": 0,
+  "rows": [
+    {
+      "id": "bits-empty-conversion",
+      "dataset_sha256": "469fb897059715fc53a849459c9c1366cf4a038acba720a28ad95e9802de33fc",
+      "patch_sha256": "21949608dc4bed21dfd85bdffcb0b705bfe875341f00f370eabe9d9cb4f2bde6",
+      "checks": {
+        "public": {
+          "status": "passed",
+          "reason": "passed_original_test_scope",
+          "scope": "仅代表原始测试范围内通过；不证明所有输入或语义均正确",
+          "base_snapshot_id": "2aaf88c9607241931c3e5645ff2399952f21d91570b612a6476ed0b1cb53028a",
+          "candidate_snapshot_id": "bfd3259361dd333b4374335b66ba1b08552edf14fa9aab547d2986a99f82ee57",
+          "changed_paths": [
+            "boltons/mathutils.py"
+          ],
+          "before": {
+            "total": 2,
+            "failed": 1,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 1
+          },
+          "after": {
+            "total": 2,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 2
+          }
+        },
+        "independent": {
+          "status": "failed",
+          "reason": "target_not_fixed",
+          "tests": [
+            "tests.test_holdout::test_empty_roundtrip",
+            "tests.test_holdout::test_empty_bytes"
+          ],
+          "base_snapshot_id": "c4ee21710565e832572d6ba7f82eeca19fa5cae675dfade7b9bb68dde19db9c0",
+          "candidate_snapshot_id": "018e8c68ea537f0057af03262535364478168d1eedcef7f17bc611c8a290e857",
+          "changed_paths": [
+            "boltons/mathutils.py"
+          ],
+          "before": {
+            "total": 6,
+            "failed": 4,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 2
+          },
+          "after": {
+            "total": 6,
+            "failed": 2,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "bucket-falsey-validator",
+      "dataset_sha256": "4734629af8b6f5bab9953a089e257c7fa6251925d163d099a892795974ed8708",
+      "patch_sha256": "e0b9d2d9506fb7516fdf0e1974e73e196b2ce62a8173e9bb208a1cec5fc76c06",
+      "checks": {
+        "public": {
+          "status": "passed",
+          "reason": "passed_original_test_scope",
+          "scope": "仅代表原始测试范围内通过；不证明所有输入或语义均正确",
+          "base_snapshot_id": "ce41b6fec3dbf7e581badc2f5476af56e18fc660f12f0c53ddbc746778a5afb6",
+          "candidate_snapshot_id": "8da0651b226e61a6bb1ca3d57f10caead855de577f4c8b89bbd9154e594d29c5",
+          "changed_paths": [
+            "more_itertools/more.py"
+          ],
+          "before": {
+            "total": 2,
+            "failed": 1,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 1
+          },
+          "after": {
+            "total": 2,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 2
+          }
+        },
+        "independent": {
+          "status": "passed",
+          "reason": "passed_original_test_scope",
+          "scope": "仅代表原始测试范围内通过；不证明所有输入或语义均正确",
+          "base_snapshot_id": "49d5449c27795eb2fc4fd3f56e4a9e709aa0cb35fe22263c861f865b4610514e",
+          "candidate_snapshot_id": "93c689879057d1004c6708e06f82d00ac2bd27ffc026c9cf05dead33f00f5f9b",
+          "changed_paths": [
+            "more_itertools/more.py"
+          ],
+          "before": {
+            "total": 4,
+            "failed": 2,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 2
+          },
+          "after": {
+            "total": 4,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 4
+          }
+        }
+      }
+    }
+  ],
+  "replay_matches_record": true,
+  "date": "2026-10-16",
+  "image_id": "sha256:d6ee06aa40adf993c90ba48c4182d105e11659990534fa6873febb17474babe9",
+  "all_containers_cleaned": true,
+  "runtime_environment": "Python 3.13 core virtualenv without Agent libraries",
+  "evidence": "Historical model patches replayed using current candidate and verification APIs; no new model call."
+}

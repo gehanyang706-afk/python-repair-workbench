@@ -21,5 +21,12 @@
   ],
   "scope": "Single-user controlled local Python repositories; human-reviewed patches; original-test scope only.",
   "uncertainty": "Not a measured winner among four profiles; not a claim of stable semantic repair.",
-  "rollback": "Use the frozen delivery source and --profile v2. New features remain explicit experiment profiles."
+  "rollback": "Use the frozen delivery source and --profile v2. New features remain explicit experiment profiles.",
+  "post_freeze_validation": {
+    "date": "2026-10-16",
+    "report": "evaluation-delivery-new-v2-20261016.json",
+    "repository_result": "wall_timeout_before_candidate",
+    "module_result": "not_run_by_stop_policy",
+    "strategy_or_default_changed_after_observing_new_tasks": false
+  }
 }

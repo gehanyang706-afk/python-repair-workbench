@@ -47,3 +47,13 @@ RUN_DOCKER_TESTS=1 REPAIR_TEST_IMAGE=repair-workbench-test:reference \
 ```
 
 这项测试通过 HTTP 提交、SQLite 队列、固定快照、真实 Docker 失败与候选验证，下载补丁和报告；模型为确定性测试替身，代码修改已知。它证明业务链路可运行，不证明真实模型修复能力。参考真实模型案例见[公开案例](showcase.md)。
+
+## 无密钥复现真实模型的历史补丁
+
+```bash
+python3.13 scripts/replay_recorded_cases.py \
+  --image repair-workbench-test:reference \
+  --output /path/to/new-recorded-case-replay
+```
+
+该命令重新验证已记录的真实模型补丁：一个公开与独立均通过，一个公开通过但独立漏修。它不调用模型、不生成新补丁，也不计入当前 Agent 成绩。补丁来源、哈希、预期结果和实际回放见[历史回放](recorded-cases/README.md)。

@@ -84,8 +84,14 @@
   "new_tasks": {
     "repository_qualified": 1,
     "module_qualified": 1,
-    "model_calls": 0,
-    "report": "new-task-qualification-20261016.json"
+    "model_calls": 11,
+    "report": "new-task-qualification-20261016.json",
+    "usage_reports": 10,
+    "missing_usage_calls": 1,
+    "state": "paused",
+    "executed_repository_tasks": 1,
+    "executed_module_tasks": 0,
+    "agent_report": "evaluation-delivery-new-v2-20261016.json"
   },
   "ci": {
     "configuration_prepared": true,
@@ -95,7 +101,24 @@
   "phase_complete": false,
   "remaining": [
     "four-profile comparison not admitted",
-    "new-task Agent execution requires separate approval"
+    "new module task not run after call-timeout gate",
+    "stable semantic repair not demonstrated"
   ],
-  "evidence_scope": "Sanitized summary; source, raw records and candidate evidence preserved separately."
+  "evidence_scope": "Sanitized summary; source, raw records and candidate evidence preserved separately.",
+  "reported_model_usage_all_current_batches": {
+    "calls": 15,
+    "reports": 14,
+    "input_tokens": 103396,
+    "output_tokens": 1623,
+    "complete": false,
+    "scope": "Preflight plus separately approved new-task batch; excludes unknown last-request usage."
+  },
+  "delivery_material_ready": true,
+  "paid_batches_stopped_by_policy": true,
+  "recorded_patch_replay": {
+    "cases": 2,
+    "matches_history": true,
+    "model_calls": 0,
+    "report": "recorded-cases/replay-20261016.json"
+  }
 }

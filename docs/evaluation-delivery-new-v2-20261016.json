@@ -1,0 +1,208 @@
+{
+  "date": "2026-10-16",
+  "source_commit": "a6254c6",
+  "code_fingerprint": {
+    "code": {
+      "__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "__main__.py": "897ec056f1484f0d7106695b76e52893572d01473e5eb7bf092470f8715e893c",
+      "agent.py": "b3cf40bb18045823a4f2e2fc61929df527ca49b8c47ff8b5449fea9b45851d64",
+      "api.py": "bd084ac019dbf40ef7f61495d9a76c2ba87de8ab6b4dd52f4ddab78d8a09a817",
+      "candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "model_transport.py": "8ffaffb3d876ff7cc270f5d32b41923564b41aa8b50a3f28326e3efbad560290",
+      "provider_worker.py": "bf88578cb90e6280d8f98cce19f3a729a83af0fb4d565f61d482ec5f158fea01",
+      "repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "runner.py": "992dc4195614b49824d80462273ef102a798d7e257f0d6bdacdcc77e7973aba1",
+      "service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "session.py": "f982dcfdc64079ce0b2a02365a1b37ea4b39004e949838abae4c88f9c2a1d73f",
+      "settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "source_context.py": "bb31a61591805a20381d236700be27275afc8c9700db146f69b2ea85275f1e36",
+      "storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "tool_recovery.py": "13522abdedd1c5eb0bf5edf08c14ba08d91b76223caf838d4b05f58d5f21c2ca",
+      "verification.py": "efaf71c39c27bdd73141ae2c8b818a64ce434da5f7a00f8b6413444747caf691"
+    },
+    "dependencies": {
+      "deepagents": "0.7.20",
+      "langchain": "1.4.3",
+      "langgraph": "1.2.12",
+      "langchain-community": "0.4.2",
+      "dashscope": "1.27.7"
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "dataset_sha256": "1dfdd11805005b8fab95d1b17e64d5a599084be30e6775ae11db42f19be83301",
+  "model": "qwen-plus",
+  "profile": "v2",
+  "image_id": "sha256:89b6e5ccaa5d7cb2b3b3d1f31356720787a9a77589ce9f42a5d4b4772960a55d",
+  "model_configuration": {
+    "max_tokens": 4096,
+    "max_retries": 0,
+    "sdk_connection_retries": 0,
+    "connect_timeout": 5,
+    "read_timeout": 30,
+    "call_wall_timeout": 30,
+    "transport": "reaped_request_process",
+    "temperature": "provider default",
+    "thinking": "provider default"
+  },
+  "limits": {
+    "calls_per_task": 12,
+    "total_calls": 24,
+    "attempts": 3,
+    "deadline_seconds": 180,
+    "docker_test_seconds": 30
+  },
+  "state": "paused",
+  "stop_reason": "model_call_timeout",
+  "code_unchanged": true,
+  "actual_model_calls": 11,
+  "token_usage_reported": {
+    "input_tokens": 90425,
+    "output_tokens": 1112,
+    "reports": 10
+  },
+  "usage_complete": false,
+  "missing_usage_calls": 1,
+  "elapsed_seconds": 98.717,
+  "reported_usage_cost_cny_non_thinking": 0.074564,
+  "reported_usage_cost_cny_thinking_output": 0.081236,
+  "cost_scope": "Reported usage only; excludes unknown usage of one interrupted request; not a full cost estimate or invoice.",
+  "rows": [
+    {
+      "id": "cache-replace-growth-repository",
+      "profile": "v2",
+      "outcome": "model_call_timeout",
+      "public_passed": false,
+      "independent_passed": false,
+      "stop_reason": "model_call_timeout",
+      "submission_counts": {
+        "requests": 0,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 0,
+        "docker_verifications": 0
+      },
+      "tool_statistics": {
+        "calls": 10,
+        "schema_rejections": 0,
+        "by_tool": {
+          "list_sources": {
+            "calls": 1,
+            "schema_rejections": 0
+          },
+          "read_source": {
+            "calls": 8,
+            "schema_rejections": 0
+          },
+          "read_test_log": {
+            "calls": 1,
+            "schema_rejections": 0
+          }
+        },
+        "by_category": {
+          "edit": {
+            "calls": 0,
+            "schema_rejections": 0
+          },
+          "read_search": {
+            "calls": 10,
+            "schema_rejections": 0
+          },
+          "analysis": {
+            "calls": 0,
+            "schema_rejections": 0
+          },
+          "framework": {
+            "calls": 0,
+            "schema_rejections": 0
+          },
+          "unknown": {
+            "calls": 0,
+            "schema_rejections": 0
+          }
+        }
+      },
+      "usage_complete": false,
+      "usage_missing_calls": 1,
+      "syntax_passed_candidates": 0,
+      "first_candidate_submission_call": null,
+      "calls_before_first_candidate": null,
+      "model_calls": 11,
+      "token_usage": {
+        "input_tokens": 90425,
+        "output_tokens": 1112,
+        "reports": 10
+      },
+      "finish_reasons": {
+        "tool_calls": 10
+      },
+      "invalid_tool_calls": 0,
+      "source_read_requests": 8,
+      "source_read_telemetry_available": false,
+      "successful_source_reads": null,
+      "returned_source_characters": null,
+      "source_characters_by_purpose": null,
+      "read_failure_reasons": null,
+      "fully_repeated_read_ranges": null,
+      "overlap_line_ratio": null,
+      "source_read_rejections": null,
+      "framework_read_file_requests": 0,
+      "invalid_tool_recoveries": 0,
+      "max_model_response_seconds": 10.09,
+      "max_input_tokens_per_call": 15787,
+      "elapsed_seconds": 98.638,
+      "patch_lines": 0,
+      "task_type": "repository",
+      "state": "executed_stopped",
+      "audit": "passed",
+      "snapshots_verified": 4,
+      "public_verification": "not_run_no_candidate",
+      "independent_verification": "not_run_no_candidate",
+      "completed_request_seconds": [
+        4.38,
+        2.559,
+        3.229,
+        3.37,
+        3.169,
+        3.384,
+        3.052,
+        3.616,
+        5.84,
+        10.089
+      ],
+      "stopped_request": {
+        "reason": "model_call_timeout",
+        "seconds": 30.01,
+        "cleanup_ok": true
+      },
+      "business_tools": [
+        "list_sources",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_source",
+        "read_test_log"
+      ]
+    },
+    {
+      "id": "timestamp-future-age-module",
+      "task_type": "module",
+      "state": "not_run",
+      "reason": "batch_paused_after_previous_call_timeout",
+      "model_calls": 0,
+      "public_verification": "not_run",
+      "independent_verification": "not_run"
+    }
+  ],
+  "overall_success_rate": null,
+  "unspent_calls_not_reused": true,
+  "no_manual_candidate_repair": true,
+  "scope": "One repository run stopped before candidate; module task not run. Do not report 0/2 or imply independent tests executed."
+}

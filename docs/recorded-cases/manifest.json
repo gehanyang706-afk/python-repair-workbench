@@ -1,0 +1,27 @@
+{
+  "scope": "Previously generated model patches; replay only, not new inference or unseen tasks.",
+  "cases": [
+    {
+      "id": "bits-empty-conversion",
+      "dataset": "real-bugs-v1",
+      "patch": "bits-empty-conversion.patch",
+      "patch_sha256": "21949608dc4bed21dfd85bdffcb0b705bfe875341f00f370eabe9d9cb4f2bde6",
+      "model": "qwen-plus",
+      "source_agent_commit": "7303817",
+      "original_date": "2026-10-12",
+      "expected_public": "passed",
+      "expected_independent": "failed"
+    },
+    {
+      "id": "bucket-falsey-validator",
+      "dataset": "cross-project-v1",
+      "patch": "bucket-falsey-validator.patch",
+      "patch_sha256": "e0b9d2d9506fb7516fdf0e1974e73e196b2ce62a8173e9bb208a1cec5fc76c06",
+      "model": "qwen-plus",
+      "source_agent_commit": "7303817",
+      "original_date": "2026-10-12",
+      "expected_public": "passed",
+      "expected_independent": "passed"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ Agent 已支持带文件版本和唯一原文匹配的局部修改、语法预�
 
 ## 环境
 
-冻结默认后新增 cachetools 仓库级和 itsdangerous 模块级任务，均已通过参考修复资格核验，尚未运行 Agent。见[任务说明](benchmarks/delivery-heldout-v1/README.md)与[资格证据](docs/new-task-qualification-20261016.json)，两类成绩分别报告。
+冻结默认后新增 cachetools 仓库级和 itsdangerous 模块级任务，均已通过参考修复资格核验。获批真实验证中，cachetools 在第 11 次调用触发墙钟超时、没有候选；itsdangerous 按停止条件未运行。见[任务说明](benchmarks/delivery-heldout-v1/README.md)、[资格证据](docs/new-task-qualification-20261016.json)与[执行结果](docs/evaluation-delivery-new-v2-20261016.md)，不合并报告为“0/2”。
 
 需要 Python 3.13、Git、运行中的 Docker，以及本地已存在、包含 Python 和 pytest 及目标项目依赖的镜像。快照和验证核心仅使用 Python 标准库；Agent 和网页依赖由 `requirements-agent.lock` 固定当前版本。运行命令不会自动安装依赖或拉取镜像。
 
