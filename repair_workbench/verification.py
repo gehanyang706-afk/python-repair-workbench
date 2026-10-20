@@ -53,7 +53,7 @@ def assess_repair(before: dict, after: dict, before_tests: dict, after_tests: di
 
 
 def verify_candidate(baseline: Path, candidate: Path, destination: Path,
-                     allowed_paths: set[str], timeout_seconds: float = 60) -> dict:
+                     allowed_paths: set[str], timeout_seconds: float = 60, *, execution_control=None) -> dict:
     base = verify_snapshot(baseline)
     proposed = verify_snapshot(candidate)
     if proposed.get("base_snapshot_id") != snapshot_id(base):
@@ -73,7 +73,8 @@ def verify_candidate(baseline: Path, candidate: Path, destination: Path,
                for relative in base_files if base_files[relative] != proposed_files[relative]}
     create_candidate(baseline, destination, changes, allowed_paths)
     # 使用基线记录里的不可变镜像 ID，在新容器中测试重建后的目录。
-    after = run_tests(destination, before["image_id"], timeout_seconds)
+    after = (run_tests(destination, before["image_id"], timeout_seconds, execution_control=execution_control)
+             if execution_control else run_tests(destination, before["image_id"], timeout_seconds))
     try:
         after_tests = test_outcomes(destination / "reports/pytest.xml")
         verdict = assess_repair(before, after, before_tests, after_tests)

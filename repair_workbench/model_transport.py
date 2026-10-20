@@ -6,6 +6,7 @@ import signal
 import subprocess
 import sys
 import time
+from uuid import uuid4
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import messages_from_dict, messages_to_dict
@@ -26,12 +27,15 @@ def run_request_worker(payload, session, call_timeout=30, *, command=None):
     if len(encoded) > 8 * 1024 * 1024:
         raise ProviderRequestError('model_input_too_large')
     started = time.monotonic()
-    process = subprocess.Popen(command or [sys.executable, '-m', 'repair_workbench.provider_worker'],
+    request_id = uuid4().hex
+    worker_command = list(command or [sys.executable, '-m', 'repair_workbench.provider_worker'])
+    worker_command += ['--repair-request-id', request_id]
+    process = subprocess.Popen(worker_command,
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
         start_new_session=True, env={**os.environ, 'LANGSMITH_TRACING': 'false',
                                      'LANGCHAIN_TRACING_V2': 'false'})
     session.record('model_worker_started', call=session.model_calls, pid=process.pid,
-                   call_timeout_seconds=call_timeout)
+                   call_timeout_seconds=call_timeout, request_process_id=request_id)
     reason = 'completed'
     try:
         first = True

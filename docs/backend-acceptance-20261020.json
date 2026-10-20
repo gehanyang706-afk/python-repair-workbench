@@ -1,0 +1,1104 @@
+{
+  "date": "2026-10-20",
+  "source_base_commit": "f980087b97e641b3a39f924609dab186ecbe31aa",
+  "schema_sha256": "c225b17d1f9b0c034fc04d7151b5fbebabddd40be5bd3b7ddbdfc4909ae87aef",
+  "fault_test_sha256": {
+    "test_mysql_backend.py": "04b244a3d0fdad508b7bee84d27a0db986a0c9f05523d4b4e6e09ee3fb1134f2",
+    "backend_worker_probe.py": "06ea5d8a0121b62d929c4c77e6c3489dec0351ea847c53551aa2498413ca7f3a"
+  },
+  "runtime_source_sha256": {
+    "__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+    "__main__.py": "50672793c5ba9f03dfd046726b51b1bc0e3dc29f61ac4327683f299516a91582",
+    "agent.py": "335d77b92783c4752ce4ebf58d859ca38119d68b2ce5fe69ba4f01e09b300723",
+    "api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+    "candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+    "durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+    "edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+    "evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+    "model_transport.py": "f221659c8f4ecd32012692531ea0c5f5eda884ca6a21a731533721e53f8a946b",
+    "mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+    "mysql_store.py": "344ecd2801d79566dda71922619b8ab6129f7f57097653efd60fa813650cc573",
+    "provider_worker.py": "bf88578cb90e6280d8f98cce19f3a729a83af0fb4d565f61d482ec5f158fea01",
+    "repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+    "runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+    "service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+    "session.py": "a8b85ba93502227c1691ad3d044b3f0d1900253a23d57171eb5793f929179f5a",
+    "settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+    "snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+    "source_context.py": "bb31a61591805a20381d236700be27275afc8c9700db146f69b2ea85275f1e36",
+    "storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+    "tool_recovery.py": "13522abdedd1c5eb0bf5edf08c14ba08d91b76223caf838d4b05f58d5f21c2ca",
+    "verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216"
+  },
+  "mysql_image_digest": "sha256:0f51e63e537a1f176423fa03ef559aabe6fa4372a53160a44bc7e75da7d15364",
+  "dependency": "PyMySQL==1.2.3",
+  "remote_ci": "configured_not_executed",
+  "backend": "MySQL 8.4.11 / PyMySQL 1.2.3",
+  "regression": {
+    "tests": 168,
+    "seconds": 147.536,
+    "skipped": 0,
+    "log_sha256": "06e3068c7835bd986b67cd145e3abbc96129d027d14d90bf21c30b8f5419c0c1"
+  },
+  "real_model_calls": 0,
+  "model": "deterministic offline fixture with synthetic usage",
+  "scope": "same-host independent processes; original single-Agent repair algorithm unchanged",
+  "cases": [
+    {
+      "test": "test_actual_candidate_crash_recovers_without_model_replay",
+      "tasks": [
+        {
+          "id": "b8fb91e7e9914b93a3c176d42e29e1f4",
+          "state": "completed",
+          "generation": 2,
+          "reason": null,
+          "calls_reserved": 2,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "verified",
+              "artifact_sha256": "cab9c6af73b2427419a408efab5faecdef475783b9215fee0fbf946f2348c381",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "3ff35f215a9555d10d5b695c5cf964331a61b4f883ab51b12435dd0af8565966"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "3ff35f215a9555d10d5b695c5cf964331a61b4f883ab51b12435dd0af8565966"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "completed"
+            }
+          ],
+          "event_count": 19,
+          "events": [
+            "attempt_started",
+            "baseline_reused",
+            "candidate_persisted",
+            "candidate_recovered",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [
+        {
+          "pid": 23886,
+          "generation": 1,
+          "event": "candidate_persisted"
+        }
+      ],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_budget_and_receipt_states_remain_after_new_store",
+      "tasks": [
+        {
+          "id": "cb62853fb7cb42ffa07fb1a2368169bd",
+          "state": "interrupted",
+          "generation": 1,
+          "reason": "offline_contract",
+          "calls_reserved": 1,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 7,
+                "output_tokens": 3
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "reserved",
+              "artifact_sha256": null,
+              "artifact_matches_receipt": null
+            }
+          ],
+          "confirmed_stages": [],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "interrupted"
+            }
+          ],
+          "event_count": 4,
+          "events": [
+            "claimed",
+            "finished",
+            "model_reserved",
+            "queued"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_cancel_during_real_docker_execution_cleans_container",
+      "tasks": [
+        {
+          "id": "03ae28795041455389fc52d6a1a6f0c7",
+          "state": "cancelled",
+          "generation": 1,
+          "reason": "cancel_requested",
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "0aae551584ea9bd8833ee5394e4fb2aef6ba5446b4c9a2932d457f1a1293a15a"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "cancelled"
+            }
+          ],
+          "event_count": 5,
+          "events": [
+            "cancelling",
+            "claimed",
+            "finished",
+            "queued",
+            "stage_confirmed"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_concurrent_idempotent_creation_and_conflict",
+      "tasks": [
+        {
+          "id": "b0f0c87d1f3d445583f14ee2a4b4b162",
+          "state": "cancelled",
+          "generation": 0,
+          "reason": null,
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [],
+          "attempts": [],
+          "event_count": 2,
+          "events": [
+            "cancelled",
+            "queued"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_confirmed_snapshot_reused_after_process_crash",
+      "tasks": [
+        {
+          "id": "680534466d72410da140d60724bae47e",
+          "state": "completed",
+          "generation": 2,
+          "reason": null,
+          "calls_reserved": 3,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 2,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 2,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 3,
+              "generation": 2,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 2,
+              "state": "verified",
+              "artifact_sha256": "90d023834041e6c36bcac04a574ecae216dbfe71261abcaf90ec7f8262b3bec8",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "a10603d9f351e17a4c45303a98ba9cab857874476b6ab628199bb8cf090a7dbd"
+            },
+            {
+              "kind": "baseline",
+              "generation": 2,
+              "artifact_sha256": "a10603d9f351e17a4c45303a98ba9cab857874476b6ab628199bb8cf090a7dbd"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 2,
+              "artifact_sha256": "a10603d9f351e17a4c45303a98ba9cab857874476b6ab628199bb8cf090a7dbd"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "completed"
+            }
+          ],
+          "event_count": 24,
+          "events": [
+            "agent_finished",
+            "attempt_finished",
+            "attempt_started",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "snapshot_reused",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [
+        {
+          "pid": 24018,
+          "generation": 1,
+          "event": "snapshot_persisted"
+        }
+      ],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_durable_candidate_tampering_is_rejected_after_crash",
+      "tasks": [
+        {
+          "id": "6a18a939870f4785af297b51eba06955",
+          "state": "error",
+          "generation": 2,
+          "reason": "ValueError",
+          "calls_reserved": 2,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "ready",
+              "artifact_sha256": "a208ca6ac65f88104503583fb3b9e08d2a9f2aa1b3bebc48fafa33a788270788",
+              "artifact_matches_receipt": false
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "15f6eafdd77d7aeff71f4e3e34df4d3f14ad77b1f70bd963f4f3ad8ce708270c"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "15f6eafdd77d7aeff71f4e3e34df4d3f14ad77b1f70bd963f4f3ad8ce708270c"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "error"
+            }
+          ],
+          "event_count": 18,
+          "events": [
+            "attempt_started",
+            "baseline_reused",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [
+        {
+          "pid": 24081,
+          "generation": 1,
+          "event": "candidate_persisted"
+        }
+      ],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_idempotent_retry_keeps_original_commit_after_head_moves",
+      "tasks": [
+        {
+          "id": "0b71eebc8aa74fb8bcdbca317c5702bc",
+          "state": "cancelled",
+          "generation": 0,
+          "reason": null,
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [],
+          "attempts": [],
+          "event_count": 2,
+          "events": [
+            "cancelled",
+            "queued"
+          ]
+        },
+        {
+          "id": "dfd095e6503947ce9e4c861a34ade432",
+          "state": "cancelled",
+          "generation": 0,
+          "reason": null,
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [],
+          "attempts": [],
+          "event_count": 2,
+          "events": [
+            "cancelled",
+            "queued"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_live_heartbeat_prevents_takeover_past_original_lease",
+      "tasks": [
+        {
+          "id": "a35c9c5bd16541edab4b82bd75ffb24e",
+          "state": "cancelled",
+          "generation": 2,
+          "reason": null,
+          "calls_reserved": 2,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "ready",
+              "artifact_sha256": "fda9e02cb1ff2ba2091105436a9955d6a5bde21e275b5168de6f5370d70e6104",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "4e5a298118fbb20019324cf13a326cd8cbe89955a2fd9499b668f4c372e14050"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "4e5a298118fbb20019324cf13a326cd8cbe89955a2fd9499b668f4c372e14050"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "cancelled"
+            }
+          ],
+          "event_count": 18,
+          "events": [
+            "attempt_started",
+            "cancelling",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [
+        {
+          "pid": 24152,
+          "generation": 1,
+          "event": "candidate_persisted"
+        }
+      ],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_missing_usage_stops_before_more_tools_or_requests",
+      "tasks": [
+        {
+          "id": "3f3e0b98b77942db9a6fdf44395e2bec",
+          "state": "interrupted",
+          "generation": 1,
+          "reason": "model_response_unknown",
+          "calls_reserved": 1,
+          "candidates_reserved": 0,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "unknown",
+              "usage": null
+            }
+          ],
+          "candidates": [],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "b1e336d59f423cd7e98206a9561ea359d590e2a205f9f01f88fd80031681955a"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "b1e336d59f423cd7e98206a9561ea359d590e2a205f9f01f88fd80031681955a"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "interrupted"
+            }
+          ],
+          "event_count": 9,
+          "events": [
+            "agent_finished",
+            "claimed",
+            "finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_natural_lease_takeover_fences_old_process_all_writes",
+      "tasks": [
+        {
+          "id": "02f473a91b424924a79110b519d3595b",
+          "state": "completed",
+          "generation": 3,
+          "reason": null,
+          "calls_reserved": 3,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 3,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 3,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 3,
+              "generation": 3,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 3,
+              "state": "verified",
+              "artifact_sha256": "46216323e79246b958de72bc26e1c8ec62fc29f16073cf10b0ffad68a0736a81",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 3,
+              "artifact_sha256": "eaace2669abe89bd62c71c4ab0051438afeca050b9a03d5112d85210efa3d5a6"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 3,
+              "artifact_sha256": "eaace2669abe89bd62c71c4ab0051438afeca050b9a03d5112d85210efa3d5a6"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "expired"
+            },
+            {
+              "generation": 3,
+              "state": "completed"
+            }
+          ],
+          "event_count": 23,
+          "events": [
+            "agent_finished",
+            "attempt_finished",
+            "attempt_started",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": [
+        "event",
+        "heartbeat",
+        "model_reservation",
+        "candidate_reservation",
+        "stage",
+        "test_run",
+        "finish",
+        "candidate_write",
+        "model_receipt"
+      ]
+    },
+    {
+      "test": "test_persisted_deadline_prevents_database_reservation",
+      "tasks": [
+        {
+          "id": "558f93a3944645e68d273f071cc34236",
+          "state": "interrupted",
+          "generation": 1,
+          "reason": "deadline_exceeded",
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "interrupted"
+            }
+          ],
+          "event_count": 3,
+          "events": [
+            "claimed",
+            "finished",
+            "queued"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_process_competition_has_one_claim",
+      "tasks": [
+        {
+          "id": "57f84e10b5c24a879978611537c1a85c",
+          "state": "completed",
+          "generation": 1,
+          "reason": null,
+          "calls_reserved": 0,
+          "candidates_reserved": 0,
+          "model_receipts": [],
+          "candidates": [],
+          "confirmed_stages": [],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "completed"
+            }
+          ],
+          "event_count": 3,
+          "events": [
+            "claimed",
+            "finished",
+            "queued"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_real_http_service_restart_queries_receipts_and_patch",
+      "tasks": [
+        {
+          "id": "b61a8c36c3c54a1daa35b2529d7a2c4a",
+          "state": "completed",
+          "generation": 1,
+          "reason": null,
+          "calls_reserved": 3,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 2,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 3,
+              "generation": 1,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "verified",
+              "artifact_sha256": "8c83b64909e402d58e30d8eaadf3b5fc53a160554968898454b0fb068d4b635b",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "f5fa7b7ef9ff46e7f2fe8d8cb485cc41859136a181d5b4e8b11aa6bea479b19e"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "f5fa7b7ef9ff46e7f2fe8d8cb485cc41859136a181d5b4e8b11aa6bea479b19e"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "completed"
+            }
+          ],
+          "event_count": 21,
+          "events": [
+            "agent_finished",
+            "attempt_finished",
+            "attempt_started",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_unissued_reservation_is_not_refunded_after_crash",
+      "tasks": [
+        {
+          "id": "f93738e80e69487aa599eae2540e186c",
+          "state": "completed",
+          "generation": 2,
+          "reason": null,
+          "calls_reserved": 3,
+          "candidates_reserved": 1,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "abandoned",
+              "usage": null
+            },
+            {
+              "number": 2,
+              "generation": 2,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            },
+            {
+              "number": 3,
+              "generation": 2,
+              "state": "completed",
+              "usage": {
+                "input_tokens": 1,
+                "total_tokens": 2,
+                "output_tokens": 1
+              }
+            }
+          ],
+          "candidates": [
+            {
+              "number": 1,
+              "generation": 2,
+              "state": "verified",
+              "artifact_sha256": "12ff7935d5cf95d48a9c754beaf78b188011a13f3ed9f6c08738247d273213de",
+              "artifact_matches_receipt": true
+            }
+          ],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "1a7ce243fcbf0c43a59fa5c1a2b7c2b1c5c779a783203441647d67ea06bc2265"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "1a7ce243fcbf0c43a59fa5c1a2b7c2b1c5c779a783203441647d67ea06bc2265"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "completed"
+            }
+          ],
+          "event_count": 23,
+          "events": [
+            "agent_finished",
+            "attempt_finished",
+            "attempt_started",
+            "baseline_reused",
+            "candidate_persisted",
+            "claimed",
+            "finished",
+            "model_finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed",
+            "tool_started"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [
+        {
+          "pid": 24383,
+          "generation": 1,
+          "event": "model_started"
+        }
+      ],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_unknown_model_response_keeps_budget_and_never_reissues",
+      "tasks": [
+        {
+          "id": "ec13880d23c84351ab03ca4fbf408c05",
+          "state": "interrupted",
+          "generation": 2,
+          "reason": "model_response_unknown",
+          "calls_reserved": 1,
+          "candidates_reserved": 0,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "unknown",
+              "usage": null
+            }
+          ],
+          "candidates": [],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "18ad2c6635e3b24688c6dbbefad1ee46fcd236ebeab42f4fe77db2d1e3607d78"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "18ad2c6635e3b24688c6dbbefad1ee46fcd236ebeab42f4fe77db2d1e3607d78"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "interrupted"
+            }
+          ],
+          "event_count": 10,
+          "events": [
+            "baseline_reused",
+            "claimed",
+            "finished",
+            "model_reserved",
+            "model_started",
+            "queued",
+            "session_started",
+            "stage_confirmed"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    },
+    {
+      "test": "test_worker_crash_cleans_identified_request_child_without_reissue",
+      "tasks": [
+        {
+          "id": "809eacd0b98041d9a517553d38be613c",
+          "state": "interrupted",
+          "generation": 2,
+          "reason": "model_response_unknown",
+          "calls_reserved": 1,
+          "candidates_reserved": 0,
+          "model_receipts": [
+            {
+              "number": 1,
+              "generation": 1,
+              "state": "unknown",
+              "usage": null
+            }
+          ],
+          "candidates": [],
+          "confirmed_stages": [
+            {
+              "kind": "baseline",
+              "generation": 1,
+              "artifact_sha256": "d7f8a74ed3913d3c245f928327feaafd9697796862fdc5e8a6c5a99ccd7b5068"
+            },
+            {
+              "kind": "snapshot",
+              "generation": 1,
+              "artifact_sha256": "d7f8a74ed3913d3c245f928327feaafd9697796862fdc5e8a6c5a99ccd7b5068"
+            }
+          ],
+          "attempts": [
+            {
+              "generation": 1,
+              "state": "expired"
+            },
+            {
+              "generation": 2,
+              "state": "interrupted"
+            }
+          ],
+          "event_count": 12,
+          "events": [
+            "baseline_reused",
+            "claimed",
+            "finished",
+            "model_reserved",
+            "model_started",
+            "model_worker_started",
+            "orphan_request_terminated",
+            "queued",
+            "session_started",
+            "stage_confirmed"
+          ]
+        }
+      ],
+      "actual_crash_barriers": [],
+      "stale_writes_rejected": []
+    }
+  ],
+  "limitations": [
+    "No paid-model repair-quality conclusion",
+    "No throughput benchmark",
+    "No remote CI execution",
+    "No arbitrary graph checkpoint resume"
+  ]
+}

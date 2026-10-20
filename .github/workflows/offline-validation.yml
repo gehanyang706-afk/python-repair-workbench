@@ -59,3 +59,39 @@ jobs:
           python scripts/qualify_delivery_cases.py --image repair-workbench-heldout:ci --output runtime/ci-heldout-qualification
       - name: Reverify recorded success and miss without model calls
         run: python scripts/replay_recorded_cases.py --image "$REPAIR_TEST_IMAGE" --output runtime/ci-recorded-replay
+  mysql-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4.11@sha256:0f51e63e537a1f176423fa03ef559aabe6fa4372a53160a44bc7e75da7d15364
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-only
+          MYSQL_DATABASE: repair_workbench_test
+          MYSQL_USER: repair
+          MYSQL_PASSWORD: ci-test-only
+        ports:
+          - 33079:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s --health-timeout=3s --health-retries=20
+    env:
+      RUN_MYSQL_TESTS: '1'
+      RUN_DOCKER_TESTS: '1'
+      REPAIR_TEST_IMAGE: repair-workbench-test:ci
+      REPAIR_DB_HOST: 127.0.0.1
+      REPAIR_DB_PORT: '33079'
+      REPAIR_DB_USER: repair
+      REPAIR_DB_PASSWORD: ci-test-only
+      REPAIR_DB_NAME: repair_workbench_test
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Install fixed offline dependencies
+        run: python -m pip install -r requirements-agent.lock -r requirements-backend.lock
+      - name: Build target fixture image
+        run: docker build -f Dockerfile.tests -t "$REPAIR_TEST_IMAGE" .
+      - name: Real MySQL, worker processes and full offline regression
+        run: python -m unittest discover -s tests -v

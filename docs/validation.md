@@ -149,3 +149,7 @@
 ## v3 full 恢复后的真实模型评测
 
 2026-10-12。更换本机私有凭据后，原四题与两道 more-itertools 跨项目题均完成真实 qwen-plus 调用，分别独立通过 0/4 与 0/2；没有将此前供应商拒绝的五次请求当成模型失败。六题收到 46 次响应，全部报告 token；连同被拒请求，累计尝试 51/72。计划登记拒绝、无效 `submit_edits` 工具调用和一次 `finish_reason=length` 使大多数任务无法形成候选。原始逐题目录、对照和失败分析见 `evaluation-v3-20261012.md`。完整 Docker 回归 107 项通过、0 跳过，日志 `runtime/v3-key-switch-full-tests-20261012.log`。密钥未进入评测记录。
+
+## MySQL 独立 Worker 后端可靠性
+
+2026-10-20。真实 MySQL 8.4.11 与独立进程离线验收：168 项通过、0 跳过，147.536 秒，包含原有 152 项及新增 16 项幂等/领取/租约/崩溃/预算/资源/HTTP 重启测试。源码算法未调整，模型为测试替身，真实模型调用 0。保留此前失败和首次完整回归日志，最终证据为 `runtime/backend-release-regression.log`；设计、启动和限制见 [后端可靠性](backend-reliability.md)，结果见 [本批交付](backend-delivery-20261020.md) 与 [脱敏回执](backend-acceptance-20261020.json)。新 MySQL CI 仅配置准备，未推送、未远端执行。

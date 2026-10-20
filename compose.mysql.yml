@@ -1,0 +1,19 @@
+name: repair-workbench-backend
+services:
+  mysql:
+    image: mysql:8.4.11@sha256:0f51e63e537a1f176423fa03ef559aabe6fa4372a53160a44bc7e75da7d15364
+    container_name: repair-workbench-mysql
+    env_file: runtime/mysql-backend/server.env
+    ports:
+      - "127.0.0.1:33079:3306"
+    volumes:
+      - ./runtime/mysql-backend/data:/var/lib/mysql
+      - ./runtime/mysql-backend/init.sql:/docker-entrypoint-initdb.d/01-test.sql:ro
+    mem_limit: 1g
+    cpus: 2
+    command: ["--max-connections=60", "--innodb-buffer-pool-size=128M"]
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -uroot --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

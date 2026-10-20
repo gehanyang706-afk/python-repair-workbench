@@ -102,6 +102,8 @@ class BudgetedModel(BaseChatModel):
                 'usage_reported': bool(usage), 'response_characters': len(str(message.content)),
             }
             self.session.last_model_observation = observation
+            if self.session.durability:
+                self.session.durability.model_finished(self.session.model_calls, usage)
             self.session.record('model_finished', **observation)
             if self.tool_loop:
                 for call in message.tool_calls+message.invalid_tool_calls:
@@ -139,10 +141,14 @@ class BudgetedModel(BaseChatModel):
                 self.session.record('tool_recovery_started', recovery=self.session.invalid_tool_recoveries,
                                     call=self.session.model_calls, error_count=len(errors))
             try:
+                if self.session.durability:
+                    self.session.durability.model_started(self.session.model_calls)
                 message = (runnable.invoke_controlled(pending, self.session, stop=stop, **kwargs)
                            if hasattr(runnable, 'invoke_controlled')
                            else runnable.invoke(pending, stop=stop, **kwargs))
             except Exception as exc:
+                if self.session.durability:
+                    self.session.durability.model_failed(self.session.model_calls, type(exc).__name__)
                 # Do not persist provider responses or request identifiers.
                 failure = str(exc)
                 billing_block = (isinstance(exc, ValueError)

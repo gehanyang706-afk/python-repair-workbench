@@ -21,7 +21,9 @@ def check(wheel=None):
     if wheel:
         with zipfile.ZipFile(wheel) as archive:
             if archive.testzip() is not None:raise ValueError('wheel integrity failure')
-            files=list((ROOT/'repair_workbench').glob('*.py'))+list((ROOT/'repair_workbench/static').glob('*'))
+            files=(list((ROOT/'repair_workbench').glob('*.py'))+
+                   list((ROOT/'repair_workbench/static').glob('*'))+
+                   list((ROOT/'repair_workbench/migrations').glob('*.sql')))
             for path in files:
                 if path.is_file() and archive.read(path.relative_to(ROOT).as_posix())!=path.read_bytes():
                     raise ValueError('wheel differs from source: '+path.name)

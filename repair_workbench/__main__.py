@@ -23,6 +23,18 @@ def main(argv=None):
     serve.add_argument("--env-file", type=Path)
     serve.add_argument("--profile", choices=PROFILES, default="v2")
     serve.add_argument("--port", type=int, default=8765)
+    serve.add_argument("--backend", choices=('sqlite','mysql'), default='sqlite')
+    serve.add_argument("--db-env", type=Path)
+    migrate = commands.add_parser('init-db', help='初始化独立 MySQL 数据库表，不修改 SQLite')
+    migrate.add_argument('--db-env', type=Path)
+    worker = commands.add_parser('worker', help='运行独立 MySQL 修复 Worker')
+    worker.add_argument('--db-env', type=Path)
+    worker.add_argument('--data-dir', type=Path, required=True)
+    worker.add_argument('--repo-root', type=Path, action='append', required=True)
+    worker.add_argument('--image', required=True)
+    worker.add_argument('--env-file', type=Path)
+    worker.add_argument('--lease', type=float, default=15)
+    worker.add_argument('--once', action='store_true')
     snapshot = commands.add_parser("snapshot", help="从 Git 提交导出快照")
     snapshot.add_argument("--repo", type=Path, required=True)
     snapshot.add_argument("--revision", default="HEAD")
@@ -57,13 +69,42 @@ def main(argv=None):
             command.add_argument("--timeout", type=float, default=60)
     args = parser.parse_args(argv)
     try:
-        if args.command == "serve":
+        if args.command in {'init-db','worker'}:
+            from .mysql_store import DatabaseSettings, MySQLStore
+            store = MySQLStore(DatabaseSettings.load(args.db_env))
+            if args.command == 'init-db':
+                store.migrate()
+                result = {'schema_version':1,'status':'ready'}
+            else:
+                from .durable_worker import Worker
+                model_factory = None
+                if args.env_file is not None:
+                    from .settings import ModelSettings
+                    model_factory = ModelSettings.load(args.env_file).create_model
+                executor = Worker(store,args.data_dir,args.repo_root,args.image,
+                                  model_factory=model_factory,lease_seconds=args.lease)
+                if args.once:
+                    result = {'claimed':executor.run_once()}
+                else:
+                    try:
+                        executor.run()
+                    except KeyboardInterrupt:
+                        executor.stop()
+                    result = {'status':'stopped'}
+            code = 0
+        elif args.command == "serve":
             from .api import create_app
             from .service import TaskService
             import uvicorn
             if not 1 <= args.port <= 65535:
                 raise ValueError("端口必须为 1–65535")
-            service = TaskService(args.data_dir, args.repo_root, args.image, args.env_file, profile=args.profile)
+            if args.backend == 'mysql':
+                from .mysql_service import MySQLService
+                from .mysql_store import DatabaseSettings, MySQLStore
+                service = MySQLService(MySQLStore(DatabaseSettings.load(args.db_env)), args.data_dir,
+                                       args.repo_root,args.image,profile=args.profile)
+            else:
+                service = TaskService(args.data_dir, args.repo_root, args.image, args.env_file, profile=args.profile)
             uvicorn.run(create_app(service), host="127.0.0.1", port=args.port, access_log=False)
             return 0
         elif args.command == "snapshot":

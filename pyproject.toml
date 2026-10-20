@@ -15,6 +15,7 @@ agent = [
     "python-dotenv==1.2.4",
 ]
 web = ["fastapi==0.141.1", "uvicorn==0.53.0"]
+backend = ["PyMySQL==1.2.3"]
 
 [build-system]
 requires = ["setuptools>=77"]
@@ -24,7 +25,7 @@ build-backend = "setuptools.build_meta"
 include = ["repair_workbench*"]
 
 [tool.setuptools.package-data]
-repair_workbench = ["static/*"]
+repair_workbench = ["static/*", "migrations/*.sql"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

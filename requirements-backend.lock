@@ -1,0 +1,2 @@
+# Install after requirements-agent.lock. No new Agent framework or broker.
+PyMySQL==1.2.3

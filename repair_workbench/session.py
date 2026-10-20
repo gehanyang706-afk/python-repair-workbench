@@ -23,7 +23,10 @@ class BudgetExceeded(RuntimeError):
 class RepairSession:
     def __init__(self, baseline: Path, output: Path, allowed_paths: set[str], *,
                  max_attempts=3, max_model_calls=12, deadline_seconds=180,
-                 test_timeout=30, event_sink=None, cancellation_check=None, profile="v2"):
+                 test_timeout=30, event_sink=None, cancellation_check=None, profile="v2",
+                 durability=None, execution_control=None):
+        self.durability = durability
+        self.execution_control = execution_control
         if profile not in PROFILES:
             raise ValueError("unknown repair profile")
         self.profile = profile
@@ -123,6 +126,8 @@ class RepairSession:
         return category
 
     def check_budget(self):
+        if self.durability:
+            self.durability.check()
         if self.simple_edit_enabled and self.closed:
             raise BudgetExceeded('session_closed')
         if self.cancellation_check and self.cancellation_check():
@@ -135,7 +140,7 @@ class RepairSession:
             self.check_budget()
             if self.model_calls >= self.max_model_calls:
                 raise BudgetExceeded('model_call_limit')
-            self.model_calls += 1
+            self.model_calls = (self.durability.reserve_model() if self.durability else self.model_calls + 1)
             self.record('model_started', call=self.model_calls)
 
     def reserve_tool(self, name):
@@ -420,7 +425,7 @@ class RepairSession:
                 raise BudgetExceeded('attempt_limit')
             if not isinstance(diagnosis, str) or not diagnosis.strip() or len(diagnosis) > 8000:
                 raise ValueError('必须提供不超过 8000 字符的诊断依据')
-            number = len(self.attempts) + 1
+            number = self.durability.reserve_candidate() if self.durability else len(self.attempts) + 1
             self.submission_counts['requests'] += 1
             attempt = {'number': number, 'status': 'running', 'diagnosis': diagnosis,
                        'phase': 'preflight', 'submission_tool': tool_name}
@@ -465,13 +470,18 @@ class RepairSession:
                     self.record('candidate_risk_report',number=number,
                                 risk_kinds=[risk['kind'] for risk in attempt['risk_review']['risks']])
                 self.candidate_fingerprints[fingerprint] = number
+                if self.durability:
+                    self.durability.candidate_ready(number, root / 'candidate')
                 attempt['phase'] = 'verification'
                 self.check_budget()
                 remaining = self.deadline_seconds - (time.monotonic() - self.started)
                 self.submission_counts['docker_verifications'] += 1
                 verdict = verify_candidate(self.baseline, root / 'candidate', root / 'verification',
-                                           set(self.allowed_paths), min(self.test_timeout, remaining))
+                                           set(self.allowed_paths), min(self.test_timeout, remaining),
+                                           execution_control=self.execution_control)
                 attempt.update(verdict)
+                if self.durability:
+                    self.durability.candidate_verified(number, root / 'verification', verdict)
                 if verdict['status'] != 'passed':
                     log = root / 'verification/reports/pytest.log'
                     if log.exists():
@@ -493,6 +503,8 @@ class RepairSession:
                 attempt.update(status='inconclusive', reason='candidate_rejected_or_execution_error',
                                error_type=type(exc).__name__)
             finally:
+                if self.durability and attempt['phase'] == 'preflight':
+                    self.durability.candidate_rejected(number, attempt)
                 self.record('attempt_finished', number=number, status=attempt['status'],
                             reason=attempt.get('reason'))
                 self.save('running')

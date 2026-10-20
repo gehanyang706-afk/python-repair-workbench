@@ -59,6 +59,9 @@ def create_app(service: TaskService, *, start_worker=True):
 
     @app.exception_handler(ValueError)
     async def value_error(request, exc):
+        from .mysql_store import IdempotencyConflict
+        if isinstance(exc, IdempotencyConflict):
+            return JSONResponse({'detail': str(exc)}, status_code=409)
         return JSONResponse({'detail': str(exc)}, status_code=400)
 
     @app.exception_handler(subprocess.SubprocessError)
@@ -78,14 +81,17 @@ def create_app(service: TaskService, *, start_worker=True):
     @app.get('/api/config')
     def config():
         return {'repo_roots': [str(p) for p in service.repo_roots], 'image': service.image,
-                'model': service.model_name, 'model_ready': service.model_factory is not None}
+                'model': service.model_name, 'model_ready': service.model_factory is not None,
+                'idempotency_required':getattr(service,'supports_idempotency',False)}
 
     @app.post('/api/repository')
     def inspect_repository(body: RepositoryRequest):
         return service.repository(body.repo, body.revision)
 
     @app.post('/api/tasks', status_code=201)
-    def submit(body: TaskRequest):
+    def submit(body: TaskRequest, request: Request):
+        if getattr(service, 'supports_idempotency', False):
+            return service.submit(body.model_dump(), idempotency_key=request.headers.get('idempotency-key'))
         return service.submit(body.model_dump())
 
     @app.get('/api/tasks')
@@ -95,6 +101,14 @@ def create_app(service: TaskService, *, start_worker=True):
     @app.get('/api/tasks/{task_id}')
     def detail(task_id: str):
         return get_task(task_id)
+
+    @app.get('/api/tasks/{task_id}/execution')
+    def execution_receipts(task_id: str):
+        get_task(task_id)
+        if not getattr(service,'supports_idempotency',False):
+            raise HTTPException(404,'此兼容后端没有执行回执接口')
+        return {table:service.store.records(task_id,table) for table in
+                ('task_attempts','model_calls','repair_candidates','test_runs')}
 
     @app.post('/api/tasks/{task_id}/cancel')
     def cancel(task_id: str):

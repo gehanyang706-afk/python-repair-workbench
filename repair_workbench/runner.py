@@ -36,7 +36,7 @@ def classify_result(returncode: int, report: Path) -> tuple[str, dict]:
     return "report_error", counts
 
 
-def run_tests(snapshot: Path, image: str, timeout_seconds: float = 60) -> dict:
+def run_tests(snapshot: Path, image: str, timeout_seconds: float = 60, *, execution_control=None) -> dict:
     """仅运行固定的 tests/ 目录。不接受模型生成的任意命令。
 
     Docker 限制进程资源与宿主机访问；当前仅支持自有受控项目。
@@ -60,6 +60,9 @@ def run_tests(snapshot: Path, image: str, timeout_seconds: float = 60) -> dict:
     reports.mkdir(exist_ok=False)  # 重跑必须建立新的记录，不能覆盖旧结果。
     log_path, xml_path = reports / "pytest.log", reports / "pytest.xml"
     name = "repair-run-" + uuid.uuid4().hex[:16]
+    if execution_control:
+        execution_control.check()
+        execution_control.container(name, 'reserved')
     command = [
         "docker", "run", "--name", name, "--pull", "never",
         "--network", "none", "--read-only", "--cap-drop", "ALL",
@@ -81,8 +84,22 @@ def run_tests(snapshot: Path, image: str, timeout_seconds: float = 60) -> dict:
     try:
         with log_path.open("w", encoding="utf-8") as log:
             # 输出直接落盘，避免一次性把完整测试日志读入内存。
-            completed = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
-                                       timeout=timeout_seconds, check=False)
+            if execution_control:
+                process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+                try:
+                    while process.poll() is None:
+                        execution_control.check()
+                        if time.monotonic() - started >= timeout_seconds:
+                            raise subprocess.TimeoutExpired(command, timeout_seconds)
+                        time.sleep(.05)
+                    completed = process
+                finally:
+                    if process.poll() is None:
+                        process.kill()
+                    process.wait(timeout=5)
+            else:
+                completed = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
+                                           timeout=timeout_seconds, check=False)
         result["returncode"] = completed.returncode
         result["status"], result["counts"] = classify_result(completed.returncode, xml_path)
     except subprocess.TimeoutExpired:
@@ -101,4 +118,6 @@ def run_tests(snapshot: Path, image: str, timeout_seconds: float = 60) -> dict:
         (reports / "result.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
+        if execution_control and result['cleanup_ok']:
+            execution_control.container(name, 'cleaned')
     return result
