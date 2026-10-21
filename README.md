@@ -78,3 +78,5 @@ Docker 测试默认跳过；未指定 `REPAIR_TEST_IMAGE` 时本地测试使用 
 ## 后端可靠性扩展
 
 MySQL 持久任务与独立 Worker 通过 `serve --backend mysql` / `worker` 显式启用，包含幂等创建、租约与代次栅栏、持久预算回执及保守阶段恢复。原 SQLite 默认入口与历史数据保留。启动、事务边界、恢复限制和离线故障验收见 [后端可靠性](docs/backend-reliability.md)。本批没有真实模型评测或新修复率结论。
+
+本机性能基线与N+1修复见 [性能报告](docs/backend-performance-20261021.md)：6格共48个离线重复任务；同100条历史的列表对照中业务SELECT从101次降为1次。该数据不代表真实模型修复率，Redis尚未引入。

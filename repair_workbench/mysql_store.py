@@ -215,9 +215,12 @@ class MySQLStore:
 
     def list(self):
         with self.transaction() as c:
-            c.execute("SELECT id FROM repair_tasks ORDER BY created_at DESC LIMIT 100")
-            ids = [r["id"] for r in c.fetchall()]
-        return [self.get(identity) for identity in ids]
+            c.execute("SELECT * FROM repair_tasks ORDER BY created_at DESC LIMIT 100")
+            rows = [self.decode(row) for row in c.fetchall()]
+        for row in rows:
+            row.pop("idempotency_key", None)
+            row.pop("request_digest", None)
+        return rows
 
     def claim(self, owner, lease_seconds, task_id=None):
         if not re.fullmatch(r"[0-9a-f]{32}", owner) or not 0.2 <= lease_seconds <= 300:
