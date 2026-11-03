@@ -58,7 +58,7 @@ def run_request_worker(payload, session, call_timeout=30, *, command=None):
         if 'error' in result:
             code = result['error']
             if code not in {'Arrearage', 'AuthenticationFailed', 'provider_connect_timeout',
-                            'provider_read_timeout', 'provider_error'}:
+                            'provider_read_timeout', 'provider_error', 'free_quota_exhausted'}:
                 code = 'provider_error'
             raise ProviderRequestError(code)
         return result
@@ -106,6 +106,8 @@ class ManagedTongyi(BaseChatModel):
     call_timeout: float = 30
     connect_timeout: float = 5
     read_timeout: float = 30
+    max_output_tokens: int = Field(default=4096, ge=1, le=8192)
+    sampling_temperature: float | None = Field(default=None, ge=0, le=2)
 
     @property
     def _llm_type(self):
@@ -117,6 +119,8 @@ class ManagedTongyi(BaseChatModel):
     def invoke_controlled(self, messages, session, stop=None, **kwargs):
         result = run_request_worker({'model': self.model_name, 'api_key': self.api_key,
             'messages': messages_to_dict(messages), 'tools': self.tool_schemas, 'stop': stop,
+            'provider_options': {'max_tokens': self.max_output_tokens,
+                                 'temperature': self.sampling_temperature},
             'connect_timeout': self.connect_timeout, 'read_timeout': self.read_timeout},
             session, self.call_timeout)
         return messages_from_dict([result['message']])[0]

@@ -86,7 +86,8 @@ class BudgetedModel(BaseChatModel):
                     self.session.token_usage['reports'] += 1
             known = {'list_sources', 'read_source', 'read_test_log', 'submit_candidate',
                      'submit_edits', 'submit_ref_edits', 'read_file', 'write_todos',
-                     'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary'}
+                     'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary',
+                     'record_hypothesis', 'run_probe', 'read_evidence', 'conclude_diagnosis', 'task'}
             reason = message.response_metadata.get('finish_reason')
             if reason not in {'stop', 'length', 'tool_calls', 'function_call', 'content_filter', 'null', None}:
                 reason = 'other'
@@ -122,6 +123,11 @@ class BudgetedModel(BaseChatModel):
                                                else None))
             self.session.save('running')
         while True:
+            if self.tool_loop and getattr(self.session, 'diagnostics_enabled', False):
+                from .diagnostic_progress import observe_tool_round
+                warning = observe_tool_round(self.session, pending)
+                if warning:
+                    pending = pending + [HumanMessage(content=warning)]
             errors = collect_errors(self.session, pending) if self.tool_loop else []
             if not self.session.simple_edit_enabled:
                 errors=[]  # Observation only; legacy profiles do not gain recovery calls.
@@ -195,6 +201,10 @@ class BudgetedModel(BaseChatModel):
 
 
 def build_agent(session: RepairSession, model: BaseChatModel):
+    if getattr(session, 'diagnostics_enabled', False):
+        from .diagnostic_agent import build_diagnostic_agent
+        return build_diagnostic_agent(session, model)
+
     def safe_call(function, **kwargs):
         try:
             return function(**kwargs)
@@ -316,15 +326,32 @@ old_text 必须在已返回的源码中且在整个基线文件中唯一；多�
 应用会独立检查修改是否超出scope；对比较条件逐个检查改了哪一端，不得无依据放宽其他边界。风险确认不是正确性证明，仍须运行测试。
 范围/覆盖/风险拒绝也消耗候选额度，应在首个候选前完成自查。"""
 
+    if getattr(session, 'swebench_enabled', False):
+        business_tools = [item for item in business_tools if item.name != 'read_test_log']
+        prompt = prompt.replace('理解原始测试失败', '理解公开 Issue')
+        prompt = prompt.replace('先读取测试日志和相关源文件，给出具体原因与文件/行号依据，再提交候选。',
+            '从 Issue 描述和原始仓库源码自主定位问题，给出原因与源码依据，再提交最终候选。')
+        prompt = prompt.replace('read_test_log', '当前不可用的测试日志接口')
+        prompt = prompt.replace('先利用初始公开失败位置和源码片段，复用source_ref；',
+                                '先依据Issue中的符号与行为描述定位源码；')
+        prompt += ('\n当前为 SWE-bench issue-only 轨道：初始没有失败测试回执。'
+            '官方测试补丁、验收用例、标准补丁和评分均在独立验收端，不可请求。'
+            '使用搜索和AST定位，不能从批准的广泛源码范围推断修复位置。'
+            '提交接口只做权限、版本、语法检查和独立重建，不执行官方测试。'
+            '收到 submitted 即表示最终补丁已收存，必须停止；它不表示测试通过。'
+            '预检拒绝可在候选预算内纠正，提交成功后不再基于官方反馈迭代。')
+
     # 单独的模型包装器名称限定 profile 作用范围，不覆盖其他模型的配置。
     register_harness_profile('repair-workbench:bounded', HarnessProfile(
         general_purpose_subagent=GeneralPurposeSubagentProfile(enabled=False)))
     backend = StateBackend()
+    from .diagnostic_framework import DiagnosticFileMiddleware
     return create_deep_agent(
         model=BudgetedModel(inner=model, session=session, cache=False),
         tools=business_tools,
         system_prompt=prompt, backend=backend, subagents=[],
-        middleware=[FilesystemMiddleware(backend=backend, tools=['read_file']), TodoListMiddleware()],
+        middleware=[FilesystemMiddleware(backend=backend, tools=['read_file']),
+                    TodoListMiddleware(), DiagnosticFileMiddleware(session)],
     )
 
 
@@ -338,12 +365,21 @@ def run_agent(session: RepairSession, model: BaseChatModel, task: str) -> dict:
     try:
         # 不继承本机可能存在的第三方 tracing 设置，也不上传仓库内容到额外服务。
         with tracing_context(enabled=False):
+            if getattr(session, 'diagnostics_enabled', False):
+                session.prepare_fixed_diagnostics()
             graph = build_agent(session, model)
             payload = {'task':task,'allowed_paths':sorted(session.allowed_paths),
                        'baseline_counts':session.before['counts'],'max_attempts':session.max_attempts}
             if session.context_enabled:
                 payload['initial_context']=session.initial_context()
-            state = graph.invoke({'messages':[{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]},
+            if getattr(session, 'diagnostics_enabled', False):
+                payload['allowed_paths'] = payload['initial_context']['allowed_paths']
+                payload['allowed_path_count'] = len(session.allowed_paths)
+                payload['allowed_paths_may_be_truncated'] = payload['initial_context']['context_truncated']
+            graph_input = {'messages':[{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]}
+            if getattr(session, 'diagnostics_enabled', False) and session.use_skills:
+                graph_input['files'] = session.initial_files()
+            state = graph.invoke(graph_input,
                 config={'recursion_limit': 80, 'max_concurrency': 1})
             messages = state.get('messages', [])
             response = str(messages[-1].content) if messages else ''

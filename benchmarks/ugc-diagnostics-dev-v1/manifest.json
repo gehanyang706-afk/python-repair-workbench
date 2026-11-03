@@ -1,0 +1,75 @@
+{
+  "dataset_id": "ugc-diagnostics-dev-v1",
+  "version": 1,
+  "split": "dev",
+  "synthetic": true,
+  "public": true,
+  "independent_evaluation": false,
+  "task_type": "performance_diagnosis",
+  "tasks": [
+    {
+      "id": "case-01",
+      "source_dir": "case-01/source",
+      "entrypoint": "map_exporter:export_map",
+      "allowed_paths": [
+        "map_exporter.py"
+      ],
+      "visible_tests": [
+        "tests/test_export.py"
+      ],
+      "files": {
+        "map_exporter.py": "b429e27d0cd44e2a653e07d3ffe671ce681bc616d4a542f936c059e997ef5422",
+        "tests/test_export.py": "39395d15b2f0e5015499b448d24e6a41c8426b988021223c82969638ff5bc52b",
+        "README.md": "5321279d0a923ac3f855b98a72265f2ad7237446efea5f988eae296f09898a41"
+      }
+    },
+    {
+      "id": "case-02",
+      "source_dir": "case-02/source",
+      "entrypoint": "map_exporter:export_map",
+      "allowed_paths": [
+        "map_exporter.py"
+      ],
+      "visible_tests": [
+        "tests/test_export.py"
+      ],
+      "files": {
+        "map_exporter.py": "ed51ae8264993e56eebc434af6eaf8060e13ae55ad1701eecd06ca2d7f926442",
+        "tests/test_export.py": "39395d15b2f0e5015499b448d24e6a41c8426b988021223c82969638ff5bc52b",
+        "README.md": "5321279d0a923ac3f855b98a72265f2ad7237446efea5f988eae296f09898a41"
+      }
+    },
+    {
+      "id": "case-03",
+      "source_dir": "case-03/source",
+      "entrypoint": "map_exporter:export_map",
+      "allowed_paths": [
+        "map_exporter.py"
+      ],
+      "visible_tests": [
+        "tests/test_export.py"
+      ],
+      "files": {
+        "map_exporter.py": "0580947e6260b2ae0b46e796c7af3bddf3baa84b26032f5925980bf90a8f0604",
+        "tests/test_export.py": "39395d15b2f0e5015499b448d24e6a41c8426b988021223c82969638ff5bc52b",
+        "README.md": "5321279d0a923ac3f855b98a72265f2ad7237446efea5f988eae296f09898a41"
+      }
+    },
+    {
+      "id": "case-04",
+      "source_dir": "case-04/source",
+      "entrypoint": "map_exporter:export_map",
+      "allowed_paths": [
+        "map_exporter.py"
+      ],
+      "visible_tests": [
+        "tests/test_export.py"
+      ],
+      "files": {
+        "map_exporter.py": "3609421ba5b08a9ad2e9da26cf01b23b4be813a06b517bb9027a23ac2bc8e1f8",
+        "tests/test_export.py": "39395d15b2f0e5015499b448d24e6a41c8426b988021223c82969638ff5bc52b",
+        "README.md": "5321279d0a923ac3f855b98a72265f2ad7237446efea5f988eae296f09898a41"
+      }
+    }
+  ]
+}

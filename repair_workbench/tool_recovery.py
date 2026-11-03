@@ -4,7 +4,8 @@ import json
 import re
 from langchain_core.messages import AIMessage, ToolMessage
 BUSINESS_TOOLS = {'submit_ref_edits','submit_edits','submit_candidate','read_source','read_test_log','list_sources',
-                  'read_symbol','source_outline','search_source','record_behavior_summary','set_repair_plan'}
+                  'read_symbol','source_outline','search_source','record_behavior_summary','set_repair_plan',
+                  'record_hypothesis','run_probe','read_evidence','conclude_diagnosis','task'}
 
 
 def digest(value):
@@ -34,7 +35,9 @@ def collect_errors(session, messages):
                 field = match.group(1) if match else 'arguments'
                 if not re.fullmatch(r'edits(?:\.\d+\.(?:source_ref|old_text|new_text))?|'
                                     r'diagnosis|path|start_line|line_count|attempt|offset|limit|'
-                                    r'query|symbol|force|change|preserve|related_entries',field):
+                                    r'query|symbol|force|change|preserve|related_entries|'
+                                    r'probe|hypothesis_id|claim|status|evidence_refs|next_action|'
+                                    r'evidence_ref|decision|explanation|description|subagent_type',field):
                     field='arguments'
                 expected = match.group(3) if match and match.group(3) else 'tool_schema'
                 error = {'kind': 'schema', 'tool':tool,'field': field, 'expected_type': expected}
@@ -59,7 +62,8 @@ def feedback(errors):
     examples={'submit_ref_edits':{'edits':[{'source_ref':'<已返回的引用>','old_text':'<原文>','new_text':'<新内容>'}],
                                  'diagnosis':'<原因>'},
               'read_source':{'path':'<快照相对路径>','start_line':1,'line_count':120},
-              'read_symbol':{'path':'<快照相对路径>','symbol':'<outline中的符号>'}}
+              'read_symbol':{'path':'<快照相对路径>','symbol':'<outline中的符号>'},
+              'task':{'description':'<具体只读调查问题与证据要求>','subagent_type':'investigator'}}
     selected={name:example for name,example in examples.items() if any(error.get('tool')==name for error in errors)}
     return ('工具调用参数不符合 Schema。安全错误摘要：' + json.dumps(errors, ensure_ascii=False)
             + '。最小结构：' + json.dumps(selected,ensure_ascii=False)

@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-31",
+  "base_commit": "007ded3",
+  "implemented": [
+    "diagnostic_session",
+    "registered_probes",
+    "performance_verifier",
+    "evidence_audit",
+    "optional_skills",
+    "optional_readonly_investigator"
+  ],
+  "mcp_status": "requested_design_pending_implementation",
+  "real_model_api_calls": 0,
+  "regression": {
+    "total": 287,
+    "passed": 271,
+    "skipped": 16,
+    "skip_reason": "dedicated MySQL service not enabled",
+    "log": "runtime/diagnostic-phase1-m2-regression-20261031-closed-budget.log"
+  },
+  "latest_frozen_acceptance": {
+    "mode": "scripted_known_candidate_real_container",
+    "status": "inconclusive",
+    "reason": "measurement_noise_exceeded",
+    "audit_status": "passed",
+    "path": "runtime/diagnostic-acceptance-20261031-frozen/acceptance.json"
+  },
+  "wheel": {
+    "sha256": "4fd110ba3db9cd108c243f9c39a76785ffe741bd011939c1d947f32d2b495888",
+    "verified_files": 37
+  },
+  "source_sha256": {
+    "pyproject.toml": "3c79ff4112d387b5296cf3885e1edeb8a90c194d636c206be02fc5d4993c28f4",
+    "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+    "repair_workbench/__main__.py": "6674944f809248a09b48c8b7d952f82e1bd59dfabb3440cf3742e07983cdbefe",
+    "repair_workbench/agent.py": "fcd55cb9e8af1c6fa8c995540c12ffa2b0791f2ab249ab2ec58828e2a0a15288",
+    "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+    "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+    "repair_workbench/diagnosis.py": "6824ef5cffc087d9ad1662921f3fce9071197f7f94abf35f86a53d11c4f97be4",
+    "repair_workbench/diagnostic_agent.py": "14bf01a167281f9bf862af4ffa692f27b25fc16d4aa5d4b6e2303b0f399178e2",
+    "repair_workbench/diagnostic_delegation.py": "2ef54921d374f496fe47b2d94d37651977355a5e29366485a1fd67572f72566c",
+    "repair_workbench/diagnostic_framework.py": "4b34d09c61bd8522016845a672b966c3023431747c049a07ab406e7837ffc2cb",
+    "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+    "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+    "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+    "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+    "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+    "repair_workbench/model_transport.py": "f221659c8f4ecd32012692531ea0c5f5eda884ca6a21a731533721e53f8a946b",
+    "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+    "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+    "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+    "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+    "repair_workbench/provider_worker.py": "bf88578cb90e6280d8f98cce19f3a729a83af0fb4d565f61d482ec5f158fea01",
+    "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+    "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+    "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+    "repair_workbench/session.py": "815e7bd6009fc244d029ec94f199022eb69d44c687620bc189ae3636569bf8b7",
+    "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+    "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+    "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+    "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+    "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+    "repair_workbench/source_context.py": "bb31a61591805a20381d236700be27275afc8c9700db146f69b2ea85275f1e36",
+    "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+    "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+    "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+    "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79"
+  },
+  "source_fingerprint": "1ab4567805e0514b175b5d82721cfa97abd1b323129ca6e6499b19c5ddb13861",
+  "claims": {
+    "real_llm_improvement_measured": false,
+    "scripted_runs_are_llm_results": false,
+    "latest_noise_result_retained_without_retry": true
+  }
+}

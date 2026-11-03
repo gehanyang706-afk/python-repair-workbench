@@ -1,0 +1,548 @@
+{
+  "date": "2026-11-03",
+  "scope": "SWE-bench adapter; existing Python source patch track",
+  "implemented": [
+    "pinned task import and separate evaluator/public projections",
+    "exact base Git snapshot or whole-tree verified archive",
+    "issue-only Deep Agents source navigation and reference edits",
+    "first valid candidate staged, no official feedback retry",
+    "fresh patch recomputation and official JSONL export",
+    "separate locked official run_instance/get_eval_report process",
+    "immutable local image and source-content binding",
+    "recorded resource/network policy and bounded cleanup",
+    "negative/gold qualification before formal inference entry",
+    "official parser read-only regrade audits"
+  ],
+  "real_model_api_calls": 0,
+  "formal_effectiveness_subset_frozen": false,
+  "optimization_metrics": null,
+  "harness_commit": "02e7a74ffd0b707aab73d203fe87bdc7c76afc8e",
+  "dataset_revision": "b0dde1093fe417d83b7184254edf8199c1f0dff5",
+  "development_instance": "psf__requests-3362",
+  "fixture": {
+    "ok": true,
+    "qualified": true,
+    "real_model_calls": 0,
+    "harness_commit": "02e7a74ffd0b707aab73d203fe87bdc7c76afc8e",
+    "controls": [
+      {
+        "role": "negative",
+        "status": "unresolved",
+        "F2P": {
+          "success": 0,
+          "failure": 1
+        },
+        "P2P": {
+          "success": 1,
+          "failure": 0
+        },
+        "source_files_checked": 2,
+        "network": "none",
+        "cleanup_ok": true
+      },
+      {
+        "role": "gold",
+        "status": "resolved",
+        "F2P": {
+          "success": 1,
+          "failure": 0
+        },
+        "P2P": {
+          "success": 1,
+          "failure": 0
+        },
+        "source_files_checked": 2,
+        "network": "none",
+        "cleanup_ok": true
+      }
+    ],
+    "meaning": "evidence integrity and official regrade; not Agent effectiveness"
+  },
+  "real_task": {
+    "ok": true,
+    "qualified": false,
+    "real_model_calls": 0,
+    "harness_commit": "02e7a74ffd0b707aab73d203fe87bdc7c76afc8e",
+    "controls": [
+      {
+        "role": "negative",
+        "status": "unresolved",
+        "F2P": {
+          "success": 0,
+          "failure": 1
+        },
+        "P2P": {
+          "success": 73,
+          "failure": 2
+        },
+        "source_files_checked": 140,
+        "network": "bridge",
+        "cleanup_ok": true
+      },
+      {
+        "role": "gold",
+        "status": "unresolved",
+        "F2P": {
+          "success": 1,
+          "failure": 0
+        },
+        "P2P": {
+          "success": 73,
+          "failure": 2
+        },
+        "source_files_checked": 140,
+        "network": "bridge",
+        "cleanup_ok": true
+      }
+    ],
+    "meaning": "evidence integrity and official regrade; not Agent effectiveness"
+  },
+  "real_task_reason": "gold F2P fixed, 2 P2P connection checks fail; original suite also reports missing HTTP fixtures; not a model failure or success",
+  "regression": {
+    "discovered": 449,
+    "passed": 433,
+    "skipped": 16,
+    "failed": 0,
+    "docker_enabled": true,
+    "mysql_not_enabled": true
+  },
+  "image": {
+    "requested_digest": "sha256:d1c8c15eeb5e12b7eb3815307d1131d68c72d53419fa2f8b89bc46bc0009a61b",
+    "image_id": "sha256:d1c8c15eeb5e12b7eb3815307d1131d68c72d53419fa2f8b89bc46bc0009a61b",
+    "architecture": "amd64",
+    "size_bytes": 3819386195,
+    "tag": "swebench/sweb.eval.x86_64.psf_1776_requests-3362:latest"
+  },
+  "wheel": {
+    "path": "runtime/swebench-build-20261103-final/python_repair_workbench-1.1.0.dev0-py3-none-any.whl",
+    "sha256": "f8c9a541fb28dc8b90227997fabc03a802a95134ca0e339dae5cb4897133a7d8",
+    "checks": {
+      "sha256": "f8c9a541fb28dc8b90227997fabc03a802a95134ca0e339dae5cb4897133a7d8",
+      "verified_files": 46
+    }
+  },
+  "source": {
+    "files": {
+      ".github/workflows/offline-validation.yml": "99864c2ebf9497b542f6b9bd4a65b906385675f45817d0dcfdc9f4cc4209e01f",
+      "benchmarks/ugc-diagnostics-dev-v1/qualification.py": "4693f74c7cba1330f016b9e19f0517651aab3e38beedfc1ce0c31a8ff665f5fe",
+      "pyproject.toml": "6f332ef2531d7e52214ff3bbb8d802f3edeb117f0ca5677e44a8e879ea6ab653",
+      "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "repair_workbench/__main__.py": "90db651cfa798bbd86944ec137b7d0283de96d9ecfcdfa5dad67fe972d522474",
+      "repair_workbench/agent.py": "1726b30f94e03c859d285c4ac5b5d3fdb8b424b9918fe08afa50038cefd3f545",
+      "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+      "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "repair_workbench/diagnosis.py": "7cf5b210fe9554c9e4e8c68591f900d935fce73985bb99d1cbff6350696ebc64",
+      "repair_workbench/diagnostic_agent.py": "14bf01a167281f9bf862af4ffa692f27b25fc16d4aa5d4b6e2303b0f399178e2",
+      "repair_workbench/diagnostic_delegation.py": "16791a5dbc66b3f65e30b2bac1b294bfe00ad6f38dfcd4696818407cbb25dcc9",
+      "repair_workbench/diagnostic_eval_policy.py": "561ca5ad2fb9e082e6c9c144a7df6a9ec7afbdb5b68a1ee852bffc2cfedb5d59",
+      "repair_workbench/diagnostic_evaluation.py": "cd8acb8740bd6f36e1ffe14ed9093e7e593cb0bd8f40a85239fa5c8ef628e334",
+      "repair_workbench/diagnostic_framework.py": "4b34d09c61bd8522016845a672b966c3023431747c049a07ab406e7837ffc2cb",
+      "repair_workbench/diagnostic_mcp_client.py": "45749f8533477193c6513599aacfc06e5a240c3292ae0282203430e1d78a3a41",
+      "repair_workbench/diagnostic_mcp_server.py": "0c7138851786ca5920df8d5742ba079f8087c47a87b098cd81b5cd4a2132b91d",
+      "repair_workbench/diagnostic_progress.py": "b7fd7121e99bf08a27406fd2b5ee866ffafb0623a042486bef406dc77ddae86b",
+      "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+      "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+      "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+      "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "repair_workbench/model_transport.py": "4f555ffd6508f9f73523659df3dbbe3a05354aa2f1f336779765e4f8b2a14aeb",
+      "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+      "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+      "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+      "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+      "repair_workbench/provider_worker.py": "26616421c4360684e0a707fb7a947746725f0a0cb5c0d03994ac37fa0fb940f7",
+      "repair_workbench/public_live_evaluation.py": "c71c9ba758509d3e10e7c5b5b09a97ed611264581ec87365cf7bc682fc99b8f6",
+      "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+      "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "repair_workbench/session.py": "6c373ba46e48a6bb45b77367dec52eea4b00ee2362d4cc6abe96a2b237e2fd32",
+      "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+      "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+      "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+      "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "repair_workbench/source_context.py": "b4a2f9da0dc843e73a55f2de25762b13515b9eee9f0c53f2061ba475570a91c9",
+      "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "repair_workbench/swebench_adapter.py": "d740ca230c7abdafd5aa6ff123699b17c70dc5d6b50a49ec23a3b6419e12b186",
+      "repair_workbench/swebench_harness_lock.json": "267f65d64b27b5eac9d4acd9ed71bb821b34a7c9003d4d98a70ef6f60737c290",
+      "repair_workbench/swebench_worker.py": "ab5ebff995f633d6d880a646db00cca6821c05e0de90035915b60ad7588b148a",
+      "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+      "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+      "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79",
+      "requirements-backend.lock": "7ae2b13af6d977e1c74480a26f9545a78a79a8878ec71045966f38a9548d7bb2",
+      "requirements-build.lock": "e98d3b1a91f7dfc9e82cf362249f1c82b735a5292eb843b4ebfa1d18a429f677",
+      "requirements-mcp.lock": "8b9506bcb69fa05709d163251922cef4544462b95d79522fd6173a3b970b38c3",
+      "requirements-swebench.lock": "2180cc9dc3bf4aa20a0396af9830ab15a68ac6441d981ed3e1a6fb5acac7f27a",
+      "requirements-test-image.lock": "beb452163910f778484dcdbd0c094e476041dbb199fd5bcbf0ffd785a61dc020",
+      "scripts/audit_diagnostic_run.py": "4368ebcfc3ecef031cb37df68a73897b17f3d5715c8d2fe9b337680016ceb495",
+      "scripts/check_delivery.py": "a327f3a927f18f2bbbc4f988e9b2726eeb0a8b102e3d8603a52da6b28b17d821",
+      "scripts/qualify_diagnostic_probes.py": "42a3591c90e0fea648524b205fd192aba34d0561499187351952d54ba25d1149"
+    },
+    "dependencies": {
+      "aiohappyeyeballs": [
+        "2.7.1"
+      ],
+      "aiohttp": [
+        "3.14.4"
+      ],
+      "aiosignal": [
+        "1.4.0"
+      ],
+      "annotated-doc": [
+        "0.0.5"
+      ],
+      "annotated-types": [
+        "0.8.0"
+      ],
+      "anthropic": [
+        "1.13.0"
+      ],
+      "anyio": [
+        "4.15.1"
+      ],
+      "attrs": [
+        "26.1.0"
+      ],
+      "bracex": [
+        "3.0.1"
+      ],
+      "certifi": [
+        "2026.7.22"
+      ],
+      "cffi": [
+        "2.1.1"
+      ],
+      "charset-normalizer": [
+        "3.5.2"
+      ],
+      "click": [
+        "8.5.0"
+      ],
+      "cryptography": [
+        "50.0.2"
+      ],
+      "dashscope": [
+        "1.27.7"
+      ],
+      "deepagents": [
+        "0.7.20"
+      ],
+      "distro": [
+        "1.9.0"
+      ],
+      "docstring-parser": [
+        "0.18.0"
+      ],
+      "fastapi": [
+        "0.141.1"
+      ],
+      "filetype": [
+        "1.2.0"
+      ],
+      "frozenlist": [
+        "1.8.0"
+      ],
+      "google-auth": [
+        "2.61.0"
+      ],
+      "google-genai": [
+        "2.29.0"
+      ],
+      "h11": [
+        "0.16.0"
+      ],
+      "httpcore": [
+        "1.0.9"
+      ],
+      "httpcore2": [
+        "2.13.1"
+      ],
+      "httpx": [
+        "0.28.1"
+      ],
+      "httpx-sse": [
+        "0.4.3"
+      ],
+      "httpx2": [
+        "2.13.1"
+      ],
+      "idna": [
+        "3.20"
+      ],
+      "jiter": [
+        "0.17.0"
+      ],
+      "jsonpatch": [
+        "1.34"
+      ],
+      "jsonpointer": [
+        "3.2.0"
+      ],
+      "jsonschema": [
+        "4.26.0"
+      ],
+      "jsonschema-specifications": [
+        "2025.9.1"
+      ],
+      "langchain": [
+        "1.4.3"
+      ],
+      "langchain-anthropic": [
+        "1.7.5"
+      ],
+      "langchain-classic": [
+        "1.0.8"
+      ],
+      "langchain-community": [
+        "0.4.2"
+      ],
+      "langchain-core": [
+        "1.6.9"
+      ],
+      "langchain-google-genai": [
+        "4.4.0"
+      ],
+      "langchain-protocol": [
+        "0.0.19"
+      ],
+      "langchain-text-splitters": [
+        "1.1.3"
+      ],
+      "langgraph": [
+        "1.2.12"
+      ],
+      "langgraph-checkpoint": [
+        "4.2.0"
+      ],
+      "langgraph-prebuilt": [
+        "1.1.0"
+      ],
+      "langgraph-sdk": [
+        "0.4.6"
+      ],
+      "langsmith": [
+        "0.14.7"
+      ],
+      "markdown-it-py": [
+        "4.2.0"
+      ],
+      "mcp": [
+        "2.3.0"
+      ],
+      "mcp-types": [
+        "2.3.0"
+      ],
+      "mdurl": [
+        "0.1.2"
+      ],
+      "multidict": [
+        "6.9.1"
+      ],
+      "numpy": [
+        "2.5.3"
+      ],
+      "opentelemetry-api": [
+        "1.45.2"
+      ],
+      "orjson": [
+        "3.13.0"
+      ],
+      "ormsgpack": [
+        "1.12.2"
+      ],
+      "packaging": [
+        "26.3"
+      ],
+      "pip": [
+        "26.1"
+      ],
+      "propcache": [
+        "0.5.4"
+      ],
+      "pyasn1": [
+        "0.6.4"
+      ],
+      "pyasn1-modules": [
+        "0.4.2"
+      ],
+      "pycparser": [
+        "3.11"
+      ],
+      "pydantic": [
+        "2.14.0"
+      ],
+      "pydantic-core": [
+        "2.50.0"
+      ],
+      "pydantic-settings": [
+        "2.15.0"
+      ],
+      "pygments": [
+        "2.21.0"
+      ],
+      "pyjwt": [
+        "2.15.1"
+      ],
+      "pymysql": [
+        "1.2.3"
+      ],
+      "python-dotenv": [
+        "1.2.4"
+      ],
+      "python-multipart": [
+        "0.0.33"
+      ],
+      "python-repair-workbench": [
+        "1.0.0",
+        "1.1.0.dev0"
+      ],
+      "pyyaml": [
+        "6.0.3"
+      ],
+      "referencing": [
+        "0.37.0"
+      ],
+      "requests": [
+        "2.34.2"
+      ],
+      "requests-toolbelt": [
+        "1.0.0"
+      ],
+      "rich": [
+        "15.0.0"
+      ],
+      "rpds-py": [
+        "2026.9.1"
+      ],
+      "shellingham": [
+        "1.5.4"
+      ],
+      "sniffio": [
+        "1.3.1"
+      ],
+      "sqlalchemy": [
+        "2.1.4"
+      ],
+      "sse-starlette": [
+        "3.6.0"
+      ],
+      "starlette": [
+        "1.7.0"
+      ],
+      "tenacity": [
+        "9.1.4"
+      ],
+      "truststore": [
+        "0.10.4"
+      ],
+      "typer": [
+        "0.27.3"
+      ],
+      "typing-extensions": [
+        "4.16.0"
+      ],
+      "typing-inspection": [
+        "0.4.4"
+      ],
+      "urllib3": [
+        "2.8.0"
+      ],
+      "uuid-utils": [
+        "0.17.1"
+      ],
+      "uvicorn": [
+        "0.53.0"
+      ],
+      "wcmatch": [
+        "11.0.1"
+      ],
+      "websocket-client": [
+        "1.9.2"
+      ],
+      "websockets": [
+        "16.1.1"
+      ],
+      "xxhash": [
+        "4.0.1"
+      ],
+      "yarl": [
+        "1.25.1"
+      ],
+      "zstandard": [
+        "0.25.0"
+      ]
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "evidence_sha256": {
+    "docs/swebench-adapter-20261103.md": "5a32e0bc5cd0b447477876cb286b110d3a6da927713dc7a61de90175ff754dd7",
+    "docs/swebench-evaluation-plan-20261103.md": "b348560876830680f16cb5eb409cac2e64c5c8b70d1c885b60e5f51ea8d1d265",
+    "runtime/swebench-fixture-audit-20261103.json": "61a37e89ce5fe08233729b55bc5491ff48c3a780f10874730f10c0efe4ca40e6",
+    "runtime/swebench-full-regression-20261103-release.log": "c1d21c77f25ba9c6680f16c21d8913eebf39b366227debc864a4c88701f46d18",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/container-policy.json": "997b7f98a236631153252318f64056369b4f26a1a0f227b670604e35f3a5f77a",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/evaluator-input.json": "289f940933619f6377591c6d18efc33417c448369b4042e3f2aa964b9d1f0b85",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/harness.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/logs/evaluation/repair-fbbb52304ad043bfa4a5da47aba4f2e6/gold-control/workbench__fixture-1/eval.sh": "230b77373441cce65de73ac27a46b49a9069e66bb9749f5011b0ef90f98ac051",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/logs/evaluation/repair-fbbb52304ad043bfa4a5da47aba4f2e6/gold-control/workbench__fixture-1/patch.diff": "96fb3d6026f825c3550f5531b919a5c2c5d5f637b4b1006ade848c30d5428c0c",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/logs/evaluation/repair-fbbb52304ad043bfa4a5da47aba4f2e6/gold-control/workbench__fixture-1/report.json": "9830c69f66780395d36c8484ac55f936940714dab6bd42ded432fb61932cd0fc",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/logs/evaluation/repair-fbbb52304ad043bfa4a5da47aba4f2e6/gold-control/workbench__fixture-1/run_instance.log": "e3991371df3a72f5a7f5a3e50194617fc9d98bfdec4d94f07146cb4e7c0489f3",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/logs/evaluation/repair-fbbb52304ad043bfa4a5da47aba4f2e6/gold-control/workbench__fixture-1/test_output.txt": "849625a4116668458ce5c89f5e220b6374c01320aedc3f33152c4e8f814c3d17",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/result.json": "2754fb89c648bb425de300df312ab1ee84bb9e1e60f02ff53ab0c23c245e27f7",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/source-binding.json": "0600fa20b50b523c66f80d6ace0c070d296e5a132d83bb3cf37f0d242dd5c3e1",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/gold/worker-result.json": "81e833763b382f3d5a17750c2154ca9554be1ca8c16a3c9947b0c7d1a7c71c50",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/container-policy.json": "997b7f98a236631153252318f64056369b4f26a1a0f227b670604e35f3a5f77a",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/evaluator-input.json": "47e721bb11980435e5f352acd134a82eb157f2b3b1bf6b951abc4ba57f39ea35",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/harness.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/logs/evaluation/repair-3ea0fac9e4d44375a85c4229b8db9d77/negative-control/workbench__fixture-1/eval.sh": "230b77373441cce65de73ac27a46b49a9069e66bb9749f5011b0ef90f98ac051",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/logs/evaluation/repair-3ea0fac9e4d44375a85c4229b8db9d77/negative-control/workbench__fixture-1/report.json": "24a0b6e85a6bfcec7a36286cfc6ffef2b5ea28a06b741ae818f47706b46532e7",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/logs/evaluation/repair-3ea0fac9e4d44375a85c4229b8db9d77/negative-control/workbench__fixture-1/run_instance.log": "adf09dc6de69f219b2f3fa56e36bb44763b62d522d582b026d8849a60c98a9b1",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/logs/evaluation/repair-3ea0fac9e4d44375a85c4229b8db9d77/negative-control/workbench__fixture-1/test_output.txt": "d1045934b71845345d6b295c78d0a8965143febe622baf8fed90d6099b783ac2",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/result.json": "c621d03b1e942d669b057f1c090fad34097c4e942b72524e47c81dea66593fb1",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/source-binding.json": "0600fa20b50b523c66f80d6ace0c070d296e5a132d83bb3cf37f0d242dd5c3e1",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/negative/worker-result.json": "937fb50f8bbf3af7e06c0abe002dfaf0294afc753cd238cd8c3cef344b736e5f",
+    "runtime/swebench-harness-acceptance-20261103-v5/official-qualification/qualification.json": "0ce2decabdf05bae2de298897e67a51d2214814a6061cb2e4b8e1e89a6961470",
+    "runtime/swebench-image-plan-20261103.json": "b1beccbdcab1f59fc7a1600a6af9455d54ca6911cabb9106807c61a9a2b9fbdb",
+    "runtime/swebench-image-source-diff-20261103.json": "da39486ec313904fcafd772df42fca8b4fee8aaa82aba98abf73c2004415d618",
+    "runtime/swebench-installed-image-20261103.json": "31d79c3d3972dcfdc127465542e55f6150cc148b7394e539914e517dd425f97a",
+    "runtime/swebench-lite-evaluator-20261103/manifest.json": "cc948a7516042effe92e5f3695e13ee01a1788c1505ad7d0403b148b3c86ec7a",
+    "runtime/swebench-lite-evaluator-20261103/psf__requests-3362/evaluator.json": "b7664892d17a9647ac9f6f370c64dc11a15975edc870e64edeaf62a9c4d1dc68",
+    "runtime/swebench-lite-evaluator-20261103/psf__requests-3362/public.json": "6c0cca6bc6495362a2e8d2c69c68df92c73cfc6c657fb9a4faecc21187c879a3",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/container-policy.json": "3c65d60dc134555204353f217569a319c7d3406ace7b1947a6e34c3b551681e9",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/evaluator-input.json": "87901e399f18d3f906a6099dc0a8d59f4d19e2365423e28872edec633c0ddca8",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/harness.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/logs/evaluation/repair-6d62ed56e49f4f1096ddfc641a775742/gold-control/psf__requests-3362/eval.sh": "e1472d70f6ac96791588cd4b8c9c487179d0af95bc4d568f395317bf968c1343",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/logs/evaluation/repair-6d62ed56e49f4f1096ddfc641a775742/gold-control/psf__requests-3362/patch.diff": "23e64f2da841d5d49874221e915a084e9bb1def2fcd6d6a24fd8e7dce71fba8d",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/logs/evaluation/repair-6d62ed56e49f4f1096ddfc641a775742/gold-control/psf__requests-3362/report.json": "756db37a905b1ad9ee122c693574a2a8ece813f5f252f9ce9996fbce999ce7ee",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/logs/evaluation/repair-6d62ed56e49f4f1096ddfc641a775742/gold-control/psf__requests-3362/run_instance.log": "b946ff638e9becd505f85429893c996d5f95ea36f60292053a41fd8edacdf54e",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/logs/evaluation/repair-6d62ed56e49f4f1096ddfc641a775742/gold-control/psf__requests-3362/test_output.txt": "6da583dc0d6257e7c2660c023213b0dc118e8c5d49646f710563659adda137b5",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/result.json": "a0872471feb51aa8fa48cb6b33b3ce18414999db4715bfe4d4ecf6bd2139b825",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/source-binding.json": "ddf9373a7f30feed2280864b73ba42819fe989ed93bcdb9c503b6da1a7cec597",
+    "runtime/swebench-lite-qualification-20261103-v3/gold/worker-result.json": "aca27f2400b81b8ac16434dcf9af861420fc993723cc8f837f9e94c2dd3a7c90",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/container-policy.json": "3c65d60dc134555204353f217569a319c7d3406ace7b1947a6e34c3b551681e9",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/evaluator-input.json": "756277f166e4e40af8a5fe849f89155cbd887c7e5bfaf2d1c6be242eb02d4e6f",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/harness.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/logs/evaluation/repair-7c7cbe7920c347b2ac1fae54f758beb6/negative-control/psf__requests-3362/eval.sh": "e1472d70f6ac96791588cd4b8c9c487179d0af95bc4d568f395317bf968c1343",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/logs/evaluation/repair-7c7cbe7920c347b2ac1fae54f758beb6/negative-control/psf__requests-3362/report.json": "23e5d583f1db062cd150bd2fdf2737878553bd2926e619d359ed26e9123d96ff",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/logs/evaluation/repair-7c7cbe7920c347b2ac1fae54f758beb6/negative-control/psf__requests-3362/run_instance.log": "5c1f860e73e5bcc9afb258da490557856c451d403aba6fdfc9ffd25dd9bdf7cf",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/logs/evaluation/repair-7c7cbe7920c347b2ac1fae54f758beb6/negative-control/psf__requests-3362/test_output.txt": "62e405bba04bbc9a8f300088e13497def923cbe49ef110fbdabfd3a7927eba56",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/result.json": "59470bdc0748ed70242e730bd2ca878e123e5f4f845feebca2635cd4b721c1e3",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/source-binding.json": "ddf9373a7f30feed2280864b73ba42819fe989ed93bcdb9c503b6da1a7cec597",
+    "runtime/swebench-lite-qualification-20261103-v3/negative/worker-result.json": "101386f4c57adf862eae36c8c517b4637a1f52f1a9b8d00b55b335739776e727",
+    "runtime/swebench-lite-qualification-20261103-v3/qualification.json": "60cc28ed25ba752b07241c566d9e66f5a4c57a6358d2479fba25f7fc758526b2",
+    "runtime/swebench-lite-workspace-20261103/baseline/manifest.json": "36ae292acb05cf656fd06b841a330f59c5aebde64c49259e78979feef7664269",
+    "runtime/swebench-lite-workspace-20261103/baseline/reports/result.json": "f02a7c23c18fbe1fd62e1878ad7bb55f5338b51652c0544f498b4163cf7069a7",
+    "runtime/swebench-lite-workspace-20261103/task.json": "6c0cca6bc6495362a2e8d2c69c68df92c73cfc6c657fb9a4faecc21187c879a3",
+    "runtime/swebench-lite-workspace-20261103/workspace.json": "a4bd0890f7fbfd92fc016a0515023cd03406ea4aa968cff914fec120df1e0709",
+    "runtime/swebench-real-audit-20261103.json": "37d354c49bf5558e07010da2a0795c5343cac71e19d8ef7c050a91a11d0c515a",
+    "runtime/swebench-wheel-check-20261103-final.json": "041ad4172b4a4c34c3d120b860e2ce5c5991f3a27526436ea768e2ddd52f6bb6"
+  },
+  "limits": [
+    "no benchmark effectiveness claim",
+    "formal subset and ReAct/Full experiment not run",
+    "current real development task environment unqualified",
+    "no new model API batch authorized",
+    "existing Python edits only; no shell or non-Python edits",
+    "official task image downloaded only after user allowed continuation; no other official task images pulled"
+  ]
+}

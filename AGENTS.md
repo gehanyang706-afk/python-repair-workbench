@@ -13,3 +13,33 @@
 - 批准修改范围来自应用或用户，不能由模型自行扩大。测试与配置不属于可修改范围。
 - 单元测试：`.venv/bin/python -m unittest discover -s tests -v`。
 - Docker 集成测试：`RUN_DOCKER_TESTS=1 .venv/bin/python -m unittest discover -s tests -v`；使用已存在的本地镜像，不自动下载。
+
+## 诊断与性能优化阶段（2026-10-31）
+
+- 当前交接：`docs/diagnostic-agent-handoff-20261031.md`；实现规格见phase1/phase2文档。
+- 新增性能任务独立于原失败测试修复；只适配注册的`ugc-export-v1` Python接口，不称任意仓库或游戏引擎优化。
+- Skills与只读investigator默认关闭。固定候选策略无自动晋升；主子共享预算，子Agent不编辑、不测量、不递归委派。
+- 本轮仅获Codex聊天额度授权，真实模型API请求为0；`--allow-real-model`或已有密钥不替代精确批次批准。未来真实调用前另冻结模型、任务、跨角色请求/Token/费用上限与停止条件。
+- 已知候选/脚本模型/四题公开合成开发集只验证机制，不写成真实LLM成功率或独立泛化结果；未知用量不当0。
+- 证据保留在runtime，审计用`scripts/audit_diagnostic_run.py`；资格检查用`scripts/qualify_diagnostic_probes.py`，新运行必须使用新目录。
+- 框架read_file/write_todos与业务工具统一计共享上限；提议数与实际获准执行数区分。停机行为发生修正，未来比较须冻结新指纹，不能沿用旧版本授权或把历史成绩回写。
+- 后续MCP接入见`docs/diagnostic-agent-mcp.md`：可选stdio，仅固定三个诊断工具，不开放任意路径/命令；requirements-mcp.lock独立锁，保留本地直连作语义对照。取消/断连后须核实本次容器清理，截断日志不能当已清理。
+- 子任务新增请求/工具/时间配额与主流程预留，详见`docs/diagnostic-subtask-budgets.md`；局部耗尽可恢复，根取消/截止/总预算仍硬停。无Token或费用硬限，不把共享统计写成硬预算。
+- 诊断工具循环的重复动作与停滞策略见`docs/diagnostic-progress.md`：只比较当前可见且有真实回执的观察，随机引用及假设改写不算进展。三轮重复提示，仍重复则在下一次请求预留前停止；子状态隔离，旧修复不启用。新策略改变停止行为，真实评测须重新冻结指纹。
+- 新诊断评测入口见`docs/diagnostic-evaluation.md`和`repair_workbench.diagnostic_evaluation`：仅固定只读脚本策略，adaptive/fixed只改变调度，非B0/Full或真实模型成绩。计划冻结后有源码/依赖/数据漂移须停止，取消必须停止整批并保留not_run；不能改阈值或覆盖失败。当前不对健康决策和内存改善独立评分。
+
+## 公开任务实测交接（2026-11-01）
+
+- 用户后续授权北京区`qwen-max`，本批输入输出合计300,000 Token、额外付费0元，确认免费额度充足且服务端用完即停。该授权已执行：38次真实请求、277,163 Token；保守预留下不足下一次调用而停止，不能将剩余额度视为新批授权。
+- 结果见`docs/public-qwen-max-results-20261101.md`；两个BugsInPy衍生开发缺陷，非官方全量成绩。3组完整配对中按需读取通过3/3、失败上下文预取通过1/3，后者Token增加81.8%；不晋升为默认，不宣称整体提升。
+- 实测入口`repair_workbench.public_live_evaluation`与原只读诊断脚本入口分开。框架/主流程共享持久化Token预留；未知回执保留预留并停批。原始证据、未运行行及冻结源码不得覆盖；实际账单未知。
+- 实测后仅离线修复`source_context.py`中最内层错误帧被外层片段挤出的问题，修复版未再调用真实模型。原实测和离线覆盖改善分别报告。历史批次审计可使用与原计划逐文件匹配的`frozen-implementation`，其余数据、依赖和计划字段仍须一致。
+
+## SWE-bench适配（2026-11-03）
+
+- 新入口为repair_workbench.swebench_adapter；官方harness源码5.0.2固定至02e7a74ffd0b707aab73d203fe87bdc7c76afc8e，独立依赖环境与逐文件锁，不修改官方评分。
+- Agent只接收Issue与原始基线；标准补丁、官方测试补丁/名单、验收日志都留在独立Evaluator端。首次有效补丁返回submitted并停止，不等于passed。通用修复入口和默认v2不改变。
+- 正式接入用run_qualified_agent，在模型调用前验证环境资格与源码/镜像/策略一致；底层SWEbenchSession用于受控集成与离线测试。只支持现有Python文件，范围由基线树/操作方源码根目录确定，不按标准答案挑文件。
+- 用户授权下载并复验一个psf__requests-3362官方镜像，非新的模型批次授权；未拉取其他任务镜像，真实模型API为0。镜像仅由显式准备步骤下载，适配器不自动拉取。
+- 首个真实开发任务标准补丁F2P通过但P2P仍有2项失败，none/bridge均qualified=false，不能记成模型失败或成功，也不能为了过关删测试。详见docs/swebench-adapter-20261103.md。
+- 正式效果评测子集尚未冻结；当前一题属于开发验证。13.3个百分点、18.6%→8.8%、15%、58.0%均没有实测依据。SWE-bench修复结果与性能任务联合达标率分开，评测设计见docs/swebench-evaluation-plan-20261103.md。

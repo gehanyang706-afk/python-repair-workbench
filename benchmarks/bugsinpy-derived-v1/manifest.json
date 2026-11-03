@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "name": "bugsinpy-derived-v1",
+  "split": "public development pilot; no contamination guarantee",
+  "tasks": [
+    {
+      "id": "tqdm-1",
+      "upstream": "https://github.com/tqdm/tqdm",
+      "benchmark": "BugsInPy-derived module-level adaptation; not official BugsInPy score",
+      "benchmark_commit": "11c5f1eea954a42132cfd06bf257766a7963e0fd",
+      "benchmark_bug": 1,
+      "metadata_url": "https://github.com/soarsmu/BugsInPy/blob/11c5f1eea954a42132cfd06bf257766a7963e0fd/projects/tqdm/bugs/1/bug.info",
+      "base_commit": "8cc777fe8401a05d07f2c97e65d15e4460feab88",
+      "fix_commit": "c0dcf39b046d1b4ff6de14ac99ad9a1b10487512",
+      "allowed_paths": [
+        "tqdm/contrib/__init__.py"
+      ],
+      "task": "修复 tenumerate 在非默认 start 下与内置 enumerate 编号不一致的问题，保持空序列、迭代器及其他包装器的既有行为。",
+      "adaptation": "Complete top-level package sources retained byte-for-byte; optional package modules not installed. Original trigger assertions ported from nose to pytest with monitor disabled; evaluator-only boundary tests added before model calls. Python/image differ from official Python 3.6.9.",
+      "upstream_git_blobs": {
+        "files": {
+          "LICENCE": "0c4f76d13b2e316f1fa846a25d0514f3e4b09659",
+          "tqdm/__init__.py": "670d6457e0771ddbf5a4213d4a466e89b7b8dbf4",
+          "tqdm/__main__.py": "130bc6375628dffcf81fd338a297adae47ac205c",
+          "tqdm/_main.py": "07b6730b1e95f85b56f2708d5ce399c730677470",
+          "tqdm/_monitor.py": "e1e257069d7eba18096840ff9c3eb9ed23a39239",
+          "tqdm/_tqdm.py": "694318ee70173dd855ef072cd47d5f49a2526dff",
+          "tqdm/_tqdm_gui.py": "541f104fbdaba844efc38260fe8f2b9440b7b832",
+          "tqdm/_tqdm_notebook.py": "dde999817de52fe2d8ca63eb37170374ab589fc8",
+          "tqdm/_tqdm_pandas.py": "234fafffe03557f99916f3cfbbd2c6414a9b6ffb",
+          "tqdm/_utils.py": "31f78ed70ca2e9d43fa95ca5aaf4d448429b35a0",
+          "tqdm/_version.py": "7ce1b66b4c4e778945ea7a3290c6860ef2a13dcd",
+          "tqdm/auto.py": "4dd1717540072676be61492bbea0dcb412d468ec",
+          "tqdm/autonotebook.py": "0bcd42a1330920e979df0a1edd59c2a372661d77",
+          "tqdm/cli.py": "2335c04e8a5734f1f51e5095ba8e4341240979b5",
+          "tqdm/contrib/__init__.py": "1dddacf45ff6abda47d63ab753b73c4529e7a0ba",
+          "tqdm/contrib/concurrent.py": "e521968134f63e9df6e212f78266a6c7885e3d73",
+          "tqdm/contrib/itertools.py": "734ad8593eec8a5a7d019b0082ca4e0ee0c0194e",
+          "tqdm/gui.py": "35f5c5e55a77315241b749b0aa74ac9a8873dab3",
+          "tqdm/keras.py": "080aef65a1b456cfa49fff9f5a8a96679206add6",
+          "tqdm/notebook.py": "cbff8c10129b5e1895a662e50d50f468c1d14a3d",
+          "tqdm/std.py": "14ab11a0a8925fb0c62d034778a7727f705ee902",
+          "tqdm/utils.py": "a9a42be243a7a9eb03d0c15d570c637c4d73c291"
+        },
+        "base": "8cc777fe8401a05d07f2c97e65d15e4460feab88",
+        "fix": "c0dcf39b046d1b4ff6de14ac99ad9a1b10487512",
+        "allow": "tqdm/contrib/__init__.py",
+        "oracle_sha": "935ab63be7d8c18801386e2aa81027a7b535da4e"
+      },
+      "files": {
+        "holdout/test_enumerate_edges.py": "802f6d30f4a46ed6d9eba725474dd73c69971ac9fa14ce75653b92862c4ebf5c",
+        "oracle/tqdm/contrib/__init__.py": "a1945e32fc8264d4b09a1da2eea2fcb22ef6b3f52107f8eecaa50d6fd48f6438",
+        "source/LICENCE": "1bbf12d09d437844527b3cdaba01d379dac651b5cbb5ebb0d764274684d2680b",
+        "source/tqdm/__init__.py": "a9954de853af31949ccdf12e0e5f243c887d603de582129bbc1caebf937246fd",
+        "source/tqdm/__main__.py": "cf7390a2508a0fcad4777a4a629fc5212ab655cb45845975995f835676a834e3",
+        "source/tqdm/_main.py": "86f5bb6170b91205b93acb65379f046f4bdfa61cd7bc1e86152cfe6fcf7a5abd",
+        "source/tqdm/_monitor.py": "42cde8884ab54d1f642dbbc1daa11fac770db748a53b651bfb4f386d5d27d86b",
+        "source/tqdm/_tqdm.py": "82d4f0620c9f0021d64751004af1f76757021a8bd659486b618c63100f0469f1",
+        "source/tqdm/_tqdm_gui.py": "08c82141621535ae4893c3d3a29ec4cc7d4a022524a029c5ebda2c0b066923c4",
+        "source/tqdm/_tqdm_notebook.py": "1f4f117c939073cbc858fa6d35e1e0865e805c8721424e8edc6bc7ccb885f6eb",
+        "source/tqdm/_tqdm_pandas.py": "e118d2a736c72e07ee44b2503db0dff7f2d3f9fff475bda068007a9ce2787580",
+        "source/tqdm/_utils.py": "a8b99b55bd1565c211c975b18aa10d874a9c81b9cca9ab87cdac5facee72b0fc",
+        "source/tqdm/_version.py": "978a3d8004793e56254cc4b80fa8b2b94cd4f5f40563dc6274c8571dcb8e4058",
+        "source/tqdm/auto.py": "ef36591569613a8cda0bdd444ef68f6eb518d2a016ec2e2f9b17797d6854b134",
+        "source/tqdm/autonotebook.py": "0907d5c9c87008098c22032929cf27fa026e4f5710537dd81ded644883d75d3f",
+        "source/tqdm/cli.py": "49a003c251e562c7b889353c3fcaa95146c10fbd4d82b726546753ad233ca325",
+        "source/tqdm/contrib/__init__.py": "205b5254a0cb1b7c2f86362a2b49cc39e125a50adb023ec02b398fb7a638ca77",
+        "source/tqdm/contrib/concurrent.py": "f878757dcfefbeb3987bbc61a8216770ef07518847e7ee2e353aab319a8ae506",
+        "source/tqdm/contrib/itertools.py": "e26d6f8b2361396666d3f3c0e8d0bc80c1c16cbb287986cbbafc3b4df06bc3c8",
+        "source/tqdm/gui.py": "41ccf966d39f8a81558b4fd44a0003e894297fa716b145d64d71037b32d15244",
+        "source/tqdm/keras.py": "978200d482ea6ba990b7307985a427b59d92363cdd95949795dfb9a0e1e1945c",
+        "source/tqdm/notebook.py": "4f9ed7f43f825da0a156346dfebafbc632801474990ccea386cefd97a1a22596",
+        "source/tqdm/std.py": "9712396ebfd2e2909694298c7ab628b3cf99a87495bb1127d4c1d46153d270df",
+        "source/tqdm/utils.py": "478960e000a63fbf793544a3458a6b74314f3c1ce2cb95f4579610e0cf70ec68",
+        "visible/test_contrib.py": "2c82db47280a6f660362e7875d11ad3acaa228f639651bdea9bd12fcf4a16e1f"
+      }
+    },
+    {
+      "id": "tqdm-4",
+      "upstream": "https://github.com/tqdm/tqdm",
+      "benchmark": "BugsInPy-derived module-level adaptation; not official BugsInPy score",
+      "benchmark_commit": "11c5f1eea954a42132cfd06bf257766a7963e0fd",
+      "benchmark_bug": 4,
+      "metadata_url": "https://github.com/soarsmu/BugsInPy/blob/11c5f1eea954a42132cfd06bf257766a7963e0fd/projects/tqdm/bugs/4/bug.info",
+      "base_commit": "03b347646492131d889871939b40457d29147216",
+      "fix_commit": "964dee631d0ed30e2f799b42fc58ba5e73795a08",
+      "allowed_paths": [
+        "tqdm/_tqdm.py"
+      ],
+      "task": "修复 tqdm 在未知总长度的迭代器上使用自定义 unit_scale 时崩溃的问题，保持已知总长度和默认缩放的既有行为。",
+      "adaptation": "Complete top-level package sources retained byte-for-byte; optional package modules not installed. Original trigger assertions ported from nose to pytest with monitor disabled; evaluator-only boundary tests added before model calls. Python/image differ from official Python 3.6.9.",
+      "upstream_git_blobs": {
+        "files": {
+          "LICENCE": "0c4f76d13b2e316f1fa846a25d0514f3e4b09659",
+          "tqdm/__init__.py": "d6b251fe7ecbbec5ca9efc8c92aa006f918b5a0d",
+          "tqdm/__main__.py": "be7e86a53e0af1deaa6ff8f24f9b8d6aafb980ee",
+          "tqdm/_main.py": "e4cba11c38a8e939923be13c2b13ca8f8f51e986",
+          "tqdm/_monitor.py": "17c5a1abd4e5eed80fa7170be8cbaa1d52167690",
+          "tqdm/_tqdm.py": "df6414edbdb77eb6632ee806c4d9475df2ecc0c3",
+          "tqdm/_tqdm_gui.py": "ad46d8bdd4e059cb6956e5b4929411b15673c6be",
+          "tqdm/_tqdm_notebook.py": "bd1a6a1e86630f4a54866219bae53b71bfb2eb01",
+          "tqdm/_tqdm_pandas.py": "234fafffe03557f99916f3cfbbd2c6414a9b6ffb",
+          "tqdm/_utils.py": "8aebc0ef72ddf29d88553b6ebd49a9d1a27d18ed",
+          "tqdm/_version.py": "ced3af41a5c741a1a74d098c70e5939de5f2ccb8"
+        },
+        "base": "03b347646492131d889871939b40457d29147216",
+        "fix": "964dee631d0ed30e2f799b42fc58ba5e73795a08",
+        "allow": "tqdm/_tqdm.py",
+        "oracle_sha": "ea5840978fdaeae3c4afca66f665b6a9161ecc72"
+      },
+      "files": {
+        "holdout/test_scaling_edges.py": "86e8b9835e9798d450c0c696a922a9f994917ea689f268ef3254aed6bbdbaf42",
+        "oracle/tqdm/_tqdm.py": "d9534a4b6ed568ab50ebbc989ea8575ff621b8defe1b5dfd102f5a7f42f998df",
+        "source/LICENCE": "1bbf12d09d437844527b3cdaba01d379dac651b5cbb5ebb0d764274684d2680b",
+        "source/tqdm/__init__.py": "d59ed905d1e01ace4a428cf5b5e76cae981379a94cb779809f5cb5c4010f0d58",
+        "source/tqdm/__main__.py": "24f348c08f906ff550111a30b3e9f84765f3718f2b182b79151f24522283d49e",
+        "source/tqdm/_main.py": "93d5423c3aed3a2ab5895cf501f6619a5e7f31ead95edf0ed2bf54ae70b51bf9",
+        "source/tqdm/_monitor.py": "ebe13e0e9c41b37f13c49e03739cc0af7086430897e219ca057c91df411ce0cc",
+        "source/tqdm/_tqdm.py": "62fff8cc0cbb11126dc7ef734e8fba4e67d1b9272d449b8203aaddaccd354a58",
+        "source/tqdm/_tqdm_gui.py": "c97332f0a0c0c0eeb05218041ef7efb8f4a7e41d4b6f5e64762f2113fac33dc8",
+        "source/tqdm/_tqdm_notebook.py": "3a50e3291098d079a1bd48b3b1bc6d319d6810eee64ad28ed1895a3fd951298c",
+        "source/tqdm/_tqdm_pandas.py": "e118d2a736c72e07ee44b2503db0dff7f2d3f9fff475bda068007a9ce2787580",
+        "source/tqdm/_utils.py": "dfbd3a7af48856638dbe45d795dd32d5bac279b9edca03c96f7fa28a034e753b",
+        "source/tqdm/_version.py": "45a01dffa23817c9622ada8f697076ee6344624635318c64fcdc48546485eea0",
+        "visible/test_unknown_total.py": "987cd435f569a4f9fa31b5438b006a596f2f5f839d65262027c08b11bf671588"
+      }
+    }
+  ]
+}

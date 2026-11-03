@@ -133,6 +133,9 @@ def failure_context(session):
         if number<1:continue
         item=(path,number)
         if item not in anchors:anchors.append(item)
+    # Tracebacks list callers before the fault. Reserve the small excerpt
+    # budget for the innermost source frames, before inferred call targets.
+    trace_anchors=list(reversed(anchors))
     for identity in failed:
         module,name=identity.split('::',1)
         path=module.replace('.','/')+'.py'
@@ -154,7 +157,16 @@ def failure_context(session):
                     if name and len(name)<=80:call_names.add(name)
         except (ValueError,OSError,SyntaxError,RecursionError):continue
     task_names=set(re.findall(r'[A-Za-z_][A-Za-z0-9_]{2,79}',session.task))
-    targets=[];symbol_matches=[]
+    targets=[];symbol_matches=[];trace_symbols=set()
+    for path,number in trace_anchors:
+        if path not in session.allowed_paths:continue
+        try:
+            node=location(session._source_text(path),number)
+            if node and (path,node['symbol']) not in trace_symbols:
+                trace_symbols.add((path,node['symbol']))
+                symbol_matches.append({'path':path,**node,'basis':'traceback'})
+        except (ValueError,OSError,SyntaxError,RecursionError):
+            continue
     for path in sorted(session.allowed_paths)[:8]:
         session.check_budget()
         try:
@@ -162,12 +174,13 @@ def failure_context(session):
                 if not hasattr(node,'lineno') or len(name)>160 or len(path)>512:continue
                 parts=name.split('.');leaf=parts[-1]
                 invoked=(leaf in call_names or (leaf=='__init__' and bool(set(parts[:-1]) & call_names)))
-                if invoked or set(parts)&task_names:
+                named=(leaf in task_names or (leaf=='__init__' and bool(set(parts[:-1]) & task_names)))
+                if (invoked or named) and (path,name) not in trace_symbols:
                     symbol_matches.append({'path':path,'symbol':name,'start_line':node.lineno,'end_line':node.end_lineno,
                                            'basis':'visible_call_name' if invoked else 'task_name'})
                 if invoked:targets.append((leaf=='__init__',path,node.lineno))
         except (ValueError,OSError,SyntaxError,RecursionError):continue
-    anchors=([item for item in anchors if item[0] in session.allowed_paths]
+    anchors=([item for item in trace_anchors if item[0] in session.allowed_paths]
              +[(path,line) for _,path,line in sorted(targets)]
              +[item for item in anchors if item[0] not in session.allowed_paths])
     anchors.sort(key=lambda item:item[0] not in session.allowed_paths)
@@ -194,6 +207,10 @@ def failure_context(session):
             text=session._source_text(path)
             node=location(text,number)
             start=(node['start_line'] if node and node['end_line']-node['start_line']<60 else max(1,number-15))
+            # Long comments/docstrings must not consume the character limit
+            # before the observed failing line is delivered.
+            if len(''.join(text.splitlines(keepends=True)[start-1:number-1]))>900:
+                start=number
             count=min(60,node['end_line']-start+1) if node else 60
             if (path,start) in seen_excerpts:continue
             excerpt=''.join(text.splitlines(keepends=True)[start-1:start-1+count])[:2000]

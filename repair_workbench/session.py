@@ -74,10 +74,7 @@ class RepairSession:
             raise ValueError('超时必须为有限正数')
         before = json.loads((self.baseline / 'reports/result.json').read_text())
         outcomes = test_outcomes(self.baseline / 'reports/pytest.xml')
-        if (before.get('snapshot_id') != snapshot_id(self.manifest)
-                or before.get('status') != 'tests_failed' or not before.get('cleanup_ok')
-                or not any(v == 'failed' for v in outcomes.values())):
-            raise ValueError('必须提供内容一致、已复现断言失败并完成清理的基线')
+        self._validate_baseline(before, outcomes)
         self.before = before
         self.max_attempts = max_attempts
         self.max_model_calls = max_model_calls
@@ -96,6 +93,18 @@ class RepairSession:
                     allowed_paths=sorted(self.allowed_paths))
         self.save('running')
 
+    def _validate_baseline(self, before, outcomes):
+        """Bug repair retains its original failed-assertion prerequisite."""
+        if (before.get('snapshot_id') != snapshot_id(self.manifest)
+                or before.get('status') != 'tests_failed' or not before.get('cleanup_ok')
+                or not any(v == 'failed' for v in outcomes.values())):
+            raise ValueError('必须提供内容一致、已复现断言失败并完成清理的基线')
+
+    def _verify_candidate(self, candidate, destination, timeout_seconds):
+        return verify_candidate(self.baseline, candidate, destination,
+                                set(self.allowed_paths), timeout_seconds,
+                                execution_control=self.execution_control)
+
     def record(self, event, **payload):
         with self.lock:
             entry = {'event': event, 'elapsed_seconds': round(time.monotonic() - self.started, 3), **payload}
@@ -109,8 +118,15 @@ class RepairSession:
             category='edit'
         elif tool in {'read_source','read_test_log','list_sources','source_outline','read_symbol','search_source'}:
             category='read_search'
-        elif tool in {'record_behavior_summary','set_repair_plan'}:
+        elif tool in {'record_behavior_summary','set_repair_plan','record_hypothesis',
+                      'read_evidence','conclude_diagnosis'}:
             category='analysis'
+        elif tool == 'run_probe':
+            category='diagnostic'
+            self.tool_statistics['by_category'].setdefault('diagnostic', {'calls':0,'schema_rejections':0})
+        elif tool == 'task':
+            category='delegation'
+            self.tool_statistics['by_category'].setdefault('delegation', {'calls':0,'schema_rejections':0})
         elif tool in {'read_file','write_todos'}:
             category='framework'
         else:
@@ -475,14 +491,16 @@ class RepairSession:
                 attempt['phase'] = 'verification'
                 self.check_budget()
                 remaining = self.deadline_seconds - (time.monotonic() - self.started)
-                self.submission_counts['docker_verifications'] += 1
-                verdict = verify_candidate(self.baseline, root / 'candidate', root / 'verification',
-                                           set(self.allowed_paths), min(self.test_timeout, remaining),
-                                           execution_control=self.execution_control)
+                if getattr(self, 'candidate_evaluation_is_docker', True):
+                    self.submission_counts['docker_verifications'] += 1
+                verdict = self._verify_candidate(root / 'candidate', root / 'verification',
+                                                 min(self.test_timeout, remaining))
                 attempt.update(verdict)
                 if self.durability:
                     self.durability.candidate_verified(number, root / 'verification', verdict)
-                if verdict['status'] != 'passed':
+                if verdict['status'] == 'submitted':
+                    attempt['next_action'] = 'Final patch staged. Stop; official acceptance runs outside the Agent loop.'
+                elif verdict['status'] != 'passed':
                     log = root / 'verification/reports/pytest.log'
                     if log.exists():
                         with log.open('rb') as stream:

@@ -1,16 +1,32 @@
 # Python 代码诊断与修复工作台
 
+2026-11-03新增[SWE-bench适配](docs/swebench-adapter-20261103.md)：Issue-only工作区、受控最终补丁、官方JSONL与独立评分已接通，合成夹具正负例通过。首个真实开发任务因标准补丁仍有两项P2P失败而未取得环境资格；尚无SWE-bench模型成绩，正式子集未冻结。[后续评测口径](docs/swebench-evaluation-plan-20261103.md)区分修复、成本与性能任务，不预填提升数字。
+
+2026-11-01公开任务实测：北京区`qwen-max`首批对照已执行38次真实请求、消耗277,163 Token。两个BugsInPy衍生开发缺陷的3组完整配对中，按需读取通过3/3、失败上下文预取通过1/3；预取组Token增加81.8%，不晋升为默认。已离线修复错误帧被外层上下文挤出的问题，修复版尚未实测。详见[真实结果与证据](docs/public-qwen-max-results-20261101.md)。UGC自适应诊断与MCP的模型增益仍需单独评测。
+
 稳定发布为 `v1.0.0`；`main` 为 `1.1.0.dev0` 开发版本，包含后续可靠性修复与可选实验机制。面向本机受控 Python 仓库，复现测试失败、构建独立候选修改，并用原始测试验证修复结果，交付标准 Git 补丁与可追踪的执行记录。部署与使用见[本机部署](docs/deployment.md)，v1 历史验收与局限见[交付记录](docs/release-v1.md)。
 
 ## 功能状态
 
-本地收尾见[交付报告](docs/delivery-20261016.md)，最短安装与演示见[演示路径](docs/demo.md)。当时收尾记录按本地状态归档；此前源码随后已公开，本批后端改造尚未推送或发布新稳定版。默认保守固定 `v2`，并非四配置比较的获胜者；真实客户端预检因一次无工具的异常文本响应暂停，正式矩阵未启动。项目定位为有限范围、供人工审核的修复工作台。
+历史收尾见[交付报告](docs/delivery-20261016.md)，最短安装与演示见[演示路径](docs/demo.md)。当前开发版本包含可选MySQL后端、诊断Agent、MCP与SWE-bench适配，稳定发布仍为v1.0.0。默认保守固定 `v2`；各模型批次与后续适配的结果分别归档，不混合为总体成功率。项目定位为有限范围、供人工审核的修复工作台。
 
 已实现：固定 Git 提交快照、Docker pytest 执行、结果分类、源文件修改范围控制、候选补丁导出、原始测试重建验证和命令行入口；Deep Agents 单 Agent 诊断、受控工具、候选重试、资源预算及运行记录。
 
 已接入 DashScope 模型客户端。候选修改既可由调用方提供，也可通过 `repair` 命令由模型生成。已提供本机 Web 界面、SQLite 任务队列、SSE 进度、协作式取消和重启后的中断标记；SQLite 入口不自动续跑；MySQL 扩展提供已确认阶段的保守恢复，不支持任意图节点续跑。`repair` 与 `serve` 默认使用 v2 流程，v3 `full` 仅在显式指定 `--profile full` 时启用。
 
 ## Agent 评测
+
+新增可选的[诊断与性能优化任务](docs/diagnostic-agent-phase1.md)：单 Deep Agent 根据证据选择源码调查、CPU、Python 分配或基准实验，记录假设更新，再以功能与性能双重规则独立复验。当前注册 `ugc-export-v1` Python 地图工具链接口；四个公开合成开发案例与工具资格检查均与真实模型成绩分开。`probe`、`verify-performance` 不调用模型，`diagnose` 真实入口默认关闭；原修复入口和默认配置保留。
+
+默认关闭的[候选 Skills 与只读调查委派](docs/diagnostic-agent-phase2.md)可分别启用，主子共享任务资源上限；当前仅有离线框架链路证据，尚无真实效果提升结论。
+
+最新本地实现、验证与限制见[2026-10-31阶段交接](docs/diagnostic-agent-handoff-20261031.md)。
+
+后续已接入[本地stdio MCP诊断服务](docs/diagnostic-agent-mcp.md)，并增加[子任务配额与主流程资源预留](docs/diagnostic-subtask-budgets.md)；两者均有离线机制验证，真实模型收益尚未评测。
+
+诊断循环另有[重复动作与停滞保护](docs/diagnostic-progress.md)：先提示调整，再在下一次模型请求前停止确定性重复；主子任务分别计数，回查不能仅因新发放引用就被算作进展。
+
+新增[公开开发集诊断评测执行器](docs/diagnostic-evaluation.md)：冻结任务、源码、依赖、镜像和预算，串行执行调度对照，保存逐项审计、完整分母和成对报告。当前只运行固定离线脚本策略，未启动真实模型评测；公开四题不改称独立集。
 
 已提供固定上游提交的真实 Bug 模块级任务（原四题、后续两道 boltons 题及两道 more-itertools 跨项目题）、官方修复核验、独立验收测试及 JSON/CSV/Markdown 报告。评测不会向 Agent 暴露官方修复或独立验收用例。操作与统计口径见 [评测流程](docs/evaluation.md)。任务集核验通过不等于 Agent 修复成功。
 
@@ -62,6 +78,8 @@ python3 -m repair_workbench verify --baseline /path/to/run/baseline --candidate 
 - `verification.json`：通过、否决或无法确定，以及原因与前后统计。
 
 ## 开发与验证
+
+最近本地Docker回归共449例：433通过、16项因服务条件未启用而跳过、0失败，见[SWE-bench适配交接](docs/swebench-adapter-20261103.md)。工程测试数不等于修复任务数。原始运行目录、配置和模型轨迹留在本地runtime；仓库公开实现、任务、汇总与证据哈希。第三方样例的来源与许可见[第三方说明](THIRD_PARTY_NOTICES.md)。
 
 `Dockerfile.tests` 提供纯 Python 夹具的参考镜像，固定基础摘要及 `requirements-test-image.lock`；工作台依赖独立使用 `requirements-agent.lock`。无密钥 CI 已准备，覆盖核心、Docker、工具契约、数据集、打包及新任务资格核验；本地等价检查通过，尚无远端运行结果。不承诺该镜像适配任意目标项目。
 

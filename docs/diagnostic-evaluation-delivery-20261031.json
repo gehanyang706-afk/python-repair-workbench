@@ -1,0 +1,707 @@
+{
+  "started_date": "2026-10-31",
+  "completed_date": "2026-11-01",
+  "base_commit": "007ded3",
+  "state": "local_offline_implemented_and_verified",
+  "previous_delivery": "docs/diagnostic-mcp-delivery-20261031.json",
+  "implemented": [
+    "strict_public_dev_dataset_registry",
+    "frozen_source_dependency_image_and_budget_plan",
+    "deterministic_paired_serial_schedule",
+    "bounded_offline_feedback_policy",
+    "per_run_provenance_and_raw_probe_validation",
+    "progress_event_consistency_checks",
+    "complete_run_inventory_and_paired_reports",
+    "source_drift_and_cleanup_failure_batch_stops",
+    "user_cancellation_propagation",
+    "git_environment_redirection_rejection"
+  ],
+  "real_model_api_calls": 0,
+  "regression": {
+    "returncode": 0,
+    "tests": 410,
+    "reported_seconds": 149.327,
+    "elapsed_seconds": 150.806,
+    "skipped": 0,
+    "log": "runtime/diagnostic-evaluation-all-services-20261031.log",
+    "real_model_api_calls": 0,
+    "mysql_enabled": true,
+    "docker_enabled": true,
+    "test_image": "repair-workbench-test:20261014-pinned"
+  },
+  "new_test_modules": {
+    "policy": 7,
+    "plan": 13,
+    "reports": 12,
+    "runner": 9,
+    "docker": 2,
+    "included_in_full_regression": true
+  },
+  "stdlib_checks": {
+    "plan_tests": 13,
+    "reports_tests": 12,
+    "optional_agent_dependencies_loaded": false
+  },
+  "public_development_batch": {
+    "plan": "runtime/diagnostic-evaluation-20261031-first-plan.json",
+    "plan_sha256": "4c659a84cfdfaf37ae67cbac1d7a7e8b58a517fec4a662ae030dfb06fe08a2dd",
+    "directory": "runtime/diagnostic-evaluation-20261031-first",
+    "summary": {
+      "planned_runs": 8,
+      "distinct_tasks": 4,
+      "repeats": 1,
+      "started_runs": 8,
+      "states": {
+        "completed": 8
+      },
+      "audited_runs": 8,
+      "planned_pairs": 4,
+      "comparable_pairs": 4,
+      "model_wrapper_calls_for_audited_runs": 48,
+      "missing_usage_calls_for_audited_runs": 48,
+      "all_calls_total_tokens": null,
+      "usage_complete_all_planned_runs": false,
+      "optimization_success_rate": null,
+      "health_decision_accuracy": null,
+      "real_model_api_calls": 0,
+      "real_llm_performance_claim_allowed": false,
+      "cost_savings_claim_allowed": false,
+      "decision_proposals": {
+        "insufficient_evidence": 8
+      }
+    },
+    "paired_control": "adaptive versus fixed diagnostic scheduling only",
+    "containers_reserved_and_confirmed_cleaned": 24,
+    "candidate_attempts": 0,
+    "reference_patch_used": false,
+    "independent_evaluation": false
+  },
+  "wheel": {
+    "sha256": "f4b7d74ab0075ec5651aafdf9b1d1ff84864f606f74b755f0667b92f0a6c9206",
+    "verified_files": 42
+  },
+  "installed_package_check": {
+    "evaluation_module": "/Users/gehanyang/编程/python-repair-workbench/runtime/diagnostic-evaluation-installed-20261101/repair_workbench/diagnostic_evaluation.py",
+    "policy_module": "/Users/gehanyang/编程/python-repair-workbench/runtime/diagnostic-evaluation-installed-20261101/repair_workbench/diagnostic_eval_policy.py",
+    "first_tool": "read_source",
+    "usage_unknown": true,
+    "real_model_api_calls": 0
+  },
+  "mysql_cleanup": {
+    "timestamp_utc": "2026-10-31T16:00:32.848258+00:00",
+    "container": "repair-mysql-eval-8d78be3a823d",
+    "ownership_label_verified": true,
+    "stop_returncode": 0,
+    "remove_returncode": 0,
+    "inspect_confirms_absent": true,
+    "elapsed_seconds": 0.91,
+    "runtime_logs_retained": true,
+    "bound_data_retained": true,
+    "private_configuration_retained": true,
+    "private_file_modes_0600": true,
+    "other_services_touched": false,
+    "real_model_calls": 0,
+    "status": "cleaned"
+  },
+  "source": {
+    "files": {
+      ".github/workflows/offline-validation.yml": "1d5c82493458f56bed8d241e8fda9a1c68a27f4b3509a057d8ced45ec07e86f0",
+      "benchmarks/ugc-diagnostics-dev-v1/qualification.py": "4693f74c7cba1330f016b9e19f0517651aab3e38beedfc1ce0c31a8ff665f5fe",
+      "pyproject.toml": "c74099da42a1cc881cb32303cad75084c2ae3b3cbefa7aeff3183aacf742a5f8",
+      "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "repair_workbench/__main__.py": "90db651cfa798bbd86944ec137b7d0283de96d9ecfcdfa5dad67fe972d522474",
+      "repair_workbench/agent.py": "259f026912aec4fdf76663a6026cb1780503cb0df305088130a497810289b8c4",
+      "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+      "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "repair_workbench/diagnosis.py": "7cf5b210fe9554c9e4e8c68591f900d935fce73985bb99d1cbff6350696ebc64",
+      "repair_workbench/diagnostic_agent.py": "14bf01a167281f9bf862af4ffa692f27b25fc16d4aa5d4b6e2303b0f399178e2",
+      "repair_workbench/diagnostic_delegation.py": "16791a5dbc66b3f65e30b2bac1b294bfe00ad6f38dfcd4696818407cbb25dcc9",
+      "repair_workbench/diagnostic_eval_policy.py": "561ca5ad2fb9e082e6c9c144a7df6a9ec7afbdb5b68a1ee852bffc2cfedb5d59",
+      "repair_workbench/diagnostic_evaluation.py": "44c2e718ccfb2c15e4234e24311c943881d3c38914a93f6b81eeeff57546c424",
+      "repair_workbench/diagnostic_framework.py": "4b34d09c61bd8522016845a672b966c3023431747c049a07ab406e7837ffc2cb",
+      "repair_workbench/diagnostic_mcp_client.py": "45749f8533477193c6513599aacfc06e5a240c3292ae0282203430e1d78a3a41",
+      "repair_workbench/diagnostic_mcp_server.py": "0c7138851786ca5920df8d5742ba079f8087c47a87b098cd81b5cd4a2132b91d",
+      "repair_workbench/diagnostic_progress.py": "b7fd7121e99bf08a27406fd2b5ee866ffafb0623a042486bef406dc77ddae86b",
+      "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+      "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+      "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+      "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "repair_workbench/model_transport.py": "f221659c8f4ecd32012692531ea0c5f5eda884ca6a21a731533721e53f8a946b",
+      "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+      "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+      "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+      "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+      "repair_workbench/provider_worker.py": "bf88578cb90e6280d8f98cce19f3a729a83af0fb4d565f61d482ec5f158fea01",
+      "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+      "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "repair_workbench/session.py": "815e7bd6009fc244d029ec94f199022eb69d44c687620bc189ae3636569bf8b7",
+      "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+      "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+      "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+      "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "repair_workbench/source_context.py": "bb31a61591805a20381d236700be27275afc8c9700db146f69b2ea85275f1e36",
+      "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+      "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+      "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79",
+      "requirements-backend.lock": "7ae2b13af6d977e1c74480a26f9545a78a79a8878ec71045966f38a9548d7bb2",
+      "requirements-build.lock": "e98d3b1a91f7dfc9e82cf362249f1c82b735a5292eb843b4ebfa1d18a429f677",
+      "requirements-mcp.lock": "8b9506bcb69fa05709d163251922cef4544462b95d79522fd6173a3b970b38c3",
+      "requirements-test-image.lock": "beb452163910f778484dcdbd0c094e476041dbb199fd5bcbf0ffd785a61dc020",
+      "scripts/audit_diagnostic_run.py": "4368ebcfc3ecef031cb37df68a73897b17f3d5715c8d2fe9b337680016ceb495",
+      "scripts/check_delivery.py": "fc0949a2156fa83ab1651c758a30f0387eab625d7082df4e4348371ca5dafdd7",
+      "scripts/qualify_diagnostic_probes.py": "42a3591c90e0fea648524b205fd192aba34d0561499187351952d54ba25d1149"
+    },
+    "dependencies": {
+      "aiohappyeyeballs": [
+        "2.7.1"
+      ],
+      "aiohttp": [
+        "3.14.4"
+      ],
+      "aiosignal": [
+        "1.4.0"
+      ],
+      "annotated-doc": [
+        "0.0.5"
+      ],
+      "annotated-types": [
+        "0.8.0"
+      ],
+      "anthropic": [
+        "1.13.0"
+      ],
+      "anyio": [
+        "4.15.1"
+      ],
+      "attrs": [
+        "26.1.0"
+      ],
+      "bracex": [
+        "3.0.1"
+      ],
+      "certifi": [
+        "2026.7.22"
+      ],
+      "cffi": [
+        "2.1.1"
+      ],
+      "charset-normalizer": [
+        "3.5.2"
+      ],
+      "click": [
+        "8.5.0"
+      ],
+      "cryptography": [
+        "50.0.2"
+      ],
+      "dashscope": [
+        "1.27.7"
+      ],
+      "deepagents": [
+        "0.7.20"
+      ],
+      "distro": [
+        "1.9.0"
+      ],
+      "docstring-parser": [
+        "0.18.0"
+      ],
+      "fastapi": [
+        "0.141.1"
+      ],
+      "filetype": [
+        "1.2.0"
+      ],
+      "frozenlist": [
+        "1.8.0"
+      ],
+      "google-auth": [
+        "2.61.0"
+      ],
+      "google-genai": [
+        "2.29.0"
+      ],
+      "h11": [
+        "0.16.0"
+      ],
+      "httpcore": [
+        "1.0.9"
+      ],
+      "httpcore2": [
+        "2.13.1"
+      ],
+      "httpx": [
+        "0.28.1"
+      ],
+      "httpx-sse": [
+        "0.4.3"
+      ],
+      "httpx2": [
+        "2.13.1"
+      ],
+      "idna": [
+        "3.20"
+      ],
+      "jiter": [
+        "0.17.0"
+      ],
+      "jsonpatch": [
+        "1.34"
+      ],
+      "jsonpointer": [
+        "3.2.0"
+      ],
+      "jsonschema": [
+        "4.26.0"
+      ],
+      "jsonschema-specifications": [
+        "2025.9.1"
+      ],
+      "langchain": [
+        "1.4.3"
+      ],
+      "langchain-anthropic": [
+        "1.7.5"
+      ],
+      "langchain-classic": [
+        "1.0.8"
+      ],
+      "langchain-community": [
+        "0.4.2"
+      ],
+      "langchain-core": [
+        "1.6.9"
+      ],
+      "langchain-google-genai": [
+        "4.4.0"
+      ],
+      "langchain-protocol": [
+        "0.0.19"
+      ],
+      "langchain-text-splitters": [
+        "1.1.3"
+      ],
+      "langgraph": [
+        "1.2.12"
+      ],
+      "langgraph-checkpoint": [
+        "4.2.0"
+      ],
+      "langgraph-prebuilt": [
+        "1.1.0"
+      ],
+      "langgraph-sdk": [
+        "0.4.6"
+      ],
+      "langsmith": [
+        "0.14.7"
+      ],
+      "markdown-it-py": [
+        "4.2.0"
+      ],
+      "mcp": [
+        "2.3.0"
+      ],
+      "mcp-types": [
+        "2.3.0"
+      ],
+      "mdurl": [
+        "0.1.2"
+      ],
+      "multidict": [
+        "6.9.1"
+      ],
+      "numpy": [
+        "2.5.3"
+      ],
+      "opentelemetry-api": [
+        "1.45.2"
+      ],
+      "orjson": [
+        "3.13.0"
+      ],
+      "ormsgpack": [
+        "1.12.2"
+      ],
+      "packaging": [
+        "26.3"
+      ],
+      "pip": [
+        "26.1"
+      ],
+      "propcache": [
+        "0.5.4"
+      ],
+      "pyasn1": [
+        "0.6.4"
+      ],
+      "pyasn1-modules": [
+        "0.4.2"
+      ],
+      "pycparser": [
+        "3.11"
+      ],
+      "pydantic": [
+        "2.14.0"
+      ],
+      "pydantic-core": [
+        "2.50.0"
+      ],
+      "pydantic-settings": [
+        "2.15.0"
+      ],
+      "pygments": [
+        "2.21.0"
+      ],
+      "pyjwt": [
+        "2.15.1"
+      ],
+      "pymysql": [
+        "1.2.3"
+      ],
+      "python-dotenv": [
+        "1.2.4"
+      ],
+      "python-multipart": [
+        "0.0.33"
+      ],
+      "python-repair-workbench": [
+        "1.0.0",
+        "1.1.0.dev0"
+      ],
+      "pyyaml": [
+        "6.0.3"
+      ],
+      "referencing": [
+        "0.37.0"
+      ],
+      "requests": [
+        "2.34.2"
+      ],
+      "requests-toolbelt": [
+        "1.0.0"
+      ],
+      "rich": [
+        "15.0.0"
+      ],
+      "rpds-py": [
+        "2026.9.1"
+      ],
+      "shellingham": [
+        "1.5.4"
+      ],
+      "sniffio": [
+        "1.3.1"
+      ],
+      "sqlalchemy": [
+        "2.1.4"
+      ],
+      "sse-starlette": [
+        "3.6.0"
+      ],
+      "starlette": [
+        "1.7.0"
+      ],
+      "tenacity": [
+        "9.1.4"
+      ],
+      "truststore": [
+        "0.10.4"
+      ],
+      "typer": [
+        "0.27.3"
+      ],
+      "typing-extensions": [
+        "4.16.0"
+      ],
+      "typing-inspection": [
+        "0.4.4"
+      ],
+      "urllib3": [
+        "2.8.0"
+      ],
+      "uuid-utils": [
+        "0.17.1"
+      ],
+      "uvicorn": [
+        "0.53.0"
+      ],
+      "wcmatch": [
+        "11.0.1"
+      ],
+      "websocket-client": [
+        "1.9.2"
+      ],
+      "websockets": [
+        "16.1.1"
+      ],
+      "xxhash": [
+        "4.0.1"
+      ],
+      "yarl": [
+        "1.25.1"
+      ],
+      "zstandard": [
+        "0.25.0"
+      ]
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "source_fingerprint": "1f9132c4eee05425442402bd326fd77d52d1312572b0c8f38df6fe31f4f516c5",
+  "verification_source_sha256": {
+    "tests/test_agent.py": "24c3d93a42a326058e7a5e53077f653da85a05577b3892bdd5f975cbbf46c3a6",
+    "tests/test_backend_benchmark.py": "516f75cc7707c5865d02a219ab0f9bb1b5e357fa8bed0c6e0731244284fb5553",
+    "tests/test_candidate.py": "c34db1fda8572a33854a56a9e5b8bc851defa2ff7bc2d8e94143bfc688c1a026",
+    "tests/test_context_review.py": "86e1ddc95824c897559b68c6e621378c3f596f71f66226f6a0943da9fb451197",
+    "tests/test_delivery_registry.py": "7b4d0d97e29b87f3f8f41d67965922d271d1633fbb642a52b42b78233425dd4d",
+    "tests/test_diagnosis.py": "73d2cb27e3a79ef3f76999b7182022e1b25105deea0891160cf2c6dc4fc0572f",
+    "tests/test_diagnostic_audit.py": "5a8ee59a9f0c5d85ff38acda4767d7880f837f81663d1e4fbac936c8ee234266",
+    "tests/test_diagnostic_cli.py": "aeafd67a08c662df4fd2d081b8452b73ab967ddb75de6f61cbe5fc2e3bfb7e12",
+    "tests/test_diagnostic_delegation.py": "0824b4d8f793f4347094dbb86d4a2722f845e139c9c8bcdc2f12c6cef5cf205a",
+    "tests/test_diagnostic_docker.py": "d4f10043791e70b22a316fc9090cf226a1e9e1a4c1102dd9461084bfc02b6523",
+    "tests/test_diagnostic_eval_policy.py": "cc20cc0f51c58e96620071b1920f5d5ba58df3b3a5739ffa83e42615b1a000ee",
+    "tests/test_diagnostic_evaluation_docker.py": "134b14abd2158be2ef1528c3b6f325943de65e20e7152eb270af43bc84f312f0",
+    "tests/test_diagnostic_evaluation_plan.py": "faf16c0990445feea5c71a88759c5c6f9fb050b54b013faea66dde8c1deeb26b",
+    "tests/test_diagnostic_evaluation_reports.py": "34f1594049e1669c5f230291b5dcd0cb85cc201949b2d6bdfd57da065d85bfef",
+    "tests/test_diagnostic_evaluation_runner.py": "fff4cff2bccd61825dadb0a7a6f5b372b493076f9d5c09a5be5f4dfa4228b7c5",
+    "tests/test_diagnostic_extensions.py": "a0faf52d2e441e41218c68604a7055582fad8542a1b5bd88b2338042b0b87293",
+    "tests/test_diagnostic_framework.py": "4dde8010dc49cd0c9bb3d5e0c0d0e422f4448b566fde274ba32abda916fb495b",
+    "tests/test_diagnostic_mcp_client.py": "30b94fcddf869f06d8f92c79d222c377da19fdc063b9dd2086eec8b3f609c668",
+    "tests/test_diagnostic_mcp_docker.py": "b7a5dc3aca2f171a14a7f334bc4db985fabde1e1da774e515ec2d16d5a10f038",
+    "tests/test_diagnostic_mcp_server.py": "ba884207840b4c33de9fe92cbb5883f4dec1c36f580e361ee7dcbb96ad7910ef",
+    "tests/test_diagnostic_progress.py": "39981d3fe4666efa0595cdfd9729eccacde00eabb2979cb596ee329724f19b04",
+    "tests/test_diagnostic_skills.py": "0338c6c1fd99361fd3f871837fff2894f03e69a66a05cd375c7f7043401fef95",
+    "tests/test_diagnostic_subbudgets.py": "25a1785cc0c1557343a0a5170889a1cc3176798f053188d3ebe60eb1ff6448b6",
+    "tests/test_diagnostics.py": "5985929d5dd0378bbb2889bc2c570a32c626463e5692f8e8dd352034a9bcaf40",
+    "tests/test_docker.py": "0f72a7dc33fd5d376068f95249db7d1cdf927effe91f76860d76f0efb4c3a92f",
+    "tests/test_evaluation.py": "6350cef94512e9e9916a3fd05e3532bf6b9fede99a73dcf59cbbdc2fe1b99ccf",
+    "tests/test_light_context.py": "ccd31087a18854ed47dbfaeacfa23bd6ef54371632267dbf696b73925d3e5c92",
+    "tests/test_model_transport.py": "d49b602257fccb518f076361fa08b6c801558a9f9b16f70f62c146701f122fd6",
+    "tests/test_mysql_backend.py": "04b244a3d0fdad508b7bee84d27a0db986a0c9f05523d4b4e6e09ee3fb1134f2",
+    "tests/test_mysql_list.py": "f95fb3e82c18fcc208b8c481ea2a21d6ff01489e98a947e7031d1c827e3b9ed8",
+    "tests/test_performance.py": "73b07b935b02957eb57b1099430b122e849a312b84010a9bfd3084a9fa4ba202",
+    "tests/test_performance_docker.py": "441da553f678899d844dc8c1589830dcdd52fe485a7c49ada532aea385be1959",
+    "tests/test_prepare_mysql.py": "4682e6d75493acb55c0b3da17c0e9e19caaae4c6c7b9b5f668ca46c9edeb1d2f",
+    "tests/test_recovery_batches.py": "9a12305c53771f0f662f5d8648a2166aeef8cb8b2dd477e396e03237fbf08cf3",
+    "tests/test_reliability.py": "cdf5f46cc3779ab18ab73af348d1d26ed18cd9e3d03f53999ca94b832e32f52f",
+    "tests/test_repair_flow.py": "b12626311526df6c3bd65df06e28b2f3d13103b68805167e9c795768c3db46d1",
+    "tests/test_simple_edit.py": "d70a32ecd93422ea631e9d97ce2d02d49beae8ab24ddd5a51885c369496885bb",
+    "tests/test_snapshot_and_results.py": "18ae1ded653eb6e1688c8d618668484166b3130521adbd97c3688d4d62fc3a17",
+    "tests/test_ugc_workloads.py": "88320a882b438e4112e8556bec98585c22d04f9b27ef85c2457bfc68c9b16708",
+    "tests/test_web.py": "8e1fc0d36d2bce034956b365bb42aee54d496a2efb6e051eb75c9ad810409c8f"
+  },
+  "evidence_sha256": {
+    "runtime/diagnostic-evaluation-20261031-first/containers.jsonl": "b4d2f79ce76ec2a2e75cfbfcdf551abbb8c77dd9e25eb36fe5bf838a1369cbce",
+    "runtime/diagnostic-evaluation-20261031-first/plan.json": "3e874e9396813fc1e97125582eeeeaf8f188343885cb081904292c3b73f9715a",
+    "runtime/diagnostic-evaluation-20261031-first/report.md": "9c2fce88f92092afa4569b737eaeae3a510211477f1c4aa56ebdbf9613d6ca4a",
+    "runtime/diagnostic-evaluation-20261031-first/results.json": "88613799f57fa83d873423ec4a20990711caf926871ff54df31f6b8e7b4bb0e3",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-01/cpu-large.pstats": "612902eb38ffa813a46b00b253a737a9192aa6e8b13fa44aefd878bed70dddc0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-01/cpu-small.pstats": "137185490c7771f83c7544b085ee2ea21a640613b99897f070ef808bf53152e0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-01/probe.json": "8f12424e4a2f9f67ca0198f2612317eab1595c05c02056690fd11473e16253aa",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-01/result.json": "d19cad2a9e4451f84f4dbf7dea42d0ddbdd61dac9286ff6658f7842d5154cf9e",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-02/probe.json": "9a17517933ef4bfdb419ab737900fbfcc17472a0c7817976e3625a28bd2518b7",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/diagnostics/probe-02/result.json": "a3c68e1526ef019a051ccd080fe4759ef54216d8c7462b1094cc2413b8d3619f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/events.jsonl": "5b6b72ffbc94cd88cb12750d16815ba5de0a222cb732d560beb056dfa8ceff19",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/evidence/E0001.json": "02edd0b8831932f5aba96ac6240e21038b9c653ad4c8c8e53caaf1d127f83a62",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/evidence/E0002.json": "5265123523e12131a8f8d6a002b66cfb3299fe7f38c37fdb15ba099a8563873b",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/evidence/E0003.json": "524cc396ea83d702f1d31aaeb5b48a7f6d4490d4d2ee25430d7f7e8dab90181b",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/evidence/E0004.json": "24c6c3ebe2e395439cdaf78a0f4a0adbd6e800567a6b73e84c31b1c3759d41e0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/progress/main.json": "15b238c77699057895cec1f2391097a6564e6484e7a3af543aebf575028af83c",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/agent/result.json": "679d623bec5f93910df391779fbe72d6211562bc239d6ee5ff9f98438ab91a55",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/audit.json": "da463917c125559c25c727437ebcd012806fa039a95ef816bff4ee4c1710bd6f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-adaptive/provenance.json": "92c9fec9a159ce594497746a82a116251be34b7f6554b908101edc0dd895d35f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-01/cpu-large.pstats": "1dd9db98caefa509503d3b57eb8434bf15b67582e6de455837c1d8eda363028d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-01/cpu-small.pstats": "e3257885d0f89c30f4fc26c820dc12528f0904f2804f317b749aad3cb5ed70d7",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-01/probe.json": "10c4c28f6fbedf1f0d2ad6ff94f3cabebcaec88344f4a4e96c6f23469a22f27f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-01/result.json": "420c198c131a3e8420332275e8d5b697f8826dacbf0250f9e20a05b2ef6d2126",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-02/probe.json": "89f325f4bccdbe9096c09c34eccf4fd16a4d65276e5cda0006fb9456b88d3f34",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-02/result.json": "e4f42f51fface2ce8961c49066abbf6b9777cd30cdb27c68c710a992e45493e6",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-03/probe.json": "739a66161b605857bab1d7ce53114794f89beb14a6aa5ae0a210deacc1fbb18f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-03/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/diagnostics/probe-03/result.json": "830b1e1c9d337fc1b0e1cad57972fd544aec460298aa365264b74ff5bbd392dc",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/events.jsonl": "35c14e68658893fc2094c1c7fffe50000b7f59d62e13bafb641161e8a2b2b164",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/evidence/E0001.json": "02edd0b8831932f5aba96ac6240e21038b9c653ad4c8c8e53caaf1d127f83a62",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/evidence/E0002.json": "a7085f74ba118ade54b0634a70b13c25b35a6b2517c68c718ef8144b0f08506d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/evidence/E0003.json": "099d2d54fa19476b1394a6c355380816bd1e9e191d8c6f48797e37a35dbb3aad",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/evidence/E0004.json": "5025dcb5bf91c337f8768ab5c0a400e459fd76af55b5af402943b720e9e4d4b3",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/evidence/E0005.json": "7ccf5de30c48618ee41fe94584bb4a7231b6884253bbe795bd98be0e82676d24",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/progress/main.json": "799cabf8e171ff813f57797a98cfeea21bce3209b958a415271f58df68aeefae",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/agent/result.json": "cd24145e8e9f5f603a5bdeeaa8437c1f98811f921cf6e43548dfb9f35e7bbfdf",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/audit.json": "6233c1cdc4e8e775cb201fb7bcab6fbd36f5b0068fa35c8e0d966b29f0e9c107",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-01-r01-fixed/provenance.json": "f0ba5162db09dfa26c51b60f5099291f00e3a2e344ce9ddd22f08bc7de67eefb",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-01/cpu-large.pstats": "69b04409c704e163ac607d540101e154bea7c7f2618f952d90b59773f34e3e7f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-01/cpu-small.pstats": "d15cdc1e12af82c3fdd159f33c532cff0580904b231ab9ffec3e4fb285623fde",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-01/probe.json": "a447159bb7749d1c1a0aa67c05c1581bce5733792ed026d3edb2f3189a2f9173",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-01/result.json": "15acb40c5c9dfe015ff05ff8a67d47950d089304fbdf9048994f29a1b76620b8",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-02/probe.json": "d28b24a13ec26926c3f7b3de711e12f23db5f4be097804b7aa591f038d01d10d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/diagnostics/probe-02/result.json": "f450c1a7cb8762889d8ea47b0d4ca6f6d3da7b6613a66d2da2c5edadcc4d6e38",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/events.jsonl": "c725fc719e494edc7ecf86ab609cf25cc070499f96f17857035bb61fad6f47bf",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/evidence/E0001.json": "8a5bc31db43d6cf3b15224e4fbb20f4175e9d8b42291c97f6eaeb6284c4bc857",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/evidence/E0002.json": "2b61ab97eebfca9e0b931f90760ba6535674cc4dcac6169e73e48deeab35379c",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/evidence/E0003.json": "55fbb8213faa26855b1343074648bf288f60c533351b4c225b9cde2bcfbf7a84",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/evidence/E0004.json": "bc4ad57f38497c30962517221a281529b368b9c823cd89a0c80d1df994156ed6",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/progress/main.json": "3b19593090b402c1cd26c126ad7f3e93f01aeb3254ea59cc9312af2b4e05541e",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/agent/result.json": "7b3bffabfe6c5611e213a8ec485f1896d831041aecdffdb4949310f12f9c7392",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/audit.json": "de8794beb9865c75e6a2128f716cd549d0f725a3789d26d01155359108436a84",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-adaptive/provenance.json": "8fa13c6e4423d006dc94f27f0b16c465343eda96a38a3e6095149047c1d31cf9",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-01/cpu-large.pstats": "83a5056bc1010f050eda70800525003f7caf7bf812d80d065ad048a7cbf3d719",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-01/cpu-small.pstats": "2378518293560af36ca394d30fec8ef57305d4d0d19698737249a7808b8ebb0b",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-01/probe.json": "1a6fdf7a0c38d5bf1d1e3aa915bb3161ca4d906724defe079d7f34dcc7cb0ca1",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-01/result.json": "98a9ff199fcc7a7937dad68a5a47d52eaec82a082aa424e11890a9660b4e6a7d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-02/probe.json": "67f97e7876f6bef413fe437496bcab9f502d5789d8b8550aefb3cd451f2ee001",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-02/result.json": "61d673c4de1cdbddf2ab9b69ac32109bf19518b29c788c6c1faf80060ab292a5",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-03/probe.json": "a102fd53e9c6abb2b241fc4fdb53bdecb9265901edcc71a75775e4df227e0a53",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-03/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/diagnostics/probe-03/result.json": "c48a89062fbbf813282984962981ba5c87064a85a246da9d5e9cdb73828b3806",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/events.jsonl": "780fa2c308fd1f43a49cb5421e7dd953a0c0a1e810f1588e7f1abb398d3d1ba2",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/evidence/E0001.json": "8a5bc31db43d6cf3b15224e4fbb20f4175e9d8b42291c97f6eaeb6284c4bc857",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/evidence/E0002.json": "bdf7c77e2ade74d1c6f5c079c7fd12ad6103eb6c1abb22652039175378f18250",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/evidence/E0003.json": "8abd171f8d737eb5b345f055e8c86c29b09e5b5870b454c593cd743d912d4c81",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/evidence/E0004.json": "8afe563bcfa1ced621e6b49681cbdd54735e41fe2aca8138a19a090a32e1f7d2",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/evidence/E0005.json": "089a2a7ef2483a8020b6d94c269c12029e3fafd510186686d725a1e8b23ea451",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/progress/main.json": "c516b67231f5d072212be97cb685dd00736cee2cc97ad81ebff786a82246e090",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/agent/result.json": "d364c965d8adeb959b019f086e9ef4001686b5b6f25940bc6e54e2ebd5c12d05",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/audit.json": "4826a653b4f9c5db0f4db13f930b6c424b0c3a09e26cf9718fd568f7c0465bd1",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-02-r01-fixed/provenance.json": "7230c110a4bb515aec176e1fcec5062a9479f349aaf5ead858aba1782dbac01e",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-01/cpu-large.pstats": "7e55232d1c66e7a37adfcd530f4550e776f7d2451ccf8c8199c3ff9a638a381a",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-01/cpu-small.pstats": "83af45105b627bc01d0b090e9966a3c3550b0761ea6f260d8c01b27987a19700",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-01/probe.json": "b1762621ce573b2ab5158d2b92a7832f92b23c0fe223c0d2b8cd6e82d532466a",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-01/result.json": "80f19bd47c528dc1d100bfa9fb3a9597de8aa4bf39897edb6c1a9a8004134601",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-02/probe.json": "28c28f7d77d01d201bd733b2735b2724e19e3f3cdd783dd8e2431ee6f406cdaa",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/diagnostics/probe-02/result.json": "3ba485684435b4e5199078bffdfbedbe067dec50eecea3d5b32b82fc2ea16386",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/events.jsonl": "ee6126e00d9cf306b48d46b33190fd9de9c7cb727eec1f014d452d1eea5ea8ba",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/evidence/E0001.json": "4c25a32a68f7ce9e11c047942d2eb8b501e4a8d2af3d2049962df5259ef2a46d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/evidence/E0002.json": "1a7b0b91533a3ae902f5c1268e8475672f6722af243aa2abc9dfa0fadca9044c",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/evidence/E0003.json": "5f06d5c23d7a65d2fde6635e3fee12dc1cd7a2c0ceb28b80c456500cef98cfac",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/evidence/E0004.json": "f4786fd32f3144e700fc139470de7d794f20eaa6fcb1824e73067d4e494a8436",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/progress/main.json": "4e2f7232d85301776668bbf661bfcea72169f1670823e7e1dc9cf41b2ccb291e",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/agent/result.json": "f1df5130f27437717c346d66f8f0dfd2cc3a081c6c91bc439e09ead937ee9afe",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/audit.json": "0313a87d78ffb33e37943e4f588e8c45a82042cc77a95929f95a99284bd20043",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-adaptive/provenance.json": "6621fac7483b9735c14aa12eda1a80759517d3bf36455af029ec0f9e01e117f7",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-01/cpu-large.pstats": "43332e0e879b69421f6bbc00c1367f8e778ec2bd648a6de9dcb8bf7542c220c6",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-01/cpu-small.pstats": "0fea8c8f39c51fbd826f980619bac9fa0521f9c8d1ff95f8ffc394776b77bcbf",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-01/probe.json": "43f78ece613df74fd04d1111273c3eafc5184c26cdbc632c7e3b0200796c83f6",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-01/result.json": "98cf9c620a56349e228e5c8e37d524fda19c37b3e36b6a8404808fa486f82782",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-02/probe.json": "57abc745cf1364c780428c2613601b48bb8ea63ec34822591c72f1b5ef3971db",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-02/result.json": "a7dbf98e1c845615ccd640f1c7ccb53ee3fb3fc35d425c02de0edcb8e0e7a986",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-03/probe.json": "f9029360e4ba0ed6f0625ac3c418374e03d78c68b54faf20d4a2cf2d16736fa2",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-03/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/diagnostics/probe-03/result.json": "fdb41d8b442a5c11ea6b46ae04f92d64e5cae4e883d9b47a425478b759a5da40",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/events.jsonl": "3bcb3efc7525618703a2af7aff681ee9f3a1009adde471b88cb1d8c5a4cc6c56",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/evidence/E0001.json": "4c25a32a68f7ce9e11c047942d2eb8b501e4a8d2af3d2049962df5259ef2a46d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/evidence/E0002.json": "8bf9d3e0c8d08990612f2bc4d01da3bcad3dd06a7e025f5ad7893915e5c22372",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/evidence/E0003.json": "f6cfc17e61e4eed4d82ab2266fbcd1514925fa3df2959657dc68e125db9a4ba4",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/evidence/E0004.json": "72bec679d131f0a52dbfffc8b667764653e0da1509560a2fd73246f3d64bd81b",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/evidence/E0005.json": "1ac98a964a5b31b3f64b081a6abf971e76db6f65e3844dad81091978486d6773",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/progress/main.json": "7d16cd76e3baebaa133030b3334c58c28c8c0712a4f0edc7f2f365fd10edc62a",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/agent/result.json": "0b00a1f5e174905c9e72ca6499c10a923464c1227d7b8545938825ec12d4118c",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/audit.json": "c33101d079cf00f50bbbab911ae9bc82261b0be7e284793f21cd4bc6bf6420c1",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-03-r01-fixed/provenance.json": "02b03684442f8633e947898b93124ed6c8ad5f776bd15dfa8f8005bf8ccaf507",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-01/cpu-large.pstats": "e884d91dce1a50a26c0007dc5cb76de1df98ccaaff1e4a4a18f134d0f70f349e",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-01/cpu-small.pstats": "bf99c75cd30a8af14f60e64480890717b69b1fc649806d3c8331ccaa42ac4341",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-01/probe.json": "67d0756874171bd637cacbed5c56a2bd121f914291036ecb48897db07ae0c22f",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-01/result.json": "b95a9cbc65af69a3e0eaeadcb4c895890015bc124b0e3589aa43a8e8565f2b56",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-02/probe.json": "da83750500d7dc47ba4f1b2fd940eb85d6d95b68fc02c1b82314a8b72d675e32",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/diagnostics/probe-02/result.json": "60226a9c659a0417181ca593a7d7a21ce8f46c2b5bec70ce28a4a17d9803cbe7",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/events.jsonl": "c66019e39a51567bd285c011ecfe24329413714dce0f6b224e130bed71e39a44",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/evidence/E0001.json": "88fd314ca05af578761b76bd00dfb165ea9dc4c686148280e46729b66ef30c54",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/evidence/E0002.json": "59da6a24a0dcd9756900cdda0bc5dbd1159a0b27de3f7674e202d7109e35879d",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/evidence/E0003.json": "231377d04fb65c9d5b52ae5e04017d463b2d34be5f5f6e1b32a7965fbcb9c0ee",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/evidence/E0004.json": "79f533a69aee1e8956ea1a71caac82c1a2852dbf474052e7f59414f7294e38fe",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/progress/main.json": "b4563e6d0890a2a45f15e9d2be574e72651eac8a09d314a9d76fddc2b07eb4a2",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/agent/result.json": "aaa024dcae9ef3ded0836a79df2e0449186eb730019612dd12a279b01884ff8a",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/audit.json": "e17585718da14272347a73cb199869500f7f672c8d8528085d4a458f3fef6c29",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-adaptive/provenance.json": "87b157882672636a48aa9621c329af6e2bd7f7e156ac5cad4edf4db1f0ec1af8",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-01/cpu-large.pstats": "3299d54c60bd653bb4684e07e2481e9949e1c794255609ab881eb24df15177c1",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-01/cpu-small.pstats": "95889d11d50a363ab0c481b3bc8bf69328e2db803f724553f180127729c9a66b",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-01/probe.json": "89f9c7906d37b1a7724f0006aea68706b9db63db7d8c2d7a8cd71399afea3689",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-01/result.json": "1bb09c2875727413c62f6a1704d1ef00913f0c95cbcfc2958c5d6eb77a2f8486",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-02/probe.json": "57f1ea5e79c512664d4eba14e904f0b8bbc36ef6e5274a0fe91ef813b7e810f9",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-02/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-02/result.json": "927e917b809b8e83878f35a2594d0e65da499e46da9dc2a956f7bd4c4e464505",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-03/probe.json": "d6a0214508a049b1dee40aba24db891e4afe8af3514c352bf820e6be34adf19c",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-03/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/diagnostics/probe-03/result.json": "62737e3f4f3f2d00e7ede42fe52908c0031993a6e91bfd1fd42b5395cf8540e4",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/events.jsonl": "bf60918279f2fd5c5924e80ee92d71b0a596e782fd9b8cd2f59034225920b271",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/evidence/E0001.json": "88fd314ca05af578761b76bd00dfb165ea9dc4c686148280e46729b66ef30c54",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/evidence/E0002.json": "d3daaf269bddca8b729570368af8a5e67c27c015023f4cc1d17b44105f83def1",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/evidence/E0003.json": "0d081fe829bc13dd0af3c36ae46a8c026db1f1771eb0ee7676d4ae0a5bbd6e19",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/evidence/E0004.json": "8781c7d0ac2d08b8c7a8f1b04485637751ec7591a2f3e6afdb866cbb497217cc",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/evidence/E0005.json": "875a6408aadf81a80994d9021f09bbf91f11d594352cbc7f840b4e9dbab371dc",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/model_response.txt": "b1d9beb70235f9bc4afd81419774feeabee52e67a7ea1b4f8f56746df0e0ecd0",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/progress/main.json": "e0458c0495c5fddd94347b2bfd7365e45c8f1cb77ea7ec8d57767f7e516cf740",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/agent/result.json": "f92064612b5b7fab8ab3524a516530366f66f2d6b637d036b02144d8053c00dd",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/audit.json": "a8b6aa5dc74fa1de995a0ef111c7dc530d85a4aae4ea705556750c1071f85113",
+    "runtime/diagnostic-evaluation-20261031-first/runs/case-04-r01-fixed/provenance.json": "3c781f5091549597a9a403ca8ada322f6311332965c9cfcff8f60cba2ce617da",
+    "runtime/diagnostic-evaluation-20261031-first/runs.csv": "81a55ac720b089cf49b72a9a3497e2ccc6c48bd2d091543b2f31342a70000091",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-01/baseline/manifest.json": "342f7ffeb8aaf2eea0e2ceb14860c1ad7d6339ea0b63a393ecffe6149563cda1",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-01/baseline/reports/pytest.log": "f82ef5dfe7698ffb764de054a81d190d7df4e7119218d436d12350d7af175f80",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-01/baseline/reports/pytest.xml": "ba67865e7845857652afa8e7d01654558e2932ded5ee42b36f73689a24ef1822",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-01/baseline/reports/result.json": "cb9cc43a1be48038538a1f1022975e7cb0907b22846830bb80e117b357e17f1c",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-02/baseline/manifest.json": "73a75c6610cb38341e8d1f9fda8e11cc940b608d196f13281f97a6f1edccca90",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-02/baseline/reports/pytest.log": "f82ef5dfe7698ffb764de054a81d190d7df4e7119218d436d12350d7af175f80",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-02/baseline/reports/pytest.xml": "9754462a7ac04aa781d1bc56545a11cf729ec10e584733b660e3b9bd5cebaae9",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-02/baseline/reports/result.json": "a88c4765591e72fc865f754f6c64077c097aa97f36e3586d5d6827c04e765beb",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-03/baseline/manifest.json": "836a616a491d682cb6a0c42f0e981ad04419e0bf10585270ae789bcf01316e02",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-03/baseline/reports/pytest.log": "f82ef5dfe7698ffb764de054a81d190d7df4e7119218d436d12350d7af175f80",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-03/baseline/reports/pytest.xml": "5533be269dd6815833bd2d393b48265cb3fa3eb00b4d8ca63309c5ffc63c9c2e",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-03/baseline/reports/result.json": "4187100f1fe8f6320d4b34f42397a70030c8a2d14eba04d0a0f8cf55c9d55cb3",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-04/baseline/manifest.json": "7d824334cf6bdd88d307ddbe8e28049dcfb5de0b9dea9c7036340895b87226e4",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-04/baseline/reports/pytest.log": "f82ef5dfe7698ffb764de054a81d190d7df4e7119218d436d12350d7af175f80",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-04/baseline/reports/pytest.xml": "30a976aa8d133d368233e6d5079ca2bbca3e16eed3f94010452815ce87e22553",
+    "runtime/diagnostic-evaluation-20261031-first/tasks/case-04/baseline/reports/result.json": "e1c95fd64e6327af67cff56163b576aab9e556724de195ce8b3435951909c353",
+    "runtime/diagnostic-evaluation-20261031-first-plan.json": "3e874e9396813fc1e97125582eeeeaf8f188343885cb081904292c3b73f9715a",
+    "runtime/diagnostic-evaluation-all-services-20261031-summary.json": "4b25cca11e45211a6a8a318acc17d09eedcc6e5add6b13f5941654501b1a78f4",
+    "runtime/diagnostic-evaluation-all-services-20261031.log": "44a576ec38ec8e3171470e74f88d4ad4939e3538fc064bb171d677fd8d4ebac9",
+    "runtime/diagnostic-evaluation-docker-20261031-first.log": "da8ea05d93fc64ef4027e12e1a4681095d3f04e4e7770b944e3898d196e9fe4e",
+    "runtime/diagnostic-evaluation-installed-check-20261101.json": "e6552722245b7e49bab748b34edf0f672fe3f611d82d83f0ac5337c85f486a1f",
+    "runtime/diagnostic-evaluation-reports-stdlib-20261101.log": "e8c7b2a8da46e9eb0bf0bae74590a01cbdcc260fd6ff20ea1ed2d1f092405843",
+    "runtime/diagnostic-evaluation-stdlib-20261031.log": "9593586f74d496e4f0abd05ee4a9671a998099f6beeb3fc025233d0f5e1e61cf",
+    "runtime/diagnostic-evaluation-wheel-check-20261101.json": "ac2dd420f11a5172745b6a16e4d4b38861235dfc6ae81af27ccb42d52a3aeb3e",
+    "runtime/mysql-eval-validation-20261031-8d78be3a823d/cleanup.json": "16e3b7de1e2bf824544bed9b9e8864ed74f6b1b1df7b6e896d01578281704c15"
+  },
+  "limits": {
+    "provider_factory_supported": false,
+    "token_hard_limit": false,
+    "cost_hard_limit": false,
+    "formal_independent_diagnostic_dataset": false,
+    "real_llm_effect_evaluation": false,
+    "healthy_decision_score": false,
+    "memory_improvement_score": false,
+    "source_checkout_required_for_batch_assets": true,
+    "resume_simulated_metrics_are_actual": false,
+    "authenticated_historical_artifact_root": false
+  },
+  "history_preserved": [
+    "docs/diagnostic-mcp-delivery-20261031.json",
+    "runtime/diagnostic-acceptance-20261031-frozen/acceptance.json",
+    "runtime/diagnostic-mcp-acceptance-064134d6dc7d/audit.json"
+  ]
+}

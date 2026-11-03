@@ -16,9 +16,19 @@ def request(payload):
     original_send = transport._send_with_retry
     transport._send_with_retry = lambda send: send()
     try:
+        options = payload.get('provider_options', {'max_tokens': 4096, 'temperature': None})
+        if (set(options) != {'max_tokens', 'temperature'}
+                or type(options['max_tokens']) is not int or not 1 <= options['max_tokens'] <= 8192
+                or (options['temperature'] is not None and
+                    (type(options['temperature']) not in (int, float)
+                     or not 0 <= options['temperature'] <= 2))):
+            raise ValueError('invalid provider options')
+        model_kwargs = {'request_timeout': (payload['connect_timeout'], payload['read_timeout']),
+                        'max_tokens': options['max_tokens']}
+        if options['temperature'] is not None:
+            model_kwargs['temperature'] = options['temperature']
         model = ChatTongyi(model=payload['model'], api_key=payload['api_key'], max_retries=0,
-            model_kwargs={'request_timeout': (payload['connect_timeout'], payload['read_timeout']),
-                          'max_tokens': 4096}, cache=False)
+            model_kwargs=model_kwargs, cache=False)
         bound = model.bind_tools(payload['tools']) if payload['tools'] else model
         with tracing_context(enabled=False):
             message = bound.invoke(messages_from_dict(payload['messages']), stop=payload['stop'])
@@ -31,6 +41,8 @@ def request(payload):
 
 def classify_error(exc):
     text = str(exc)
+    if 'AllocationQuota.FreeTierOnly' in text:
+        return 'free_quota_exhausted'
     if re.search(r'code:\s*Arrearage\b', text):
         return 'Arrearage'
     if re.search(r'(?i)status_code:\s*401\b|invalid.?api.?key|authentication.failed', text):

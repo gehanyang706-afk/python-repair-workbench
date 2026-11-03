@@ -1,6 +1,7 @@
 """Prepare private local database configuration; never installs or starts services."""
 
 import argparse
+import os
 from pathlib import Path
 import secrets
 
@@ -28,8 +29,8 @@ def prepare(root):
         "CREATE DATABASE IF NOT EXISTS repair_workbench_test;\nGRANT ALL PRIVILEGES ON repair_workbench_test.* TO 'repair'@'%';\n",
     ]
     for path, content in zip(files, values):
-        with path.open(
-            "x", opener=lambda p, flags: __import__("os").open(p, flags, 0o600)
+        with open(
+            path, "x", encoding="utf-8", opener=lambda p, flags: os.open(p, flags, 0o600)
         ) as stream:
             stream.write(content)
     print("Private local database configuration prepared. No credentials printed.")

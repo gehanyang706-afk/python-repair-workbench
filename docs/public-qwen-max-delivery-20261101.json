@@ -1,0 +1,580 @@
+{
+  "date": "2026-11-01",
+  "scope": "bounded qwen-max public-bug pilot plus offline context correction",
+  "plan_hash": "99d49397e616c79a093770c1b84da4e9bcd34d20467cfc1aa6214e1b3e42a9cd",
+  "model": "qwen-max",
+  "api_requests": 38,
+  "actual_input_tokens": 269235,
+  "actual_output_tokens": 7928,
+  "actual_total_tokens": 277163,
+  "token_cap": 300000,
+  "usage_complete": true,
+  "billed_cny": null,
+  "extra_paid_cny_authorized": 0,
+  "planned_runs": 12,
+  "normal_terminations": 7,
+  "batch_budget_interrupted": 1,
+  "not_started": 4,
+  "comparable_pairs": 3,
+  "distinct_bugs": 2,
+  "paired": {
+    "on_demand": {
+      "runs": 3,
+      "distinct_bugs": 2,
+      "independent_passed": 3,
+      "visible_passed": 3,
+      "first_candidate_independent_passed": 3,
+      "usage_complete": true,
+      "total_tokens": 64194,
+      "input_tokens": 62125,
+      "output_tokens": 2069,
+      "provider_calls": 12,
+      "tokens_per_independent_success": 21398.0,
+      "agent_seconds": 78.787,
+      "tool_calls": 12,
+      "source_reads_including_prefetch": 5,
+      "repeated_source_reads": 0,
+      "repeated_source_read_fraction": 0.0,
+      "candidate_submissions": 3,
+      "materialized_candidates": 3,
+      "preflight_rejections": 0
+    },
+    "failure_context": {
+      "runs": 3,
+      "distinct_bugs": 2,
+      "independent_passed": 1,
+      "visible_passed": 1,
+      "first_candidate_independent_passed": 1,
+      "usage_complete": true,
+      "total_tokens": 116708,
+      "input_tokens": 112926,
+      "output_tokens": 3782,
+      "provider_calls": 16,
+      "tokens_per_independent_success": 116708.0,
+      "agent_seconds": 137.681,
+      "tool_calls": 15,
+      "source_reads_including_prefetch": 15,
+      "repeated_source_reads": 2,
+      "repeated_source_read_fraction": 0.13333333333333333,
+      "candidate_submissions": 7,
+      "materialized_candidates": 3,
+      "preflight_rejections": 4
+    }
+  },
+  "paired_token_reduction_fraction": -0.8180515312957597,
+  "decision": "do not promote failure-context prefetch on this evidence; no overall improvement claim",
+  "offline_fix": {
+    "real_model_calls": 0,
+    "description": "innermost fault frames first, avoid class-wide name matches, keep fault line within character limit",
+    "source_context_sha256": "b4a2f9da0dc843e73a55f2de25762b13515b9eee9f0c53f2061ba475570a91c9",
+    "synthetic_regressions_before_failed": 3,
+    "synthetic_regressions_after_passed": 3,
+    "public_dev_context_coverage_before": "1/2",
+    "public_dev_context_coverage_after": "2/2",
+    "model_effectiveness": "not evaluated"
+  },
+  "regression": {
+    "discovered": 430,
+    "passed": 414,
+    "skipped": 16,
+    "failed": 0,
+    "docker_enabled": true,
+    "mysql_not_enabled": true
+  },
+  "wheel": {
+    "path": "runtime/public-pilot-build-20261101/python_repair_workbench-1.1.0.dev0-py3-none-any.whl",
+    "sha256": "218b88aa6a36dea92d452c069f3e71043896f2d4a65716b93307520a05f137a5",
+    "verified_product_files": 43,
+    "builder": "existing Python 3.14 and locked setuptools 81.0.0; no network or evaluation environment changes"
+  },
+  "audit": {
+    "ok": true,
+    "source_validation": "archived_source",
+    "planned_runs": 12,
+    "completed_runs": 8,
+    "provider_calls": 38,
+    "independent_passed": 5,
+    "checked_test_reports": 12,
+    "charged_or_reserved_tokens": 277163,
+    "tool_catalogs": 1
+  },
+  "current_offline_source": {
+    "files": {
+      ".github/workflows/offline-validation.yml": "1d5c82493458f56bed8d241e8fda9a1c68a27f4b3509a057d8ced45ec07e86f0",
+      "benchmarks/ugc-diagnostics-dev-v1/qualification.py": "4693f74c7cba1330f016b9e19f0517651aab3e38beedfc1ce0c31a8ff665f5fe",
+      "pyproject.toml": "c74099da42a1cc881cb32303cad75084c2ae3b3cbefa7aeff3183aacf742a5f8",
+      "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "repair_workbench/__main__.py": "90db651cfa798bbd86944ec137b7d0283de96d9ecfcdfa5dad67fe972d522474",
+      "repair_workbench/agent.py": "259f026912aec4fdf76663a6026cb1780503cb0df305088130a497810289b8c4",
+      "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+      "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "repair_workbench/diagnosis.py": "7cf5b210fe9554c9e4e8c68591f900d935fce73985bb99d1cbff6350696ebc64",
+      "repair_workbench/diagnostic_agent.py": "14bf01a167281f9bf862af4ffa692f27b25fc16d4aa5d4b6e2303b0f399178e2",
+      "repair_workbench/diagnostic_delegation.py": "16791a5dbc66b3f65e30b2bac1b294bfe00ad6f38dfcd4696818407cbb25dcc9",
+      "repair_workbench/diagnostic_eval_policy.py": "561ca5ad2fb9e082e6c9c144a7df6a9ec7afbdb5b68a1ee852bffc2cfedb5d59",
+      "repair_workbench/diagnostic_evaluation.py": "44c2e718ccfb2c15e4234e24311c943881d3c38914a93f6b81eeeff57546c424",
+      "repair_workbench/diagnostic_framework.py": "4b34d09c61bd8522016845a672b966c3023431747c049a07ab406e7837ffc2cb",
+      "repair_workbench/diagnostic_mcp_client.py": "45749f8533477193c6513599aacfc06e5a240c3292ae0282203430e1d78a3a41",
+      "repair_workbench/diagnostic_mcp_server.py": "0c7138851786ca5920df8d5742ba079f8087c47a87b098cd81b5cd4a2132b91d",
+      "repair_workbench/diagnostic_progress.py": "b7fd7121e99bf08a27406fd2b5ee866ffafb0623a042486bef406dc77ddae86b",
+      "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+      "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+      "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+      "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "repair_workbench/model_transport.py": "4f555ffd6508f9f73523659df3dbbe3a05354aa2f1f336779765e4f8b2a14aeb",
+      "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+      "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+      "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+      "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+      "repair_workbench/provider_worker.py": "26616421c4360684e0a707fb7a947746725f0a0cb5c0d03994ac37fa0fb940f7",
+      "repair_workbench/public_live_evaluation.py": "c71c9ba758509d3e10e7c5b5b09a97ed611264581ec87365cf7bc682fc99b8f6",
+      "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+      "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "repair_workbench/session.py": "815e7bd6009fc244d029ec94f199022eb69d44c687620bc189ae3636569bf8b7",
+      "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+      "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+      "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+      "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "repair_workbench/source_context.py": "b4a2f9da0dc843e73a55f2de25762b13515b9eee9f0c53f2061ba475570a91c9",
+      "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+      "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+      "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79",
+      "requirements-backend.lock": "7ae2b13af6d977e1c74480a26f9545a78a79a8878ec71045966f38a9548d7bb2",
+      "requirements-build.lock": "e98d3b1a91f7dfc9e82cf362249f1c82b735a5292eb843b4ebfa1d18a429f677",
+      "requirements-mcp.lock": "8b9506bcb69fa05709d163251922cef4544462b95d79522fd6173a3b970b38c3",
+      "requirements-test-image.lock": "beb452163910f778484dcdbd0c094e476041dbb199fd5bcbf0ffd785a61dc020",
+      "scripts/audit_diagnostic_run.py": "4368ebcfc3ecef031cb37df68a73897b17f3d5715c8d2fe9b337680016ceb495",
+      "scripts/check_delivery.py": "fc0949a2156fa83ab1651c758a30f0387eab625d7082df4e4348371ca5dafdd7",
+      "scripts/qualify_diagnostic_probes.py": "42a3591c90e0fea648524b205fd192aba34d0561499187351952d54ba25d1149"
+    },
+    "dependencies": {
+      "aiohappyeyeballs": [
+        "2.7.1"
+      ],
+      "aiohttp": [
+        "3.14.4"
+      ],
+      "aiosignal": [
+        "1.4.0"
+      ],
+      "annotated-doc": [
+        "0.0.5"
+      ],
+      "annotated-types": [
+        "0.8.0"
+      ],
+      "anthropic": [
+        "1.13.0"
+      ],
+      "anyio": [
+        "4.15.1"
+      ],
+      "attrs": [
+        "26.1.0"
+      ],
+      "bracex": [
+        "3.0.1"
+      ],
+      "certifi": [
+        "2026.7.22"
+      ],
+      "cffi": [
+        "2.1.1"
+      ],
+      "charset-normalizer": [
+        "3.5.2"
+      ],
+      "click": [
+        "8.5.0"
+      ],
+      "cryptography": [
+        "50.0.2"
+      ],
+      "dashscope": [
+        "1.27.7"
+      ],
+      "deepagents": [
+        "0.7.20"
+      ],
+      "distro": [
+        "1.9.0"
+      ],
+      "docstring-parser": [
+        "0.18.0"
+      ],
+      "fastapi": [
+        "0.141.1"
+      ],
+      "filetype": [
+        "1.2.0"
+      ],
+      "frozenlist": [
+        "1.8.0"
+      ],
+      "google-auth": [
+        "2.61.0"
+      ],
+      "google-genai": [
+        "2.29.0"
+      ],
+      "h11": [
+        "0.16.0"
+      ],
+      "httpcore": [
+        "1.0.9"
+      ],
+      "httpcore2": [
+        "2.13.1"
+      ],
+      "httpx": [
+        "0.28.1"
+      ],
+      "httpx-sse": [
+        "0.4.3"
+      ],
+      "httpx2": [
+        "2.13.1"
+      ],
+      "idna": [
+        "3.20"
+      ],
+      "jiter": [
+        "0.17.0"
+      ],
+      "jsonpatch": [
+        "1.34"
+      ],
+      "jsonpointer": [
+        "3.2.0"
+      ],
+      "jsonschema": [
+        "4.26.0"
+      ],
+      "jsonschema-specifications": [
+        "2025.9.1"
+      ],
+      "langchain": [
+        "1.4.3"
+      ],
+      "langchain-anthropic": [
+        "1.7.5"
+      ],
+      "langchain-classic": [
+        "1.0.8"
+      ],
+      "langchain-community": [
+        "0.4.2"
+      ],
+      "langchain-core": [
+        "1.6.9"
+      ],
+      "langchain-google-genai": [
+        "4.4.0"
+      ],
+      "langchain-protocol": [
+        "0.0.19"
+      ],
+      "langchain-text-splitters": [
+        "1.1.3"
+      ],
+      "langgraph": [
+        "1.2.12"
+      ],
+      "langgraph-checkpoint": [
+        "4.2.0"
+      ],
+      "langgraph-prebuilt": [
+        "1.1.0"
+      ],
+      "langgraph-sdk": [
+        "0.4.6"
+      ],
+      "langsmith": [
+        "0.14.7"
+      ],
+      "markdown-it-py": [
+        "4.2.0"
+      ],
+      "mcp": [
+        "2.3.0"
+      ],
+      "mcp-types": [
+        "2.3.0"
+      ],
+      "mdurl": [
+        "0.1.2"
+      ],
+      "multidict": [
+        "6.9.1"
+      ],
+      "numpy": [
+        "2.5.3"
+      ],
+      "opentelemetry-api": [
+        "1.45.2"
+      ],
+      "orjson": [
+        "3.13.0"
+      ],
+      "ormsgpack": [
+        "1.12.2"
+      ],
+      "packaging": [
+        "26.3"
+      ],
+      "pip": [
+        "26.1"
+      ],
+      "propcache": [
+        "0.5.4"
+      ],
+      "pyasn1": [
+        "0.6.4"
+      ],
+      "pyasn1-modules": [
+        "0.4.2"
+      ],
+      "pycparser": [
+        "3.11"
+      ],
+      "pydantic": [
+        "2.14.0"
+      ],
+      "pydantic-core": [
+        "2.50.0"
+      ],
+      "pydantic-settings": [
+        "2.15.0"
+      ],
+      "pygments": [
+        "2.21.0"
+      ],
+      "pyjwt": [
+        "2.15.1"
+      ],
+      "pymysql": [
+        "1.2.3"
+      ],
+      "python-dotenv": [
+        "1.2.4"
+      ],
+      "python-multipart": [
+        "0.0.33"
+      ],
+      "python-repair-workbench": [
+        "1.0.0",
+        "1.1.0.dev0"
+      ],
+      "pyyaml": [
+        "6.0.3"
+      ],
+      "referencing": [
+        "0.37.0"
+      ],
+      "requests": [
+        "2.34.2"
+      ],
+      "requests-toolbelt": [
+        "1.0.0"
+      ],
+      "rich": [
+        "15.0.0"
+      ],
+      "rpds-py": [
+        "2026.9.1"
+      ],
+      "shellingham": [
+        "1.5.4"
+      ],
+      "sniffio": [
+        "1.3.1"
+      ],
+      "sqlalchemy": [
+        "2.1.4"
+      ],
+      "sse-starlette": [
+        "3.6.0"
+      ],
+      "starlette": [
+        "1.7.0"
+      ],
+      "tenacity": [
+        "9.1.4"
+      ],
+      "truststore": [
+        "0.10.4"
+      ],
+      "typer": [
+        "0.27.3"
+      ],
+      "typing-extensions": [
+        "4.16.0"
+      ],
+      "typing-inspection": [
+        "0.4.4"
+      ],
+      "urllib3": [
+        "2.8.0"
+      ],
+      "uuid-utils": [
+        "0.17.1"
+      ],
+      "uvicorn": [
+        "0.53.0"
+      ],
+      "wcmatch": [
+        "11.0.1"
+      ],
+      "websocket-client": [
+        "1.9.2"
+      ],
+      "websockets": [
+        "16.1.1"
+      ],
+      "xxhash": [
+        "4.0.1"
+      ],
+      "yarl": [
+        "1.25.1"
+      ],
+      "zstandard": [
+        "0.25.0"
+      ]
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "evidence_sha256": {
+    "runtime/failure-context-ranking-after-20261101.log": "4c33d776b52754c569f05c6dac6cc5480be20bc7135af8a2702da54b8f33ae99",
+    "runtime/failure-context-ranking-before-20261101.log": "68ea50c19a6da27929bd4ef7ee8cd607929f1eb07045c1436f56991285a3b0de",
+    "runtime/light-context-regression-20261101.log": "9bf6cf6ecfe94b09b883eadf20b222583561d10f40212d3a3d9e22bd368f438f",
+    "runtime/public-context-offline-replay-20261101/report.json": "37a14a3b9515321e8d13533a20be54f5651c9d90fa50fad03d67f9bde56bd4aa",
+    "runtime/public-pilot-final-regression-20261101.log": "8a8c007ef9f6916d23548bdcbf1dcd5e4b6cd077cf52a2fd528a3eab98c0f3df",
+    "runtime/public-pilot-wheel-check-20261101.json": "f1d3782f8900f6ac7e59f237af7c1e8af1c5e8891045b8062a41c3fc7496c793",
+    "runtime/public-qwen-max-live-20261101/audit-after-offline-fix.json": "fcd9c7c2537f9b502207046421ba0a8704f948d0a25054b86e54a0a72d3c6da0",
+    "runtime/public-qwen-max-live-20261101/audit-final.json": "fcd9c7c2537f9b502207046421ba0a8704f948d0a25054b86e54a0a72d3c6da0",
+    "runtime/public-qwen-max-live-20261101/audit.json": "06474f5bfff6aec99851b1db72bdc8fb570bb9fc1476ada9095397c219c4cae3",
+    "runtime/public-qwen-max-live-20261101/evaluation.json": "2998e9942efe9b2814b27419928ae94bcb8cb735647d30ea60f7b748cb93e124",
+    "runtime/public-qwen-max-live-20261101/paired-analysis.json": "fa0df6d7b5f8e5b52f1e6b750354c7afea751f319f8e147b7691fd97dda2be47",
+    "runtime/public-qwen-max-live-20261101/plan.json": "82cf1298c265136f33f3992dbb54d941a81936ff5267299157182d6bc4135b95",
+    "runtime/public-qwen-max-live-20261101/token-ledger.json": "b54197e0a28c923ae2b2a7efe4597381886a26ebcc114ba6d6721fa6374b390c",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/agent/events.jsonl": "6be755ab088245b94c3cb6a5592c827cbda6928fb2d1ad352b9796c93583593d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/agent/result.json": "c4c7265fdef702b199f4b8737c61d9c9292aa1312101a926d6af17b124459747",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-005.request.json": "b94a96525686cb9203f86b6463d3c7c20e2a978eca2cebd7703a1cfb3280f96d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-005.response.json": "c54780f16d21316ff41faf5f1cddb04d5e91341c6be1f91c8f73ef024f06a849",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-006.request.json": "d7b4be13bd6bcdf9f9e340f7ea0c9f442cbc5dd603f800bf2d2c3075a9a98327",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-006.response.json": "f18c14437687fbfb77f3440ffe610f2b1e0fc5958aac3ac87fc6602ab75166f7",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-007.request.json": "ca91ca1b97743990ad17f8f02700ae29c15eb193ce4eff5eee55567f26faf65b",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-007.response.json": "d303ebde5ae7ae5117b1a039d61c0933b021e2c2c96f7e4dabd7e026de5c997e",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-008.request.json": "7d73a6612a67e60df18aa3bba414badf25eeded056aa8cfe4058a3b290bdf96c",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-008.response.json": "12224e4116578a7c53aeb2a1b6bad186eef73a48065cc3a22e04f595d1223f1d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-009.request.json": "e48945e6a3019b90769f0b4b191fff18cb4d8e96bce5ac5b11d0d36ed59367b5",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-failure_context/provider-traces/call-009.response.json": "88411dd99906f6937386806a8df4231ceef9abc66ec11cd21087a38841e4b2dc",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/agent/events.jsonl": "024fbfdabdaf293cd197cb18d474647ac7abc6b96fd7d090b7a7a32b5a11dd37",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/agent/result.json": "1bec9a0cf9cc34b3f5c82aeb68bc7461aeb7b2bf148134addab8b64544a777ba",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/independent-verification/reports/pytest.log": "d7bdabb3e3edbfb67ad5bec5f31715a2491c085d687c3885395e58b8c2dc44be",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/independent-verification/reports/pytest.xml": "e2aa5d0eb7c156ded76ed123f243da3002cec52ec2710338eac18202ffedede7",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/independent-verification/reports/result.json": "f7d270f6f62d18b9a0ad4895a3fd52be578e4296b9dfeb9f2a1a08375c0a6899",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-001.request.json": "e0187758bc43f7cbb2ce80d3ec05a097caddf276ed70722347df04bf95adb768",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-001.response.json": "4fc2556f02f31525057bf8f01fd945fb14b167689f7f3616a824faad176f8f73",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-002.request.json": "bf1e646b78fd9c20cf171f11a49a05cce6a8150dc02149a48de5b030a0442e52",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-002.response.json": "89cc46786ab964ef3cfbf48f823620945bbd09efe6b9bdc51d34c9e9ac27d750",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-003.request.json": "3bb4a66a608a3e1128a3fc26468e8f70b54e2c3e534bbd52fe6f8e55c74df4bc",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-003.response.json": "8b0eda2b25b64d30fc8b510f58399edf6dae944e849b4aafecd8aa3f5323b4b2",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-004.request.json": "5f77108be548bc79dbb46406868648ad54b9f57b7e7240d42eb129d5367c0996",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r1-on_demand/provider-traces/call-004.response.json": "8df48c381122a9075674f448943d94537c30262bbbd7c677bb562bb8c57d8471",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/agent/events.jsonl": "2dca93c4b6e9629ef0ce4c91aa63299c23f63e031b6f048977493c5ff63afe0d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/agent/result.json": "4d9667866230c803636fe37a98b9191b40901b19ab236365c5abf9d5e915e056",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/independent-verification/reports/pytest.log": "d7bdabb3e3edbfb67ad5bec5f31715a2491c085d687c3885395e58b8c2dc44be",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/independent-verification/reports/pytest.xml": "7ba4207e59100f27ab4c520dda73b3c8a80b87887a499065727a5a0c525b9df8",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/independent-verification/reports/result.json": "ff352d8e04454377582e0a8d9a7f806af91993f7e5354a6256e98c5d9f621a87",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-022.request.json": "350295d5f1da29c653dc505b38db5d8dcc5f571ebb08928e1025705f905f0385",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-022.response.json": "f1a1ef93159a5e53854a70bde87ded2f6dd04e83071cbc1b4084127323ec54e9",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-023.request.json": "1cd57621b7e766f4d8b17ae54de93816b77176173dd288cf78ed51afda7068cc",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-023.response.json": "59e88e2144902c254a2c7a89648d51567d6c9d856558c7b189c1043faa7e80e2",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-024.request.json": "a471ca957e0a308240574ee43fedcd8af70ee43faa75b039f94ba1492e52e3a5",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-failure_context/provider-traces/call-024.response.json": "8e4322b6665e2a462dfe8fe18ed60cd2e744a9070c4bce3b25a29d7e71e2e91d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/agent/events.jsonl": "31bf47803913a6d8df02481b462a04d7c3919ff0c8a51b1c0cec565966fa925f",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/agent/result.json": "2302046230198c920b6fee89429f8b7464c3cc339d8a7006decd4b84d92866ae",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/independent-verification/reports/pytest.log": "d7bdabb3e3edbfb67ad5bec5f31715a2491c085d687c3885395e58b8c2dc44be",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/independent-verification/reports/pytest.xml": "e999b415bd6b06a9e745e26d2e022706983b1455edfadabcc91ba848668fd2c8",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/independent-verification/reports/result.json": "f89c3961077fbfc71bad89637fc8cf01ec9390863522065a6d7af59305bf170b",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-025.request.json": "3067ac46e89ae830e4d829d249720af308a29ecbb76b9f6086f19ff0e71ba4d3",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-025.response.json": "301d7071b958ddbb7870848bc9959f2c821d006f1fd95c673352b8a445453473",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-026.request.json": "b3916c034128d0f359a725eaeb279de9ea6b8b84b83fbed3873eab3f17f6a3ee",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-026.response.json": "70d11263511853fdeecee56b9394f5bbc95650d6d9420a7b680f9e1152bf70af",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-027.request.json": "90347301bab28707779feda27be9b0171c79ef638bddbf0b0c800285e4f1ed0a",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-027.response.json": "1a1f9971d690ae9d9c4a3ec26f445c4217f8633af25ffca7a5dff4121d71029d",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-028.request.json": "1ec7bda3c6c1bed34dec535d28606c93af8b95e3b1e6fab6c20e2f68e8ec23ad",
+    "runtime/public-qwen-max-live-20261101/tqdm-1-r2-on_demand/provider-traces/call-028.response.json": "8ed753e2d24fa150ba316148f8152d9da94159daef53f423bc9166870214e2a5",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/agent/events.jsonl": "d88b91891e2be4b96499f8e580cedf7272161804677c9799430df63eecb7ea7c",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/agent/result.json": "6670b5634b301251418ee0d8040afa9ad83af4c41047e32c5a20f5898171988e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-010.request.json": "28c444edf70770748afddb184df8264af4bc7d6bac4f7639273a3ee6a02ac868",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-010.response.json": "957ae4a3ed6ef126e2372a3056efa7000ab65236b74a262bc14a4e0489f985dc",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-011.request.json": "f1f5e68e20572beefc93b807a8748ba9abdfd207b8250fbba43866924df5db95",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-011.response.json": "4df76deddcce4f74eb0980403f828a90ba274f7ab7bb3fe1eceff281975715d4",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-012.request.json": "847add24be48574567032596a1595c2bae8bcdc5e913b4d4efcafacc626dfe4e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-012.response.json": "87ac48239100828cf3ad59132a0a53ef782b493403fa0a76379b53d1a002ebee",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-013.request.json": "65299d56578f84fe93d96fded2f5ab0ee8d9fccb7b30419403ad32a243bcf21e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-013.response.json": "5509ac689000171e68d0a4b5d445bc21338ccb572439bd14f3674936bda77967",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-014.request.json": "e4d2ac1662547e668ed422f922f096f26d8e3520f11cda1bb843befd4bee0074",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-014.response.json": "10f4632a14fbb7b7481a78e7d9f43dd995c26b9d3538f73ca954dcf3026c046f",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-015.request.json": "7d95dce8ec81ecea4961235d7e7f8eb8aa956d003aa0da4639b56bd13201dbcd",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-015.response.json": "9c35c77f36755e39f9c702a8c504a10262d3fb557c045ecc2f63aaf1070a3672",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-016.request.json": "dcf95c78b86c7903fafb00607b09debcabf82a8da7f9e02b071d969d88770237",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-016.response.json": "625831bce9bf392877f4371c68e9ead303b600267285abf9680dbdd6a6bcb703",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-017.request.json": "d87ebfb470da53596ec49a9fa6df4ec296371fe8464aeb58ce2bbc0c9006b76e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-failure_context/provider-traces/call-017.response.json": "e600cf8f8cf2880e3e46357427d22249f3819724490345d7a94674ef4b9aa5e9",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/agent/events.jsonl": "763d9cd68aad3d6541c4ae8723c7716702e531a038e724eb875bc1c8a12a93d5",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/agent/result.json": "a65478f124fcf5afb0c9cf631d591fb87bbb93eacfd56792d62962e7bde3195e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/independent-verification/reports/pytest.log": "1253f6ca793d46eb9c48b6f1606064815d0bb62be75a701be4c49494044e47ce",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/independent-verification/reports/pytest.xml": "6ba15bc698c1237094bdd6b85b5ba8749c8e3e8066585aa1e25f1f52de46390c",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/independent-verification/reports/result.json": "7234cf3b4bf3ebc8af0dd1af4511c2cb2f5ee00a8084c1af3e2072a786cfc072",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-018.request.json": "b317affe428701e251fd120d836b7fdec363742336dbacc6cc55a1a1269138b5",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-018.response.json": "67f3038383773d2ef8fa02f1632fd0cfd5c36a9ea266f648795ffec6b8db6520",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-019.request.json": "fc447c54411f61835455ef8939469ac0d9006df7624cf80f59dfd7ed3ecf48dd",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-019.response.json": "adc8c5b38362346d7105aaf415be1f4f73e5b49e4914733c28ee7151aca373fd",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-020.request.json": "ce3077761de466e373988a4ed3f7e2ded3502d6834cda39fbd1a1c0afbd1293c",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-020.response.json": "8caf113c458f365f1945a72e11c6db50db5718288552d268778e191ac30328b5",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-021.request.json": "26bdb2478b045f3dc73c12e9ea54359b3de76f08322d336354305439c11f59a2",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r1-on_demand/provider-traces/call-021.response.json": "75014723bcde8b78639dbfd79df79a7e6d905b6a57b193a56f0869c4857f09cd",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/agent/events.jsonl": "860a6dbf60d4412668ce6d462eca606eb49cd4122a534649019922a8adeb67fe",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/agent/result.json": "750f33f06c82f1bd1f6e196b032fa9ea7d294ba5a497ff99c794ef2b5eb00ffd",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-033.request.json": "57f094d12eaac87e595396028ff1fd697ebe9d2049a90c7e4e4ac89df092bed4",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-033.response.json": "52002b04634d94e10066d84d47d13af4f1a94a7386a6dc91898247c00a5e2c2e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-034.request.json": "840455924a7998d3ebe1bbf42bb57b1a372d4efea5037712e5eb3388acba41d4",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-034.response.json": "602476d5d0f2d64d1888f5de6d3d0ed86c9aae3885d65365ed0655f16eba1ecb",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-035.request.json": "37872a7edccf74a3fd73417291e7fdee2176f710d306a81a7a07bf096b4e73f8",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-035.response.json": "96415a3b047abea9e96048e45fcaaf9436df0b88a97e6f00e3ff1c90428b9f6c",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-036.request.json": "a774a30a5692571ad3c68cebb69aaf53d9b047abb52e176a32f32fd4280d71e9",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-036.response.json": "fea886805b0c35ac9aef776bd2960f4d1201f85bab8a44f7f02947f7ea820113",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-037.request.json": "cd70e8bfebdce843e9384f4040f4bbf1269bb1fb307ded083993b9abd4458d8e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-037.response.json": "5de3cef3e9b7546610cee833ab299ea285bdfafa1eb9f2a99b43776244e98d18",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-038.request.json": "80871f70ec3d550a925c4c2cf86e8448d7705b98a391d458ff7142bb0fd1be8e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-failure_context/provider-traces/call-038.response.json": "eafa135b693a1577c662c138cbd8b3adf246801ed176eb6dc83743734f27920d",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/agent/events.jsonl": "5ff7eb009e22939790f66401d1cc23d7aa7569ecb9a883d4a204788011045810",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/agent/result.json": "314ab536c58e211eb556e3df18885e2eddea3f7e9b16f65e8643522db63e605b",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/independent-verification/reports/pytest.log": "1253f6ca793d46eb9c48b6f1606064815d0bb62be75a701be4c49494044e47ce",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/independent-verification/reports/pytest.xml": "15e0c16f034073c60ea1680ed01eacda451c03c285581af01190e2be438a008b",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/independent-verification/reports/result.json": "da35d15a7262e2881e857fb3bc43af8d3e14d7a9cbb7cc3fb0bfff3e3e0f1b0c",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-029.request.json": "c931c10e14a1a59a5fe42dae3bbc2dca11e67e26eda01b210495c57c5f1cdb5e",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-029.response.json": "1ec6496d3a83bee6fde6c78e1d8767b29ed4e6b00ec8b9b3f361ab50244b342b",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-030.request.json": "c82bad1b0da186ed47cc73bef8f31ff9f4337e7abcc2ecdcb8950aaa00c3a3d0",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-030.response.json": "0e45e2e7042f4e38c071b448d80f6c29e74cbd7bec0bba5789f75a02e15a715f",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-031.request.json": "3c04da118b10b6cf1b0295fbf9f4ee1a23da69ec9f64c10e362fb75c6ad7929d",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-031.response.json": "ad80792f899edf9a61d4543615e626b31be451e3f6eb042159c1c0c49b8f430b",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-032.request.json": "5a0d26db783b84ee435461b319078baed0e6ed46f7aa9890d15b86db5105e6ef",
+    "runtime/public-qwen-max-live-20261101/tqdm-4-r2-on_demand/provider-traces/call-032.response.json": "98bac59e08ffe10f3b05d6b2a7c0c3a04b0dbab8fc62f7ef50735bcaa51bb43e"
+  },
+  "limits": [
+    "two public development bugs, not an official benchmark score",
+    "three paired repeats do not become independent defects",
+    "no adaptive diagnostic scheduling/MCP/Skills efficacy attribution",
+    "actual paid bill not returned by API",
+    "offline fix has no subsequent real-model score"
+  ]
+}

@@ -55,6 +55,51 @@ def main(argv=None):
     repair.add_argument("--max-model-calls", type=int, default=12)
     repair.add_argument("--deadline", type=float, default=180)
     repair.add_argument("--timeout", type=float, default=30)
+    probe = commands.add_parser('probe', help='在隔离容器中运行注册诊断，不调用模型')
+    probe.add_argument('--snapshot', type=Path, required=True)
+    probe.add_argument('--output', type=Path, required=True)
+    probe.add_argument('--image', required=True)
+    probe.add_argument('--kind', choices=('cpu', 'memory', 'benchmark'), required=True)
+    probe.add_argument('--workload', default='ugc-export-v1')
+    probe.add_argument('--timeout', type=float, default=30)
+    probe.add_argument('--transport', choices=('local', 'mcp'), default='local')
+    performance = commands.add_parser('verify-performance', help='独立复验性能候选，不调用模型')
+    performance.add_argument('--baseline', type=Path, required=True)
+    performance.add_argument('--candidate', type=Path, required=True)
+    performance.add_argument('--output', type=Path, required=True)
+    performance.add_argument('--allow', action='append', required=True)
+    performance.add_argument('--workload', default='ugc-export-v1')
+    performance.add_argument('--timeout', type=float, default=30)
+    performance.add_argument('--minimum-speedup', type=float, default=0.15)
+    performance.add_argument('--max-memory-ratio', type=float, default=1.25)
+    diagnose = commands.add_parser('diagnose', help='使用单Agent选择诊断实验；真实调用须单独授权')
+    diagnose.add_argument('--baseline', type=Path, required=True)
+    diagnose.add_argument('--output', type=Path, required=True)
+    diagnose.add_argument('--allow', action='append', required=True)
+    diagnose.add_argument('--task', required=True)
+    diagnose.add_argument('--workload', default='ugc-export-v1')
+    diagnose.add_argument('--strategy', choices=('adaptive', 'fixed'), default='adaptive')
+    diagnose.add_argument('--env-file', type=Path)
+    diagnose.add_argument('--model')
+    diagnose.add_argument('--max-attempts', type=int, default=3)
+    diagnose.add_argument('--max-model-calls', type=int, default=12)
+    diagnose.add_argument('--max-probe-runs', type=int, default=6)
+    diagnose.add_argument('--deadline', type=float, default=300)
+    diagnose.add_argument('--timeout', type=float, default=30)
+    diagnose.add_argument('--minimum-speedup', type=float, default=0.15)
+    diagnose.add_argument('--max-memory-ratio', type=float, default=1.25)
+    diagnose.add_argument('--skills', action='store_true', help='启用候选诊断策略的按需加载')
+    diagnose.add_argument('--investigator', action='store_true', help='允许按需只读调查委派')
+    diagnose.add_argument('--max-delegations', type=int, default=1)
+    diagnose.add_argument('--diagnostic-transport', choices=('local', 'mcp'), default='local')
+    diagnose.add_argument('--investigator-max-model-calls', type=int, default=3)
+    diagnose.add_argument('--investigator-max-tools', type=int, default=12)
+    diagnose.add_argument('--investigator-timeout', type=float, default=30)
+    diagnose.add_argument('--main-model-reserve', type=int, default=2)
+    diagnose.add_argument('--main-tool-reserve', type=int, default=4)
+    diagnose.add_argument('--main-time-reserve', type=float, default=10)
+    diagnose.add_argument('--allow-real-model', action='store_true',
+                          help='仅在明确批准模型与批次上限后使用；环境变量不替代批准')
     for name in ("candidate", "verify"):
         command = commands.add_parser(name)
         command.add_argument("--baseline", type=Path, required=True)
@@ -126,6 +171,54 @@ def main(argv=None):
             result = verify_candidate(args.baseline, args.candidate, args.output,
                                       set(args.allow), args.timeout)
             code = {"passed": 0, "failed": 1, "inconclusive": 2}[result["status"]]
+        elif args.command == 'probe':
+            if args.transport == 'mcp':
+                from .diagnostic_mcp_client import run_mcp_probe as execute
+            else:
+                from .diagnostics import run_probe as execute
+            result = execute(args.snapshot, args.output, args.image, args.kind,
+                             args.workload, args.timeout)
+            code = 0 if result['status'] == 'ok' and result['cleanup_ok'] else 2
+        elif args.command == 'verify-performance':
+            from .performance import verify_performance_candidate
+            result = verify_performance_candidate(
+                args.baseline, args.candidate, args.output, set(args.allow),
+                args.workload, args.timeout, minimum_speedup=args.minimum_speedup,
+                max_memory_ratio=args.max_memory_ratio)
+            code = {'passed': 0, 'failed': 1, 'inconclusive': 2}[result['status']]
+        elif args.command == 'diagnose':
+            if not args.allow_real_model:
+                raise ValueError('诊断真实模型入口默认关闭；请先批准精确模型、任务和预算，再显式启用')
+            from .agent import run_agent
+            from .diagnosis import DiagnosticSession
+            from .settings import ModelSettings
+            if not args.task.strip() or len(args.task) > 12000:
+                raise ValueError('任务说明必须为1–12000字符')
+            settings = ModelSettings.load(args.env_file, args.model)
+            session = DiagnosticSession(
+                args.baseline, args.output, set(args.allow), workload=args.workload,
+                strategy=args.strategy, max_probe_runs=args.max_probe_runs,
+                use_skills=args.skills, use_investigator=args.investigator,
+                max_delegations=args.max_delegations,
+                diagnostic_transport=args.diagnostic_transport,
+                investigator_max_model_calls=args.investigator_max_model_calls,
+                investigator_max_tools=args.investigator_max_tools,
+                investigator_timeout_seconds=args.investigator_timeout,
+                main_model_reserve=args.main_model_reserve,
+                main_tool_reserve=args.main_tool_reserve,
+                main_time_reserve_seconds=args.main_time_reserve,
+                minimum_speedup=args.minimum_speedup, max_memory_ratio=args.max_memory_ratio,
+                max_attempts=args.max_attempts, max_model_calls=args.max_model_calls,
+                deadline_seconds=args.deadline, test_timeout=args.timeout)
+            try:
+                model = settings.create_model()
+            except Exception as exc:
+                result = session.save('stopped', stop_reason='model_configuration_error',
+                                      error_type=type(exc).__name__)
+            else:
+                session.record('model_configured', provider='dashscope', model=settings.model)
+                result = run_agent(session, model, args.task)
+            code = {'passed': 0, 'failed': 1, 'inconclusive': 2}.get(result['status'], 2)
         else:
             from .agent import run_agent
             from .session import RepairSession

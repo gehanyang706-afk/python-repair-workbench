@@ -16,6 +16,7 @@ agent = [
 ]
 web = ["fastapi==0.141.1", "uvicorn==0.53.0"]
 backend = ["PyMySQL==1.2.3"]
+mcp = ["mcp==2.3.0"]
 
 [build-system]
 requires = ["setuptools>=77"]
@@ -25,7 +26,7 @@ build-backend = "setuptools.build_meta"
 include = ["repair_workbench*"]
 
 [tool.setuptools.package-data]
-repair_workbench = ["static/*", "migrations/*.sql"]
+repair_workbench = ["static/*", "migrations/*.sql", "skills/*/SKILL.md", "swebench_harness_lock.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
