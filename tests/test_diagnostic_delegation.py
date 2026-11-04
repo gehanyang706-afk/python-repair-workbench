@@ -64,7 +64,7 @@ class Driver:
 
     def __init__(self, *, child_error=False, main_error=False, repeat=False,
                  forbidden_child=False, forged=False, invalid_subagent=False,
-                 oversized=False, cancel_on_child=None):
+                 oversized=False, cancel_on_child=None, structured_refs=None):
         self.child_error = child_error
         self.main_error = main_error
         self.repeat = repeat
@@ -73,6 +73,7 @@ class Driver:
         self.invalid_subagent = invalid_subagent
         self.oversized = oversized
         self.cancel_on_child = cancel_on_child
+        self.structured_refs = structured_refs
         self.main_calls = 0
         self.child_calls = 0
         self.calls = []
@@ -130,7 +131,10 @@ class DelegationModel(BaseChatModel):
             driver.main_calls += 1
             if driver.main_calls == 1 or driver.repeat:
                 response = self.action("task", {
-                    "description": "Inspect map_exporter.py with read-only tools and return cited findings.",
+                    "description": (json.dumps({'question': 'Inspect the selected source evidence.',
+                                                'evidence_refs': driver.structured_refs})
+                                    if driver.structured_refs is not None else
+                                    "Inspect map_exporter.py with read-only tools and return cited findings."),
                     "subagent_type": "general-purpose" if driver.invalid_subagent else "investigator",
                 }, f"main-task-{driver.main_calls}")
                 if driver.main_error and driver.main_calls == 1:
@@ -223,6 +227,31 @@ class DiagnosticDelegationTests(unittest.TestCase):
         self.assertEqual(driver.child_calls, 2)
         self.assertTrue(all(set(call["tools"]) == READONLY_TOOLS
                             for call in driver.calls if call["role"] == "investigator"))
+
+    def test_structured_upstream_packet_selects_real_refs_without_parent_history(self):
+        session = self.session()
+        selected = session.read_source('map_exporter.py', raw=True)
+        hidden = session._add_evidence('source_excerpt', {
+            'path': 'UPSTREAM_OMITTED_SENTINEL', 'content': 'PRIVATE_UNSELECTED_CONTENT'},
+            session.evidence[selected['evidence_ref']]['snapshot_id'])
+        driver = Driver(structured_refs=[selected['evidence_ref']])
+        result = run_agent(session, DelegationModel(driver=driver), 'PARENT_PRIVATE_SENTINEL')
+        self.assertEqual(result['delegation_history'][0]['upstream_evidence_refs'], [selected['evidence_ref']])
+        children = [call for call in driver.calls if call['role'] == 'investigator']
+        self.assertTrue(children)
+        first = str([message.content for message in children[0]['messages']])
+        self.assertIn('upstream_evidence', first)
+        self.assertIn(selected['evidence_ref'], first)
+        for text in ('PARENT_PRIVATE_SENTINEL', 'UPSTREAM_OMITTED_SENTINEL', 'PRIVATE_UNSELECTED_CONTENT', hidden):
+            self.assertNotIn(text, first)
+        self.assertNotIn(selected['content'], first)
+
+    def test_forged_upstream_reference_does_not_start_a_child(self):
+        session = self.session()
+        driver = Driver(structured_refs=['E9999'])
+        result = run_agent(session, DelegationModel(driver=driver), 'Investigate only bound evidence.')
+        self.assertEqual(driver.child_calls, 0)
+        self.assertEqual(result['delegation_history'][0]['status'], 'unverified_invalid_findings')
 
     def test_delegation_duration_preserves_root_event_clock_and_audit_order(self):
         session = self.session()

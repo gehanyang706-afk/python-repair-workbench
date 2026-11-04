@@ -1,0 +1,494 @@
+{
+  "date": "2026-11-04",
+  "state": "implemented_and_engineering_verified",
+  "real_model_api_calls": 0,
+  "new_dependencies": [],
+  "regression": {
+    "total": 471,
+    "passed": 455,
+    "skipped": 16,
+    "failed": 0,
+    "seconds": 118.415,
+    "docker_enabled": true,
+    "mysql_enabled": false,
+    "log": "runtime/mcp-runtime-full-regression-20261104-final.log"
+  },
+  "acceptance": {
+    "path": "runtime/mcp-runtime-acceptance-ce4bc98e877a",
+    "mode": "scripted_known_candidate_two_mcp_services",
+    "measured_status": "passed",
+    "measured_reason": "passed_registered_performance_scope",
+    "runtime": {
+      "requests": 7,
+      "dispatched": 6,
+      "cache_hits": 1,
+      "coalesced": 0,
+      "failures": 0,
+      "qps": 40,
+      "max_inflight": 4,
+      "per_endpoint": 2,
+      "scope": "one_task_one_process"
+    },
+    "audit_counts": {
+      "candidates": 1,
+      "containers_confirmed_cleaned": 10,
+      "evidence": 4,
+      "exploratory_probe_runs": 1,
+      "hypotheses": 1,
+      "hypothesis_revisions": 2,
+      "mcp_jobs": 1,
+      "physical_probe_runs": 9,
+      "report_queries": 2,
+      "reused_observations": 0,
+      "verification_probe_runs": 8
+    },
+    "real_llm_effectiveness_claim_allowed": false
+  },
+  "single_fixture_context_view": {
+    "full_evidence_json_bytes": 2197,
+    "bounded_view_json_bytes": 2197,
+    "scope": "One CPU observation; not Token usage or end-to-end model savings."
+  },
+  "packaging": {
+    "sha256": "4db5da1c331a145705e3d0d6d811c2e4d093198eb940ddd3b6abb030b2409ad6",
+    "verified_files": 49
+  },
+  "installed_stdio_check": {
+    "installed_module": "/Users/gehanyang/编程/python-repair-workbench/runtime/mcp-runtime-installed-20261104/repair_workbench/diagnostic_report_mcp.py",
+    "report_id": "r-5d076bb4ae4fbb1f4c98b6ae7b6727df",
+    "snapshot_id": "34b08120f340dcfbed4aef6d1a70b7b38f8fcf4cd1372d4c5a2dd5a6a8bb2a7e",
+    "returned_rows": 1,
+    "matches_frozen_page": true,
+    "real_model_calls": 0
+  },
+  "first_failure_retained": {
+    "log": "runtime/mcp-runtime-full-regression-20261104-first.log",
+    "failed": 2,
+    "cause": "Shared framework middleware assumed a diagnostic-only runtime on legacy repair sessions.",
+    "fix": "Schedule only when the session owns ToolRuntime; retain unconditional original budget admission."
+  },
+  "limits": [
+    "Task-scoped one-process QPS, not cross-worker global QPS.",
+    "Agent graph remains serial; concurrent merge is contract-tested.",
+    "Local stdio only; no remote HTTP/OAuth or persistent connection pool.",
+    "No new Qwen-Max batch or measured LLM quality/Token benefit.",
+    "Existing repair default v2 and SWE-bench feature configuration remain unchanged."
+  ],
+  "source": {
+    "files": {
+      ".github/workflows/offline-validation.yml": "99864c2ebf9497b542f6b9bd4a65b906385675f45817d0dcfdc9f4cc4209e01f",
+      "benchmarks/ugc-diagnostics-dev-v1/qualification.py": "4693f74c7cba1330f016b9e19f0517651aab3e38beedfc1ce0c31a8ff665f5fe",
+      "pyproject.toml": "6f332ef2531d7e52214ff3bbb8d802f3edeb117f0ca5677e44a8e879ea6ab653",
+      "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "repair_workbench/__main__.py": "90db651cfa798bbd86944ec137b7d0283de96d9ecfcdfa5dad67fe972d522474",
+      "repair_workbench/agent.py": "1726b30f94e03c859d285c4ac5b5d3fdb8b424b9918fe08afa50038cefd3f545",
+      "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+      "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "repair_workbench/diagnosis.py": "cb9b16f547d67555df19acfc94386f36901dc03dcec41935afa32cacf784d239",
+      "repair_workbench/diagnostic_agent.py": "1bfd6cb4b721e18a6843cb129c73f3f58c8609578e9e516722c150722462b6c7",
+      "repair_workbench/diagnostic_delegation.py": "c28c8e4ed7ce124d5853fb970a1425f168366666fcf36786fb162e4bdad3a39f",
+      "repair_workbench/diagnostic_eval_policy.py": "561ca5ad2fb9e082e6c9c144a7df6a9ec7afbdb5b68a1ee852bffc2cfedb5d59",
+      "repair_workbench/diagnostic_evaluation.py": "cd8acb8740bd6f36e1ffe14ed9093e7e593cb0bd8f40a85239fa5c8ef628e334",
+      "repair_workbench/diagnostic_framework.py": "37f7e712a869bb3ed8e73274e6e380453ea86b59638ea8fe48b4e5e3aed7dd48",
+      "repair_workbench/diagnostic_mcp_client.py": "45749f8533477193c6513599aacfc06e5a240c3292ae0282203430e1d78a3a41",
+      "repair_workbench/diagnostic_mcp_server.py": "0c7138851786ca5920df8d5742ba079f8087c47a87b098cd81b5cd4a2132b91d",
+      "repair_workbench/diagnostic_progress.py": "3115a71cbf8bef4c09329758c06351311264ad101b7374304e0aa4a84fcfdd4a",
+      "repair_workbench/diagnostic_report_mcp.py": "186a2a632534a0da42f4b002be015693907b10e92ecdf077bdfacdd5b1a311d2",
+      "repair_workbench/diagnostic_reports.py": "7021e846211c21ccf5ae857eb734fd5132ad8377d77024a5ec3c6751297bcc21",
+      "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+      "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+      "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+      "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "repair_workbench/model_transport.py": "4f555ffd6508f9f73523659df3dbbe3a05354aa2f1f336779765e4f8b2a14aeb",
+      "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+      "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+      "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+      "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+      "repair_workbench/provider_worker.py": "26616421c4360684e0a707fb7a947746725f0a0cb5c0d03994ac37fa0fb940f7",
+      "repair_workbench/public_live_evaluation.py": "c71c9ba758509d3e10e7c5b5b09a97ed611264581ec87365cf7bc682fc99b8f6",
+      "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+      "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "repair_workbench/session.py": "9ed7524c664e3dcf0f9854dc6a7aaf5010cc80ff1cb0b9f5f2cf244f638cf5c8",
+      "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+      "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+      "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+      "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "repair_workbench/source_context.py": "b4a2f9da0dc843e73a55f2de25762b13515b9eee9f0c53f2061ba475570a91c9",
+      "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "repair_workbench/swebench_adapter.py": "d740ca230c7abdafd5aa6ff123699b17c70dc5d6b50a49ec23a3b6419e12b186",
+      "repair_workbench/swebench_harness_lock.json": "267f65d64b27b5eac9d4acd9ed71bb821b34a7c9003d4d98a70ef6f60737c290",
+      "repair_workbench/swebench_worker.py": "ab5ebff995f633d6d880a646db00cca6821c05e0de90035915b60ad7588b148a",
+      "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+      "repair_workbench/tool_runtime.py": "fa72a9f19ecce4b58668647afeda6588472043e9694d6238f7d684c686866e2a",
+      "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+      "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79",
+      "requirements-backend.lock": "7ae2b13af6d977e1c74480a26f9545a78a79a8878ec71045966f38a9548d7bb2",
+      "requirements-build.lock": "e98d3b1a91f7dfc9e82cf362249f1c82b735a5292eb843b4ebfa1d18a429f677",
+      "requirements-mcp.lock": "8b9506bcb69fa05709d163251922cef4544462b95d79522fd6173a3b970b38c3",
+      "requirements-swebench.lock": "2180cc9dc3bf4aa20a0396af9830ab15a68ac6441d981ed3e1a6fb5acac7f27a",
+      "requirements-test-image.lock": "beb452163910f778484dcdbd0c094e476041dbb199fd5bcbf0ffd785a61dc020",
+      "scripts/audit_diagnostic_run.py": "a54cf2268e296a851397ff4b62b9a5cd2d4ac54bc0c4c81d1914aefb89ab384a",
+      "scripts/check_delivery.py": "a327f3a927f18f2bbbc4f988e9b2726eeb0a8b102e3d8603a52da6b28b17d821",
+      "scripts/qualify_diagnostic_probes.py": "42a3591c90e0fea648524b205fd192aba34d0561499187351952d54ba25d1149"
+    },
+    "dependencies": {
+      "aiohappyeyeballs": [
+        "2.7.1"
+      ],
+      "aiohttp": [
+        "3.14.4"
+      ],
+      "aiosignal": [
+        "1.4.0"
+      ],
+      "annotated-doc": [
+        "0.0.5"
+      ],
+      "annotated-types": [
+        "0.8.0"
+      ],
+      "anthropic": [
+        "1.13.0"
+      ],
+      "anyio": [
+        "4.15.1"
+      ],
+      "attrs": [
+        "26.1.0"
+      ],
+      "bracex": [
+        "3.0.1"
+      ],
+      "certifi": [
+        "2026.7.22"
+      ],
+      "cffi": [
+        "2.1.1"
+      ],
+      "charset-normalizer": [
+        "3.5.2"
+      ],
+      "click": [
+        "8.5.0"
+      ],
+      "cryptography": [
+        "50.0.2"
+      ],
+      "dashscope": [
+        "1.27.7"
+      ],
+      "deepagents": [
+        "0.7.20"
+      ],
+      "distro": [
+        "1.9.0"
+      ],
+      "docstring-parser": [
+        "0.18.0"
+      ],
+      "fastapi": [
+        "0.141.1"
+      ],
+      "filetype": [
+        "1.2.0"
+      ],
+      "frozenlist": [
+        "1.8.0"
+      ],
+      "google-auth": [
+        "2.61.0"
+      ],
+      "google-genai": [
+        "2.29.0"
+      ],
+      "h11": [
+        "0.16.0"
+      ],
+      "httpcore": [
+        "1.0.9"
+      ],
+      "httpcore2": [
+        "2.13.1"
+      ],
+      "httpx": [
+        "0.28.1"
+      ],
+      "httpx-sse": [
+        "0.4.3"
+      ],
+      "httpx2": [
+        "2.13.1"
+      ],
+      "idna": [
+        "3.20"
+      ],
+      "jiter": [
+        "0.17.0"
+      ],
+      "jsonpatch": [
+        "1.34"
+      ],
+      "jsonpointer": [
+        "3.2.0"
+      ],
+      "jsonschema": [
+        "4.26.0"
+      ],
+      "jsonschema-specifications": [
+        "2025.9.1"
+      ],
+      "langchain": [
+        "1.4.3"
+      ],
+      "langchain-anthropic": [
+        "1.7.5"
+      ],
+      "langchain-classic": [
+        "1.0.8"
+      ],
+      "langchain-community": [
+        "0.4.2"
+      ],
+      "langchain-core": [
+        "1.6.9"
+      ],
+      "langchain-google-genai": [
+        "4.4.0"
+      ],
+      "langchain-protocol": [
+        "0.0.19"
+      ],
+      "langchain-text-splitters": [
+        "1.1.3"
+      ],
+      "langgraph": [
+        "1.2.12"
+      ],
+      "langgraph-checkpoint": [
+        "4.2.0"
+      ],
+      "langgraph-prebuilt": [
+        "1.1.0"
+      ],
+      "langgraph-sdk": [
+        "0.4.6"
+      ],
+      "langsmith": [
+        "0.14.7"
+      ],
+      "markdown-it-py": [
+        "4.2.0"
+      ],
+      "mcp": [
+        "2.3.0"
+      ],
+      "mcp-types": [
+        "2.3.0"
+      ],
+      "mdurl": [
+        "0.1.2"
+      ],
+      "multidict": [
+        "6.9.1"
+      ],
+      "numpy": [
+        "2.5.3"
+      ],
+      "opentelemetry-api": [
+        "1.45.2"
+      ],
+      "orjson": [
+        "3.13.0"
+      ],
+      "ormsgpack": [
+        "1.12.2"
+      ],
+      "packaging": [
+        "26.3"
+      ],
+      "pip": [
+        "26.1"
+      ],
+      "propcache": [
+        "0.5.4"
+      ],
+      "pyasn1": [
+        "0.6.4"
+      ],
+      "pyasn1-modules": [
+        "0.4.2"
+      ],
+      "pycparser": [
+        "3.11"
+      ],
+      "pydantic": [
+        "2.14.0"
+      ],
+      "pydantic-core": [
+        "2.50.0"
+      ],
+      "pydantic-settings": [
+        "2.15.0"
+      ],
+      "pygments": [
+        "2.21.0"
+      ],
+      "pyjwt": [
+        "2.15.1"
+      ],
+      "pymysql": [
+        "1.2.3"
+      ],
+      "python-dotenv": [
+        "1.2.4"
+      ],
+      "python-multipart": [
+        "0.0.33"
+      ],
+      "python-repair-workbench": [
+        "1.0.0",
+        "1.1.0.dev0"
+      ],
+      "pyyaml": [
+        "6.0.3"
+      ],
+      "referencing": [
+        "0.37.0"
+      ],
+      "requests": [
+        "2.34.2"
+      ],
+      "requests-toolbelt": [
+        "1.0.0"
+      ],
+      "rich": [
+        "15.0.0"
+      ],
+      "rpds-py": [
+        "2026.9.1"
+      ],
+      "shellingham": [
+        "1.5.4"
+      ],
+      "sniffio": [
+        "1.3.1"
+      ],
+      "sqlalchemy": [
+        "2.1.4"
+      ],
+      "sse-starlette": [
+        "3.6.0"
+      ],
+      "starlette": [
+        "1.7.0"
+      ],
+      "tenacity": [
+        "9.1.4"
+      ],
+      "truststore": [
+        "0.10.4"
+      ],
+      "typer": [
+        "0.27.3"
+      ],
+      "typing-extensions": [
+        "4.16.0"
+      ],
+      "typing-inspection": [
+        "0.4.4"
+      ],
+      "urllib3": [
+        "2.8.0"
+      ],
+      "uuid-utils": [
+        "0.17.1"
+      ],
+      "uvicorn": [
+        "0.53.0"
+      ],
+      "wcmatch": [
+        "11.0.1"
+      ],
+      "websocket-client": [
+        "1.9.2"
+      ],
+      "websockets": [
+        "16.1.1"
+      ],
+      "xxhash": [
+        "4.0.1"
+      ],
+      "yarl": [
+        "1.25.1"
+      ],
+      "zstandard": [
+        "0.25.0"
+      ]
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "evidence_sha256": {
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/acceptance.json": "753efdf019614357fa78967888aba0d7dc04d4100fca2fcc6449e3da4ce2ef3c",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/candidate/manifest.json": "c4f3d29f0ba3557170c2b3e698ef15a8008051eeac85d70c5c7d714dbbd6b0c3",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/candidate/patch.diff": "90c5a30a9e9774ffc9d789686871204e84451528d3af4d9fee7bec609981fa57",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/manifest.json": "c4f3d29f0ba3557170c2b3e698ef15a8008051eeac85d70c5c7d714dbbd6b0c3",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/patch.diff": "90c5a30a9e9774ffc9d789686871204e84451528d3af4d9fee7bec609981fa57",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/performance-verification.json": "133772340e6108d9edc90a29a961e17e50d9463f90b566c0aba3e7bf1038be60",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/reports/pytest.log": "f82ef5dfe7698ffb764de054a81d190d7df4e7119218d436d12350d7af175f80",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/reports/pytest.xml": "57c8cdf2e8a9d7aeeb19c537b6d093b7a270f14273ed0a39560c115593dab0f0",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification/reports/result.json": "1eb315c370374457fa23ec61db5ac8a3b6e3bd91f021af791b666f9553e7452e",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-baseline/probe.json": "8bdba42145d0e5c0d95373394b8c1fd36380892d4c2bf7454b9de9d35681b83f",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-baseline/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-baseline/result.json": "f38ba5f2a1881f30ba26daaaabe45e139b66f1e833c11e96d1c02013c00a1a2a",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-candidate/probe.json": "0c6889065e575c6975f5f765707f45840edb1f1c577b99c4a8a54e9a461b6aba",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-candidate/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-benchmark-candidate/result.json": "54acd485dec2bd6403a24d5c6c09d6319555921c3572e2b5dd21fa3d6bbd6e2c",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-baseline/probe.json": "89f325f4bccdbe9096c09c34eccf4fd16a4d65276e5cda0006fb9456b88d3f34",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-baseline/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-baseline/result.json": "393c4f7c7d86fba54cd480d5df8701f640fbb0effc433ae8ff576ce66cb9f30e",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-candidate/probe.json": "57f1ea5e79c512664d4eba14e904f0b8bbc36ef6e5274a0fe91ef813b7e810f9",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-candidate/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-1-memory-candidate/result.json": "0ae46f8aea040fc581508f30e2f44ca295cbadf1e85d95df6b87b6578ae1a912",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-baseline/probe.json": "0b6c1947499d3dcb5b3a74a4f65425ee9f36bf828b6729a588f3d79f75e43a57",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-baseline/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-baseline/result.json": "dc535f84adccd02752b5cf5421bd574a4f197062e0d4e8e56de18b0db4cf163c",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-candidate/probe.json": "ea8ab46f0a49b79ae14224c6f11b2b90fc2e691911cb917314597da58bb5c29c",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-candidate/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-benchmark-candidate/result.json": "428b3bd9d60fe07e8b05f5fa0400a90a53c18800e950f9d23ba9ef0503770cf4",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-baseline/probe.json": "89f325f4bccdbe9096c09c34eccf4fd16a4d65276e5cda0006fb9456b88d3f34",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-baseline/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-baseline/result.json": "f3904bb7959f07ec8d4558dacf46baff60e30542b0d9abf875af5e254c7bc574",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-candidate/probe.json": "57f1ea5e79c512664d4eba14e904f0b8bbc36ef6e5274a0fe91ef813b7e810f9",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-candidate/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/attempt-01/verification-measurements/round-2-memory-candidate/result.json": "57fd0f98e55a0bfb1d3e6c5909ac20bc81ece855bd91c179edc6aae870f77884",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01/cpu-large.pstats": "7b083a62d808736aa01bafc241bb727cbd0ad3fa6bb12ac1d577617433b5daa2",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01/cpu-small.pstats": "15b221661194b38b9bf0c84d5ef460b41214aa243fbd1c54637647939dcd6c67",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01/probe.json": "035228bc180704024574f6dd6583a65710e9b278f5fe6ca2bc2528a5431de6b6",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01/probe.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01/result.json": "515bfe691551491219cf61a769c2876004a4ac1c8b61b5d8c833ec4164bdb0ef",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01-mcp/config.json": "06d4d10cdee1ab7fa27c80255f4d4e1fb69ab9f2dd10c5153ff9c7a216d1dab0",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01-mcp/containers.jsonl": "52cae0eb6a06fdc38ec42fb1afc475dd715e09482aee6911358e520903b97cda",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/diagnostics/probe-01-mcp/transport.json": "ac138b29baa400fee2a76b5e4a27c67a7547fa056bcb67bab99d2cebe9600d0f",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/events.jsonl": "30ad317e0fbb3b8cd871a6f97ed2b483e285bf1642c327ac16003a819ec076db",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/evidence/E0001.json": "68b7c4fe383d2b01911742cd69fb1efcddd742a8a0e22237a2c498ead8696347",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/evidence/E0002.json": "b0dc1a595d49430dd3c36fe6d7407fbbd64b9ce9166d34bf0c7334bde44c7444",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/evidence/E0003.json": "f92c528596efb282c4432e90c4aa082370efd919f47ac52e7e8c58edb7c024d1",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/evidence/E0004.json": "86ba0ea5d893204479c9866f560876ae176592e69baaf4709d3b2be47f85e50f",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/model_response.txt": "0b11858288b49423a1c78cab170ea1caca12ceef840ec8089728f3c7ff2342aa",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/report_queries/r-c0c0742b10bdcde3b7d909bee64d51aa.json": "ac3b6fd8991c6c7eb56864380fb1ff6e11b2c6dca0300340fae5ac429e8cb6f3",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/agent/result.json": "f7d936d646dae38a8bbb133066bf1f8322555a01605dec354c64b62275f9ebfb",
+    "runtime/mcp-runtime-acceptance-ce4bc98e877a/audit.json": "404779765a8e1623ef57ab4845b9587f3297b18f76e8b91c6df9cbf35e241898",
+    "runtime/mcp-runtime-docker-20261104-first.log": "fc109184e46e4b3f09016629815661eb27da3ba182b7050f4ce3904f1c62a811",
+    "runtime/mcp-runtime-final-audit-20261104.json": "6685addfae99ea8139983d49da473a60a66a7a28bc45facc844955a31f75ec5d",
+    "runtime/mcp-runtime-framework-20261104-fixed.log": "f75d6e038eebefc37e39f6bb070e56024302ea6e5a6d33ebf1a8c80fbf430497",
+    "runtime/mcp-runtime-framework-20261104-reproduce.log": "4acb5d512a982f3e9adf69cf9fbad9557c471c5c3b3237b801766c4c53969347",
+    "runtime/mcp-runtime-full-regression-20261104-final.log": "f552df6ec04ab3d8b1e8f7dce3c1cb2a6e14a562ef864841ce5f7df8274e888b",
+    "runtime/mcp-runtime-full-regression-20261104-first.log": "683d93fcdf1f364bdd2afc2c0c04a5bdd3cbc2ad61497e10b100e6bfdd0f03ff",
+    "runtime/mcp-runtime-installed-check-20261104.json": "2fe4ad1a5001bd0596860633866a448a155ae93aca50ee3c349fc902609a3ba0",
+    "runtime/mcp-runtime-wheel-check-20261104.json": "c2c0efb7bced9c36df3e5896e102f7f84d339c667bdf4c957138f2042c399e84"
+  }
+}

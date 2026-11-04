@@ -121,7 +121,7 @@ class RepairSession:
         elif tool in {'record_behavior_summary','set_repair_plan','record_hypothesis',
                       'read_evidence','conclude_diagnosis'}:
             category='analysis'
-        elif tool == 'run_probe':
+        elif tool in {'run_probe', 'read_probe_report'}:
             category='diagnostic'
             self.tool_statistics['by_category'].setdefault('diagnostic', {'calls':0,'schema_rejections':0})
         elif tool == 'task':

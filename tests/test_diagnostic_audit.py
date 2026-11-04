@@ -137,6 +137,11 @@ class DiagnosticAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(AuditError, reason):
             audit_run(self.root)
 
+    def test_report_query_cannot_refer_to_unregistered_evidence(self):
+        self.emit('diagnostic_report_queried', evidence_ref='E9999', bundle='report_queries/forged.json')
+        self.flush()
+        self.assert_bad('query_unknown_evidence')
+
     def make_mcp_archive(self):
         directory = self.root / "diagnostics/probe-01-mcp"
         report_id = "probe-" + "b" * 32

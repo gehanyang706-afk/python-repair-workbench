@@ -350,6 +350,9 @@ def audit_run(run_directory, provenance=None):
             audit_mcp(_inside(root, observation["report"]), report)
         _require(all(observation.get(key) == report.get(key) for key in ("probe", "status", "summary", "cleanup_ok")),
                  "diagnostic_evidence_report_mismatch")
+        if 'report_sha256' in observation:
+            _require(observation['report_sha256'] == _hash(_inside(root, observation['report']) / 'result.json'),
+                     'diagnostic_raw_report_hash_changed')
         _require(start.get("probe") == report.get("probe") == finish.get("probe")
                  and all(finish.get(key) == report.get(key) for key in ("status", "cleanup_ok")),
                  "diagnostic_event_report_mismatch")
@@ -459,6 +462,28 @@ def audit_run(run_directory, provenance=None):
              and result.get("usage_complete") == (missing == 0) and result.get("usage_missing_calls") == missing,
              "model_usage_accounting_mismatch")
 
+    report_queries = [event for event in events if event.get('event') == 'diagnostic_report_queried']
+    if report_queries:
+        from repair_workbench.diagnostic_reports import ReportStore, freeze_probe
+        from repair_workbench.tool_runtime import digest
+        for query in report_queries:
+            ref = query.get('evidence_ref')
+            _require(ref in evidence, 'query_unknown_evidence')
+            path = artifact(_inside(root, query.get('bundle')))
+            _require(path.parent == root / 'report_queries', 'query_bundle_outside_registry')
+            try:
+                store = ReportStore(path, query.get('bundle_sha256'))
+                frozen = freeze_probe(root, evidence[ref])
+                _require(store.reports == {frozen['report_id']: frozen}, 'query_bundle_evidence_mismatch')
+                page = store.query(**query['arguments'])
+            except (ValueError, KeyError, TypeError) as exc:
+                raise AuditError('query_bundle_or_arguments_invalid') from exc
+            _require(digest(page) == query.get('result_sha256'), 'query_result_digest_changed')
+            _require(len(json.dumps(page, ensure_ascii=False).encode()) == query.get('response_bytes'),
+                     'query_response_size_changed')
+            _require(query.get('transport') == result.get('diagnostic_transport', 'local'),
+                     'query_transport_changed')
+
     mode = "provider_not_attested"
     real_calls = None
     provenance_sha256 = None
@@ -493,7 +518,7 @@ def audit_run(run_directory, provenance=None):
                        "hypothesis_revisions": revisions, "exploratory_probe_runs": len(diagnostic_starts),
                        "reused_observations": len(reuse), "verification_probe_runs": verification_probes,
                        "physical_probe_runs": len(probe_paths), "mcp_jobs": len(mcp_control_paths), "candidates": len(attempts),
-                       "containers_confirmed_cleaned": len(containers)},
+                       "containers_confirmed_cleaned": len(containers), "report_queries": len(report_queries)},
             "artifact_sha256": dict(sorted(artifacts.items())), "provenance_sha256": provenance_sha256,
             "limits": ["Checks provenance and cross-file consistency; does not re-execute code or independently score repairs.",
                        "Hashes are observed now, without an authenticated historical root; coherent rewrites are not detectable.",

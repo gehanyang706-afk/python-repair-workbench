@@ -8,12 +8,12 @@ from .session import BudgetExceeded
 from .snapshot import snapshot_id
 
 
-POLICY_VERSION = 1
+POLICY_VERSION = 2
 _VOLATILE = {'source_ref', 'source_refs', 'evidence_ref', 'evidence_refs', 'hypothesis_id',
              'revision', 'remaining_model_calls', 'remaining_calls', 'elapsed_seconds',
              'delegation_elapsed_seconds', 'reused', 'scope', 'next_action', 'diagnosis'}
 _OBSERVATIONS = {'read_source', 'read_symbol', 'source_outline', 'search_source',
-                 'list_sources', 'read_evidence', 'read_test_log', 'run_probe', 'read_file'}
+                 'list_sources', 'read_evidence', 'read_probe_report', 'read_test_log', 'run_probe', 'read_file'}
 _JUDGEMENTS = {'record_hypothesis', 'write_todos'}
 
 

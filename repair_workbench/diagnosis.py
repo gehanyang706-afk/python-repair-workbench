@@ -10,6 +10,7 @@ from pathlib import Path
 from .edits import EditRejected
 from .session import BudgetExceeded, RepairSession
 from .snapshot import snapshot_id, verify_snapshot
+from .diagnostic_reports import visible_evidence
 
 
 class _SessionControl:
@@ -114,6 +115,8 @@ class DiagnosticSession(RepairSession):
         from .diagnostic_progress import initial_progress_state
         self.diagnostic_progress = initial_progress_state()
         super().__init__(baseline, output, allowed_paths, profile='simple_context', **kwargs)
+        from .tool_runtime import ToolRuntime
+        self.tool_runtime = ToolRuntime(record=self.record)
         self._add_evidence('baseline_tests', {
             'status': self.before['status'], 'counts': self.before['counts'],
             'scope': 'Original tests only; not proof of optimal performance.'},
@@ -234,7 +237,7 @@ class DiagnosticSession(RepairSession):
                 'probes': ['cpu', 'memory', 'benchmark'],
                 'evidence_index': [{key: item[key] for key in ('evidence_ref', 'kind', 'snapshot_id')}
                                    for item in list(self.evidence.values())[-20:]],
-                'diagnostic_summaries': list(self.evidence.values())[-4:],
+                'diagnostic_summaries': [visible_evidence(item) for item in list(self.evidence.values())[-4:]],
                 'thresholds': {'minimum_speedup': self.minimum_speedup,
                                'max_memory_ratio': self.max_memory_ratio},
                 'scope': 'Public development workload; no independent answers or reference patch.',
@@ -320,7 +323,7 @@ class DiagnosticSession(RepairSession):
                 ref = self.diagnostic_cache[key]
                 self.record('diagnostic_reused', evidence_ref=ref, probe=probe,
                             hypothesis_id=hypothesis_id)
-                return {**self.evidence[ref], 'reused': True,
+                return {**visible_evidence(self.evidence[ref]), 'reused': True,
                         'scope': 'Cached immutable observation; no new experiment was run.'}
             if self.probe_runs >= self.max_probe_runs:
                 raise BudgetExceeded('diagnostic_probe_limit')
@@ -330,9 +333,13 @@ class DiagnosticSession(RepairSession):
             self.record('diagnostic_started', probe=probe, hypothesis_id=hypothesis_id,
                         snapshot_id=binding, run=self.probe_runs)
             try:
-                report = execute(target, destination, self.before['image_id'], probe,
-                                 self.workload, min(self.test_timeout, remaining),
-                                 execution_control=_SessionControl(self))
+                report = self.tool_runtime.invoke(
+                    'mcp:diagnostics' if self.diagnostic_transport == 'mcp' else 'local',
+                    'run_probe', {'snapshot_id': binding, 'probe': probe, 'workload': self.workload},
+                    lambda: execute(target, destination, self.before['image_id'], probe,
+                                    self.workload, min(self.test_timeout, remaining),
+                                    execution_control=_SessionControl(self)),
+                    check=_SessionControl(self).check)
             except ValueError as exc:
                 if self.diagnostic_transport == 'mcp' and isinstance(exc, MCPProbeError):
                     self.diagnostic_stop_reason = exc.reason
@@ -344,6 +351,9 @@ class DiagnosticSession(RepairSession):
                            'report': str(destination.relative_to(self.output)),
                            'transport': self.diagnostic_transport,
                            'hypothesis_id': hypothesis_id}
+            result_path = destination / 'result.json'
+            if result_path.is_file():
+                observation['report_sha256'] = hashlib.sha256(result_path.read_bytes()).hexdigest()
             ref = self._add_evidence('diagnostic_probe', observation, binding)
             # Never treat a failed or incompletely cleaned run as reusable success.
             if report['status'] == 'ok' and report.get('cleanup_ok'):
@@ -355,12 +365,52 @@ class DiagnosticSession(RepairSession):
             if not report.get('cleanup_ok'):
                 self.diagnostic_stop_reason = 'diagnostic_cleanup_unconfirmed'
                 raise BudgetExceeded('diagnostic_cleanup_unconfirmed')
-            return self.evidence[ref]
+            return visible_evidence(self.evidence[ref])
 
     def read_evidence(self, evidence_ref):
         self.reserve_tool('read_evidence')
         self._check_refs([evidence_ref])
-        return self.evidence[evidence_ref]
+        return visible_evidence(self.evidence[evidence_ref])
+
+    def read_probe_report(self, evidence_ref, section='summary', scale='large', offset=0, limit=5):
+        """Admit every read, then query/cache a version-bound measured report page."""
+        from .diagnostic_reports import freeze_probe, write_bundle, ReportStore, read_json
+        from .tool_runtime import digest
+        self.reserve_tool('read_probe_report')
+        self._check_refs([evidence_ref])
+        record = freeze_probe(self.output, self.evidence[evidence_ref])
+        identity = record['report_id']
+        bundle = self.output / 'report_queries' / f'{identity}.json'
+        with self.lock:
+            if bundle.exists():
+                _, sha = read_json(bundle, 2 * 1024 * 1024)
+                if ReportStore(bundle, sha).reports != {identity: record}:
+                    raise ValueError('report_query_bundle_changed')
+            else:
+                sha = write_bundle([record], bundle)
+        store = ReportStore(bundle, sha)
+        arguments = {'report_id': identity, 'section': section, 'scale': scale,
+                     'offset': offset, 'limit': limit}
+        # Validate before either transport and never let a tool argument choose
+        # a bundle path, executable, MCP server or snapshot version.
+        store.query(**arguments)
+        def execute():
+            if self.diagnostic_transport == 'mcp':
+                from .diagnostic_report_mcp import query_mcp_report
+                remaining = self.deadline_seconds - (time.monotonic() - self.started)
+                return query_mcp_report(bundle, sha, arguments, execution_control=_SessionControl(self),
+                                        timeout_seconds=min(10, remaining))
+            return store.query(**arguments)
+        result = self.tool_runtime.invoke(
+            'mcp:reports' if self.diagnostic_transport == 'mcp' else 'local',
+            'query_report', arguments, execute, version=sha, check=_SessionControl(self).check)
+        self.record('diagnostic_report_queried', evidence_ref=evidence_ref,
+                    bundle=str(bundle.relative_to(self.output)), bundle_sha256=sha,
+                    arguments=arguments, result_sha256=digest(result),
+                    response_bytes=len(json.dumps(result, ensure_ascii=False).encode()),
+                    transport=self.diagnostic_transport)
+        self.save('running')
+        return result
 
     def conclude_diagnosis(self, decision: str, explanation: str, evidence_refs: list[str]):
         with self.lock:
@@ -424,6 +474,7 @@ class DiagnosticSession(RepairSession):
                             diagnostic_strategy=self.strategy,
                             diagnostic_workload=self.workload,
                             diagnostic_transport=self.diagnostic_transport,
+                            tool_runtime=self.tool_runtime.summary() if hasattr(self, 'tool_runtime') else None,
                             diagnostic_probe_runs=self.probe_runs,
                             diagnostic_stop_reason=self.diagnostic_stop_reason,
                             diagnostic_progress={key: value for key, value in self.diagnostic_progress.items()

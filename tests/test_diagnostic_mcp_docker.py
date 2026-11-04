@@ -23,6 +23,8 @@ from repair_workbench.runner import run_tests
 from repair_workbench.session import BudgetExceeded
 from repair_workbench.snapshot import create_snapshot
 from test_diagnostic_docker import KnownPatchModel
+from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.outputs import ChatGeneration, ChatResult
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,6 +134,53 @@ class DiagnosticMCPDockerTests(unittest.TestCase):
         self.assertEqual(audit['counts']['mcp_jobs'], 1)
         self.assertEqual(audit['counts']['physical_probe_runs'], 9)
         print(json.dumps({'mcp_acceptance': str(root), 'measured_status': result['status'],
+                          'measured_reason': result['reason'], 'real_model_calls': 0}))
+
+    def test_two_mcp_services_and_cached_report_pages_in_the_product_agent(self):
+        class ReportReviewModel(KnownPatchModel):
+            pages: int = 0
+            probe_ref: str = ''
+
+            def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+                previous = next((m for m in reversed(messages) if isinstance(m, ToolMessage)), None)
+                if previous is not None and previous.name in {'run_probe', 'read_probe_report'}:
+                    value = json.loads(previous.content)
+                    if previous.name == 'run_probe':
+                        self.probe_ref = value['evidence_ref']
+                    if self.pages < 2:
+                        self.pages += 1
+                        action, args = 'read_probe_report', {
+                            'evidence_ref': self.probe_ref, 'section': 'hotspots', 'limit': 1}
+                    else:
+                        action, args = 'record_hypothesis', {
+                            'hypothesis_id': self.hypothesis, 'status': 'supported',
+                            'claim': 'Review the measured export hotspot before independent verification.',
+                            'evidence_refs': [self.probe_ref]}
+                    return ChatResult(generations=[ChatGeneration(message=AIMessage(content='', tool_calls=[{
+                        'name': action, 'args': args, 'id': f'report-page-{self.pages}-{action}'}]))])
+                return super()._generate(messages, stop, run_manager, **kwargs)
+
+        root = ROOT / 'runtime' / ('mcp-runtime-acceptance-' + uuid.uuid4().hex[:12])
+        root.mkdir()
+        target = baseline(root)
+        self.assertEqual(run_tests(target, self.image)['status'], 'tests_passed')
+        session = DiagnosticSession(target, root / 'agent', {'map_exporter.py'},
+                                    diagnostic_transport='mcp', deadline_seconds=180)
+        result = run_agent(session, ReportReviewModel(), 'Review measured CPU evidence, then verify a known candidate.')
+        (root / 'acceptance.json').write_text(json.dumps({
+            'mode': 'scripted_known_candidate_two_mcp_services', 'real_model_calls': 0,
+            'unseen_evaluation': False, 'result': result}, ensure_ascii=False, indent=2) + '\n')
+        self.assertEqual(len(result['attempts']), 1, result)
+        self.assertEqual(result['tool_runtime']['cache_hits'], 1)
+        events = [json.loads(line) for line in (session.output / 'events.jsonl').read_text().splitlines()]
+        endpoints = {e['endpoint'] for e in events if e['event'] == 'tool_runtime' and e['mode'] == 'dispatch'}
+        self.assertEqual(endpoints, {'local', 'mcp:diagnostics', 'mcp:reports'})
+        audit = audit_run(session.output, root / 'acceptance.json')
+        (root / 'audit.json').write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n')
+        self.assertEqual(audit['counts']['report_queries'], 2)
+        self.assertEqual(audit['counts']['physical_probe_runs'], 9)
+        self.assertTrue(all(row['report']['cleanup_ok'] for row in result['attempts'][0]['measurements']))
+        print(json.dumps({'mcp_runtime_acceptance': str(root), 'measured_status': result['status'],
                           'measured_reason': result['reason'], 'real_model_calls': 0}))
 
 

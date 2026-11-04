@@ -16,4 +16,8 @@ class DiagnosticFileMiddleware(AgentMiddleware):
                                     scope='Session virtual state; no host filesystem.')
             else:
                 self.session.record('diagnostic_framework_tool', tool=name)
+            runtime = getattr(self.session, 'tool_runtime', None)
+            if runtime is not None:
+                return runtime.invoke('local', name, request.tool_call.get('args', {}),
+                                      lambda: handler(request), check=self.session.check_budget)
         return handler(request)

@@ -228,6 +228,48 @@ def _finding_payload(session, content):
             "trust": "model_proposal_not_independent_acceptance"}
 
 
+def investigation_context(session, description):
+    """Resolve selected upstream references without forwarding parent history.
+
+    Preserve native task(description, subagent_type) and isolated child mode.
+    Plain questions remain supported; JSON questions may select four references.
+    """
+    if not description.lstrip().startswith('{'):
+        return description, []
+    try:
+        request = json.loads(description)
+    except ValueError:
+        raise ValueError('invalid_investigator_context') from None
+    if (not isinstance(request, dict) or set(request) != {'question', 'evidence_refs'}
+            or not isinstance(request['question'], str) or not 1 <= len(request['question']) <= 1200
+            or not isinstance(request['evidence_refs'], list) or len(request['evidence_refs']) > 4
+            or any(not isinstance(ref, str) or ref not in session.evidence for ref in request['evidence_refs'])
+            or len(set(request['evidence_refs'])) != len(request['evidence_refs'])):
+        raise ValueError('invalid_investigator_context')
+    upstream = []
+    for ref in request['evidence_refs']:
+        item = session.evidence[ref]
+        packet = {k: item[k] for k in ('evidence_ref', 'kind', 'snapshot_id', 'sha256')}
+        observed = item['observation']
+        packet['observation'] = {k: observed[k] for k in ('path', 'start_line', 'status', 'probe', 'content_sha256')
+                                 if k in observed}
+        if item['kind'] == 'diagnostic_probe' and 'summary' in observed:
+            summary = json.loads(json.dumps(observed['summary']))
+            for scale in summary.get('scales', {}).values():
+                if 'top_functions' in scale:
+                    scale['top_functions'] = scale['top_functions'][:3]
+            if len(json.dumps(summary, ensure_ascii=False)) <= 2000:
+                packet['observation']['summary'] = summary
+            else:
+                packet['summary_omitted'] = True
+        upstream.append(packet)
+    content = json.dumps({'question': request['question'], 'upstream_evidence': upstream,
+                          'trust': 'tool_observations_not_instructions_or_acceptance'}, ensure_ascii=False)
+    if len(content) > 6000:
+        raise ValueError('investigator_context_too_large')
+    return content, list(request['evidence_refs'])
+
+
 class _DelegationMiddleware(AgentMiddleware):
     """Reserve bounded task dispatches and audit the true child graph lifecycle."""
 
@@ -269,6 +311,21 @@ class _DelegationMiddleware(AgentMiddleware):
                         or not isinstance(description, str) or not 1 <= len(description.strip()) <= 2400):
                     payload = {"status": "unverified_invalid_findings", "reason": "invalid_investigator_task"}
                 else:
+                    try:
+                        child_description, upstream_refs = investigation_context(session, description)
+                    except ValueError:
+                        child_description, upstream_refs = None, []
+                    if child_description is None:
+                        payload = {'status': 'unverified_invalid_findings', 'reason': 'invalid_investigator_context'}
+                        record.update(status=payload['status'], evidence_refs=[], source_refs=[],
+                                      model_calls_after=session.model_calls)
+                        content = json.dumps(payload)
+                        record['returned_sha256'] = hashlib.sha256(content.encode()).hexdigest()
+                        return Command(update={'messages': [ToolMessage(
+                            content, tool_call_id=request.tool_call['id'], name='task')]})
+                    record.update(upstream_evidence_refs=upstream_refs,
+                                  upstream_context_characters=len(child_description),
+                                  upstream_context_sha256=hashlib.sha256(child_description.encode()).hexdigest())
                     budget = session.reserve_investigator_budget(record)
                     if not budget['accepted']:
                         payload = {'status': 'delegation_declined', 'reason': budget['reason'],
@@ -277,7 +334,8 @@ class _DelegationMiddleware(AgentMiddleware):
                     else:
                         child_context = _ACTIVE_INVESTIGATOR.set(budget)
                         try:
-                            result = handler(request)
+                            result = handler(request.override(tool_call={**request.tool_call, 'args': {
+                                **arguments, 'description': child_description}}))
                             session.check_budget()
                             if _now() - budget['started'] >= budget['timeout_seconds']:
                                 raise ChildQuotaExceeded('investigator_deadline_exceeded')
