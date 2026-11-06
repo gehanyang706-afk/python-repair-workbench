@@ -139,6 +139,11 @@ def build_diagnostic_agent(session, model):
     subagents = []
     from .diagnostic_framework import DiagnosticFileMiddleware
     extra_middleware = [DiagnosticFileMiddleware(session)]
+    if session.tool_concurrency > 1:
+        from .diagnostic_concurrency import DiagnosticConcurrencyMiddleware
+        extra_middleware.insert(0, DiagnosticConcurrencyMiddleware(session))
+        prompt += ('\n可以在同一轮并发调用彼此独立的只读工具。探针、假设更新、待办、委派、'
+                   '补丁提交和结论必须各自单独一轮调用；混合批次将整体拒绝。')
     skill_sources = None
     if session.use_skills:
         from .diagnostic_skills import SKILL_SOURCES

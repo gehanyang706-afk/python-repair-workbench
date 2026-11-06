@@ -380,7 +380,7 @@ def run_agent(session: RepairSession, model: BaseChatModel, task: str) -> dict:
             if getattr(session, 'diagnostics_enabled', False) and session.use_skills:
                 graph_input['files'] = session.initial_files()
             state = graph.invoke(graph_input,
-                config={'recursion_limit': 80, 'max_concurrency': 1})
+                config={'recursion_limit': 80, 'max_concurrency': getattr(session, 'tool_concurrency', 1)})
             messages = state.get('messages', [])
             response = str(messages[-1].content) if messages else ''
     except BudgetExceeded as exc:

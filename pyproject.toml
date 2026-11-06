@@ -17,6 +17,7 @@ agent = [
 web = ["fastapi==0.141.1", "uvicorn==0.53.0"]
 backend = ["PyMySQL==1.2.3"]
 mcp = ["mcp==2.3.0"]
+redis = ["redis==6.4.0"]
 
 [build-system]
 requires = ["setuptools>=77"]

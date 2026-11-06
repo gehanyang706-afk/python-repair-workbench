@@ -46,7 +46,10 @@ class DiagnosticSession(RepairSession):
                  investigator_max_model_calls=3, investigator_max_tools=12,
                  investigator_timeout_seconds=30, main_model_reserve=2,
                  main_tool_reserve=4, main_time_reserve_seconds=10,
-                 diagnostic_transport='local', **kwargs):
+                 diagnostic_transport='local', tool_concurrency=1, tool_rate_config=None, **kwargs):
+        if type(tool_concurrency) is not int or not 1 <= tool_concurrency <= 4:
+            raise ValueError('tool_concurrency must be an integer in 1..4')
+        self.tool_concurrency = tool_concurrency
         if strategy not in {'adaptive', 'fixed'}:
             raise ValueError('诊断策略必须是 adaptive 或 fixed')
         if workload != 'ugc-export-v1':
@@ -116,7 +119,16 @@ class DiagnosticSession(RepairSession):
         self.diagnostic_progress = initial_progress_state()
         super().__init__(baseline, output, allowed_paths, profile='simple_context', **kwargs)
         from .tool_runtime import ToolRuntime
-        self.tool_runtime = ToolRuntime(record=self.record)
+        shared_limiter = None
+        if tool_rate_config is not None:
+            from .redis_rate_limit import RedisRateLimiter
+            try:
+                shared_limiter = RedisRateLimiter.from_config(tool_rate_config)
+            except (BudgetExceeded, ValueError, OSError, ImportError) as exc:
+                self.save('stopped', stop_reason=(str(exc) if isinstance(exc, BudgetExceeded)
+                          else 'shared_rate_configuration_error'), error_type=type(exc).__name__)
+                raise
+        self.tool_runtime = ToolRuntime(record=self.record, shared_limiter=shared_limiter)
         self._add_evidence('baseline_tests', {
             'status': self.before['status'], 'counts': self.before['counts'],
             'scope': 'Original tests only; not proof of optimal performance.'},
@@ -181,6 +193,10 @@ class DiagnosticSession(RepairSession):
             raise ValueError('当前工作负载要求 map_exporter.py')
 
     def _add_evidence(self, kind, observation, binding):
+        with self.lock:
+            return self._store_evidence(kind, observation, binding)
+
+    def _store_evidence(self, kind, observation, binding):
         # References prove provenance, not the truth of a model's causal claim.
         identity = f'E{len(self.evidence) + 1:04d}'
         item = {'evidence_ref': identity, 'kind': kind, 'snapshot_id': binding,
@@ -197,6 +213,10 @@ class DiagnosticSession(RepairSession):
         return identity
 
     def _read_source(self, *args, **kwargs):
+        with self.lock:
+            return self._read_source_locked(*args, **kwargs)
+
+    def _read_source_locked(self, *args, **kwargs):
         result = super()._read_source(*args, **kwargs)
         if result.get('content'):
             result['evidence_ref'] = self._add_evidence('source_excerpt', {
@@ -474,6 +494,7 @@ class DiagnosticSession(RepairSession):
                             diagnostic_strategy=self.strategy,
                             diagnostic_workload=self.workload,
                             diagnostic_transport=self.diagnostic_transport,
+                            tool_concurrency=self.tool_concurrency,
                             tool_runtime=self.tool_runtime.summary() if hasattr(self, 'tool_runtime') else None,
                             diagnostic_probe_runs=self.probe_runs,
                             diagnostic_stop_reason=self.diagnostic_stop_reason,

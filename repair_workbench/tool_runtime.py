@@ -68,13 +68,15 @@ class ToolRuntime:
     endpoint, operation, arguments and caller-supplied immutable version scope.
     """
     def __init__(self, *, endpoints=('local', 'mcp:diagnostics', 'mcp:reports'),
-                 qps=40, max_inflight=4, per_endpoint=2, cache_entries=128, record=None):
+                 qps=40, max_inflight=4, per_endpoint=2, cache_entries=128, record=None,
+                 shared_limiter=None):
         if (type(qps) not in {int, float} or not math.isfinite(qps) or qps <= 0
                 or any(type(v) is not int or v < 1 for v in (max_inflight, per_endpoint, cache_entries))):
             raise ValueError('invalid tool runtime limits')
         self.endpoints = frozenset(endpoints)
         self.qps, self.max_inflight, self.per_endpoint = qps, max_inflight, per_endpoint
         self.cache_entries, self.record = cache_entries, record
+        self.shared_limiter = shared_limiter
         self._lock = threading.Lock()
         self._cache, self._flights = OrderedDict(), {}
         self._active, self._by_endpoint, self._next = 0, {}, 0.0
@@ -83,7 +85,8 @@ class ToolRuntime:
     def summary(self):
         with self._lock:
             return {**self._counts, 'qps': self.qps, 'max_inflight': self.max_inflight,
-                    'per_endpoint': self.per_endpoint, 'scope': 'one_task_one_process'}
+                    'per_endpoint': self.per_endpoint, 'scope': 'one_task_one_process',
+                    'shared_rate': self.shared_limiter.describe() if self.shared_limiter else None}
 
     def _emit(self, **event):
         if self.record:
@@ -100,7 +103,6 @@ class ToolRuntime:
                     self._active += 1
                     self._by_endpoint[endpoint] = self._by_endpoint.get(endpoint, 0) + 1
                     self._next = now + 1 / self.qps
-                    self._counts['dispatched'] += 1
                     return
             # Bound each wait so root cancellation/deadlines remain responsive.
             threading.Event().wait(.01)
@@ -152,6 +154,13 @@ class ToolRuntime:
         try:
             self._acquire(endpoint, check)
             acquired = True
+            if self.shared_limiter:
+                admitted = self.shared_limiter.acquire(check)
+                self._emit(**event, outcome='shared_rate_admitted', server_time_us=admitted)
+            if check:
+                check()
+            with self._lock:
+                self._counts['dispatched'] += 1
             result = execute()
             if check:
                 check()

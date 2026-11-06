@@ -92,6 +92,10 @@ def main(argv=None):
     diagnose.add_argument('--investigator', action='store_true', help='允许按需只读调查委派')
     diagnose.add_argument('--max-delegations', type=int, default=1)
     diagnose.add_argument('--diagnostic-transport', choices=('local', 'mcp'), default='local')
+    diagnose.add_argument('--tool-concurrency', type=int, choices=(1, 2, 3, 4), default=1,
+                          help='独立只读工具的图内并发上限；状态工具必须单独调用')
+    diagnose.add_argument('--tool-rate-config', type=Path,
+                          help='可选Redis共享业务操作速率配置；由操作方指定，不能由模型选择')
     diagnose.add_argument('--investigator-max-model-calls', type=int, default=3)
     diagnose.add_argument('--investigator-max-tools', type=int, default=12)
     diagnose.add_argument('--investigator-timeout', type=float, default=30)
@@ -201,6 +205,8 @@ def main(argv=None):
                 use_skills=args.skills, use_investigator=args.investigator,
                 max_delegations=args.max_delegations,
                 diagnostic_transport=args.diagnostic_transport,
+                tool_concurrency=args.tool_concurrency,
+                tool_rate_config=args.tool_rate_config,
                 investigator_max_model_calls=args.investigator_max_model_calls,
                 investigator_max_tools=args.investigator_max_tools,
                 investigator_timeout_seconds=args.investigator_timeout,

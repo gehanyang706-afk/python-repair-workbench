@@ -16,6 +16,22 @@ env:
   LANGCHAIN_TRACING_V2: 'false'
   PYTHONDONTWRITEBYTECODE: '1'
 jobs:
+  redis-rate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RUN_REDIS_TESTS: '1'
+      REPAIR_REDIS_TEST_IMAGE: redis:7.4.2@sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-redis.lock
+      - name: Prepare pinned local Redis test image
+        run: docker pull "$REPAIR_REDIS_TEST_IMAGE"
+      - name: Real Redis admission across independent Python processes
+        run: python -m unittest discover -s tests -p test_redis_rate_limit.py -v
   swebench-harness:
     if: github.event_name == 'workflow_dispatch' && inputs.swebench_harness
     runs-on: ubuntu-latest

@@ -1,0 +1,2 @@
+# Optional shared business-operation rate backend; no change to Agent locks.
+redis==6.4.0

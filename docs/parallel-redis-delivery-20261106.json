@@ -1,0 +1,435 @@
+{
+  "date": "2026-11-06",
+  "status": "implemented_and_engineering_verified",
+  "real_model_api_calls": 0,
+  "regression": {
+    "total": 485,
+    "passed": 469,
+    "skipped": 16,
+    "failed": 0,
+    "seconds": 120.485,
+    "docker_enabled": true,
+    "redis_enabled": true,
+    "mysql_enabled": false,
+    "log": "runtime/parallel-redis-full-regression-20261106-final.log"
+  },
+  "native_graph": {
+    "concurrency_option": "tool_concurrency=1..4",
+    "default": 1,
+    "concurrent_read_threads_verified": 2,
+    "actual_stdio_duplicate_queries": 2,
+    "actual_stdio_physical_queries": 1,
+    "coalesced_waiters": 1,
+    "mixed_stateful_batches": "rejected_before_execution",
+    "shared_tool_limit": 60,
+    "model_kind": "scripted_policy_not_real_LLM"
+  },
+  "redis": {
+    "client": "redis==6.4.0",
+    "image": "redis:7.4.2",
+    "manifest_digest": "sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9",
+    "image_id": "sha256:fbdbaea47b9ae4ecc2082ecdb4e1cea81e32176ffb1dcf643d422ad07427e5d9",
+    "processes": 3,
+    "admissions": 12,
+    "qps": 20,
+    "minimum_admission_interval_us": 51198,
+    "required_minimum_us": 50000,
+    "actual_pause_and_recovery_test": "passed",
+    "configuration_conflict_test": "passed",
+    "process_crash_test": "passed",
+    "waiting_cancellation_test": "passed",
+    "preflight_before_model_test": "passed",
+    "container_cleanup": {
+      "removed": true,
+      "inspect_confirms_absent": true
+    },
+    "archive": "runtime/repair-rate-test-1a3890fe3536"
+  },
+  "wheel": {
+    "sha256": "9990b0da1843d10132fd48d64f4a2c249e7b59bca167d90e090a094388bd3340",
+    "verified_files": 51
+  },
+  "source": {
+    "files": {
+      ".github/workflows/offline-validation.yml": "328c834e7294d2669c65f9dca19fa0bdc87f7425a459ad57f2824c684fa06eef",
+      "benchmarks/ugc-diagnostics-dev-v1/qualification.py": "4693f74c7cba1330f016b9e19f0517651aab3e38beedfc1ce0c31a8ff665f5fe",
+      "pyproject.toml": "ad19b061a1926023d1d0b567a23a731228ca0b86e239424e7bc7d330781c3ace",
+      "repair_workbench/__init__.py": "4a2c42ef2f719f8d133d1039eb984829d7f52b0f4c6ce8730f1f005baf374409",
+      "repair_workbench/__main__.py": "fecf2171b8204458da9bbf65c7f5affae9372108c2a2cc64000fa06b7bafd593",
+      "repair_workbench/agent.py": "e6d9e13752daec62ac82cf881657ba74a76cde4571b9d7edcf90d455536f03f7",
+      "repair_workbench/api.py": "faf5792c8e8950e83a32d5e9f98c3229d13b848919bdd50e9749851faaa083ae",
+      "repair_workbench/candidate.py": "10b38bd21d919da17bf0356d8639c46934b7963d8444972b5c59bf1c3343ac0a",
+      "repair_workbench/diagnosis.py": "215b135baeb9c84557ef6e102c9184cb4682b505d72ac4ee41c04662027c16a9",
+      "repair_workbench/diagnostic_agent.py": "89c9ac84746443499a46d5cc41915b6b23722da8d6ba9be5ef399f9cac48c802",
+      "repair_workbench/diagnostic_concurrency.py": "eb066056a01284459c2b756da0c4d7635569f01cae2aeacb782486f2dcb9d51f",
+      "repair_workbench/diagnostic_delegation.py": "c28c8e4ed7ce124d5853fb970a1425f168366666fcf36786fb162e4bdad3a39f",
+      "repair_workbench/diagnostic_eval_policy.py": "561ca5ad2fb9e082e6c9c144a7df6a9ec7afbdb5b68a1ee852bffc2cfedb5d59",
+      "repair_workbench/diagnostic_evaluation.py": "cd8acb8740bd6f36e1ffe14ed9093e7e593cb0bd8f40a85239fa5c8ef628e334",
+      "repair_workbench/diagnostic_framework.py": "37f7e712a869bb3ed8e73274e6e380453ea86b59638ea8fe48b4e5e3aed7dd48",
+      "repair_workbench/diagnostic_mcp_client.py": "45749f8533477193c6513599aacfc06e5a240c3292ae0282203430e1d78a3a41",
+      "repair_workbench/diagnostic_mcp_server.py": "0c7138851786ca5920df8d5742ba079f8087c47a87b098cd81b5cd4a2132b91d",
+      "repair_workbench/diagnostic_progress.py": "3115a71cbf8bef4c09329758c06351311264ad101b7374304e0aa4a84fcfdd4a",
+      "repair_workbench/diagnostic_report_mcp.py": "186a2a632534a0da42f4b002be015693907b10e92ecdf077bdfacdd5b1a311d2",
+      "repair_workbench/diagnostic_reports.py": "7021e846211c21ccf5ae857eb734fd5132ad8377d77024a5ec3c6751297bcc21",
+      "repair_workbench/diagnostic_skills.py": "d6b011afc652665c72eddcc4d7b3cf3337e8dcf4122d5efa4aaf25003dbb51c4",
+      "repair_workbench/diagnostics.py": "9eb87936bdc3b11224771dbd541dfce00929595b2d3bffd9405efbfeb62505cb",
+      "repair_workbench/durable_worker.py": "fdccd7dbcfc7c2c9adde476cc98dceed9b7991520c11127c374affb72d76b949",
+      "repair_workbench/edits.py": "35b31fb0c26db8dd2f4d1c9fd5deaca842d2708ccfb3315009de35ad94ef765f",
+      "repair_workbench/evaluation.py": "624c9d8098dd66d2f4b674c85142a37cf994d3f3599e298808bcc182cddc03d1",
+      "repair_workbench/model_transport.py": "4f555ffd6508f9f73523659df3dbbe3a05354aa2f1f336779765e4f8b2a14aeb",
+      "repair_workbench/mysql_service.py": "2b3c47531f0a15de842a72d2e6d7c5986e496e1e8c5441921b5312aa6f56ebdf",
+      "repair_workbench/mysql_store.py": "3c3917f6db2a94265a29047b5cbcdb4292afdaec4b480d9567bcb1c15c8769ec",
+      "repair_workbench/performance.py": "adabd4d420b73b3b91027260137569cdd90f233d4d2ed5a7ad63d708e0fb016e",
+      "repair_workbench/probe_worker.py": "6bbb7ece473067e041ae44e0960a50b16d6943c079d7b3ce67aae551450968f8",
+      "repair_workbench/provider_worker.py": "26616421c4360684e0a707fb7a947746725f0a0cb5c0d03994ac37fa0fb940f7",
+      "repair_workbench/public_live_evaluation.py": "c71c9ba758509d3e10e7c5b5b09a97ed611264581ec87365cf7bc682fc99b8f6",
+      "repair_workbench/redis_rate_limit.py": "4c00b00500f985b14710bb893883ab40e4668cafbcd961f30ceb01de8df79ed9",
+      "repair_workbench/repair_contract.py": "d1f7daf1e031ebbd8991ca71a87304cbbc47515186e61c0cb23b775cfc795c76",
+      "repair_workbench/runner.py": "9ba0e628d44e061bd18046c71fe3a462449e8b73c00e77522419399dcdb24481",
+      "repair_workbench/service.py": "45862755a97610263dc55e83fac7206034cc7fb891fee53d0b3d53764709fae4",
+      "repair_workbench/session.py": "9ed7524c664e3dcf0f9854dc6a7aaf5010cc80ff1cb0b9f5f2cf244f638cf5c8",
+      "repair_workbench/settings.py": "3027571a4949e5b6f305465113535ca852c66c458332abecca7fe5c685aa0a86",
+      "repair_workbench/skills/behavior-preservation/SKILL.md": "ac58c0f9609bbd07f9a9766bd6d1d219c027cb069355ddbace2a75fb5138faf5",
+      "repair_workbench/skills/cpu-hotspot/SKILL.md": "c131fb5708ce5a63b4ea56dffa382e048c620298afb3c5d827ce3f15cd6438f3",
+      "repair_workbench/skills/python-allocation/SKILL.md": "229cf0ab92e42c4bc722c4bbf94a5d880f10f1da6db6377d439a69db6eae101a",
+      "repair_workbench/snapshot.py": "a11c61a50056d90c5f84036bb6f61afee97bc3f4e8bd80b532b4ad58d9229dcd",
+      "repair_workbench/source_context.py": "b4a2f9da0dc843e73a55f2de25762b13515b9eee9f0c53f2061ba475570a91c9",
+      "repair_workbench/storage.py": "525007c20c94b21510377f59233390c586f5bdb9a541fe50a140135d61838471",
+      "repair_workbench/swebench_adapter.py": "d740ca230c7abdafd5aa6ff123699b17c70dc5d6b50a49ec23a3b6419e12b186",
+      "repair_workbench/swebench_harness_lock.json": "267f65d64b27b5eac9d4acd9ed71bb821b34a7c9003d4d98a70ef6f60737c290",
+      "repair_workbench/swebench_worker.py": "ab5ebff995f633d6d880a646db00cca6821c05e0de90035915b60ad7588b148a",
+      "repair_workbench/tool_recovery.py": "7f520379916b9b62ebf5cbe428f4ca9869687b8642a06460fa4110ec8ce6fafb",
+      "repair_workbench/tool_runtime.py": "118c8d23a3ab9a430d70a762457512c58d12d4eddcbf8fe21cc5874042449b9c",
+      "repair_workbench/verification.py": "a339b1d0fa9d91a34173e674e01a3216cc63ddc1d20e00d09ed8c67b178d6216",
+      "requirements-agent.lock": "08478332c330009bbf623bc3abb13a818366565f53b2dbdfffdff930002f6f79",
+      "requirements-backend.lock": "7ae2b13af6d977e1c74480a26f9545a78a79a8878ec71045966f38a9548d7bb2",
+      "requirements-build.lock": "e98d3b1a91f7dfc9e82cf362249f1c82b735a5292eb843b4ebfa1d18a429f677",
+      "requirements-mcp.lock": "8b9506bcb69fa05709d163251922cef4544462b95d79522fd6173a3b970b38c3",
+      "requirements-redis.lock": "09c996043cc9cae2c1f49bff121fd4af8c9303726be5c1d14a4bacfda29a36f1",
+      "requirements-swebench.lock": "2180cc9dc3bf4aa20a0396af9830ab15a68ac6441d981ed3e1a6fb5acac7f27a",
+      "requirements-test-image.lock": "beb452163910f778484dcdbd0c094e476041dbb199fd5bcbf0ffd785a61dc020",
+      "scripts/audit_diagnostic_run.py": "a54cf2268e296a851397ff4b62b9a5cd2d4ac54bc0c4c81d1914aefb89ab384a",
+      "scripts/check_delivery.py": "a327f3a927f18f2bbbc4f988e9b2726eeb0a8b102e3d8603a52da6b28b17d821",
+      "scripts/qualify_diagnostic_probes.py": "42a3591c90e0fea648524b205fd192aba34d0561499187351952d54ba25d1149"
+    },
+    "dependencies": {
+      "aiohappyeyeballs": [
+        "2.7.1"
+      ],
+      "aiohttp": [
+        "3.14.4"
+      ],
+      "aiosignal": [
+        "1.4.0"
+      ],
+      "annotated-doc": [
+        "0.0.5"
+      ],
+      "annotated-types": [
+        "0.8.0"
+      ],
+      "anthropic": [
+        "1.13.0"
+      ],
+      "anyio": [
+        "4.15.1"
+      ],
+      "attrs": [
+        "26.1.0"
+      ],
+      "bracex": [
+        "3.0.1"
+      ],
+      "certifi": [
+        "2026.7.22"
+      ],
+      "cffi": [
+        "2.1.1"
+      ],
+      "charset-normalizer": [
+        "3.5.2"
+      ],
+      "click": [
+        "8.5.0"
+      ],
+      "cryptography": [
+        "50.0.2"
+      ],
+      "dashscope": [
+        "1.27.7"
+      ],
+      "deepagents": [
+        "0.7.20"
+      ],
+      "distro": [
+        "1.9.0"
+      ],
+      "docstring-parser": [
+        "0.18.0"
+      ],
+      "fastapi": [
+        "0.141.1"
+      ],
+      "filetype": [
+        "1.2.0"
+      ],
+      "frozenlist": [
+        "1.8.0"
+      ],
+      "google-auth": [
+        "2.61.0"
+      ],
+      "google-genai": [
+        "2.29.0"
+      ],
+      "h11": [
+        "0.16.0"
+      ],
+      "httpcore": [
+        "1.0.9"
+      ],
+      "httpcore2": [
+        "2.13.1"
+      ],
+      "httpx": [
+        "0.28.1"
+      ],
+      "httpx-sse": [
+        "0.4.3"
+      ],
+      "httpx2": [
+        "2.13.1"
+      ],
+      "idna": [
+        "3.20"
+      ],
+      "jiter": [
+        "0.17.0"
+      ],
+      "jsonpatch": [
+        "1.34"
+      ],
+      "jsonpointer": [
+        "3.2.0"
+      ],
+      "jsonschema": [
+        "4.26.0"
+      ],
+      "jsonschema-specifications": [
+        "2025.9.1"
+      ],
+      "langchain": [
+        "1.4.3"
+      ],
+      "langchain-anthropic": [
+        "1.7.5"
+      ],
+      "langchain-classic": [
+        "1.0.8"
+      ],
+      "langchain-community": [
+        "0.4.2"
+      ],
+      "langchain-core": [
+        "1.6.9"
+      ],
+      "langchain-google-genai": [
+        "4.4.0"
+      ],
+      "langchain-protocol": [
+        "0.0.19"
+      ],
+      "langchain-text-splitters": [
+        "1.1.3"
+      ],
+      "langgraph": [
+        "1.2.12"
+      ],
+      "langgraph-checkpoint": [
+        "4.2.0"
+      ],
+      "langgraph-prebuilt": [
+        "1.1.0"
+      ],
+      "langgraph-sdk": [
+        "0.4.6"
+      ],
+      "langsmith": [
+        "0.14.7"
+      ],
+      "markdown-it-py": [
+        "4.2.0"
+      ],
+      "mcp": [
+        "2.3.0"
+      ],
+      "mcp-types": [
+        "2.3.0"
+      ],
+      "mdurl": [
+        "0.1.2"
+      ],
+      "multidict": [
+        "6.9.1"
+      ],
+      "numpy": [
+        "2.5.3"
+      ],
+      "opentelemetry-api": [
+        "1.45.2"
+      ],
+      "orjson": [
+        "3.13.0"
+      ],
+      "ormsgpack": [
+        "1.12.2"
+      ],
+      "packaging": [
+        "26.3"
+      ],
+      "pip": [
+        "26.1"
+      ],
+      "propcache": [
+        "0.5.4"
+      ],
+      "pyasn1": [
+        "0.6.4"
+      ],
+      "pyasn1-modules": [
+        "0.4.2"
+      ],
+      "pycparser": [
+        "3.11"
+      ],
+      "pydantic": [
+        "2.14.0"
+      ],
+      "pydantic-core": [
+        "2.50.0"
+      ],
+      "pydantic-settings": [
+        "2.15.0"
+      ],
+      "pygments": [
+        "2.21.0"
+      ],
+      "pyjwt": [
+        "2.15.1"
+      ],
+      "pymysql": [
+        "1.2.3"
+      ],
+      "python-dotenv": [
+        "1.2.4"
+      ],
+      "python-multipart": [
+        "0.0.33"
+      ],
+      "python-repair-workbench": [
+        "1.0.0",
+        "1.1.0.dev0"
+      ],
+      "pyyaml": [
+        "6.0.3"
+      ],
+      "redis": [
+        "6.4.0"
+      ],
+      "referencing": [
+        "0.37.0"
+      ],
+      "requests": [
+        "2.34.2"
+      ],
+      "requests-toolbelt": [
+        "1.0.0"
+      ],
+      "rich": [
+        "15.0.0"
+      ],
+      "rpds-py": [
+        "2026.9.1"
+      ],
+      "shellingham": [
+        "1.5.4"
+      ],
+      "sniffio": [
+        "1.3.1"
+      ],
+      "sqlalchemy": [
+        "2.1.4"
+      ],
+      "sse-starlette": [
+        "3.6.0"
+      ],
+      "starlette": [
+        "1.7.0"
+      ],
+      "tenacity": [
+        "9.1.4"
+      ],
+      "truststore": [
+        "0.10.4"
+      ],
+      "typer": [
+        "0.27.3"
+      ],
+      "typing-extensions": [
+        "4.16.0"
+      ],
+      "typing-inspection": [
+        "0.4.4"
+      ],
+      "urllib3": [
+        "2.8.0"
+      ],
+      "uuid-utils": [
+        "0.17.1"
+      ],
+      "uvicorn": [
+        "0.53.0"
+      ],
+      "wcmatch": [
+        "11.0.1"
+      ],
+      "websocket-client": [
+        "1.9.2"
+      ],
+      "websockets": [
+        "16.1.1"
+      ],
+      "xxhash": [
+        "4.0.1"
+      ],
+      "yarl": [
+        "1.25.1"
+      ],
+      "zstandard": [
+        "0.25.0"
+      ]
+    },
+    "python": "3.13.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O"
+  },
+  "limits": [
+    "Redis paces business-operation admission; it is not a distributed execution semaphore.",
+    "Cache and single-flight remain task/process-local; no cross-process caching is claimed.",
+    "Diagnostic durable MySQL Worker integration remains unavailable.",
+    "Serial default remains; new parallel/Redis modes require explicit operator configuration.",
+    "No real-model quality, Token savings, production throughput or Redis failover result is claimed."
+  ],
+  "evidence_sha256": {
+    "runtime/parallel-redis-full-regression-20261106-final.log": "fa9e1800d96db1d3bf08f06418729eac8320dcb7c5309a82d831631e0e99d5e2",
+    "runtime/diagnostic-parallel-20261106-v2.log": "c5483bbe03475158f45aa84fa0e2e816b4dc18b6b448b83e62e98404238eb515",
+    "runtime/redis-multiprocess-20261106-first.log": "4679d46bbe5eabaa97b01bd42b68c55f7c60815591a31475199a620412edd01f",
+    "runtime/redis-container-start-failure-20261106.json": "c6aec5947b8a398be0e239448805069868ff830d25f95a633d0bb27b0d123f4a",
+    "runtime/redis-multiprocess-20261106-rootless.log": "cf7eaed0ddad5333edd64bc3e844aa3b061f5b8d56ebf610f84717a16b4ae991",
+    "runtime/redis-image-preparation-20261106.log": "80deae9b2b7c6180859479b6086d621c21f9d57a9a0ad37c06b172ce6234f7f9",
+    "runtime/parallel-redis-wheel-check-20261106.json": "f0182f480097f489ad413e53e361a2880f04e80c4ac698fcf7c0a4f88650c4b7",
+    "runtime/repair-rate-test-1a3890fe3536/multiprocess-admissions.json": "a0f6b9e4c53b1ca9a32890ab04bfc76dda45313effe20f02c43837c700244314",
+    "runtime/repair-rate-test-1a3890fe3536/redis.log": "a6e5ff5d021493676a19fd4e0378c0c88d0f5ac15d630aad6c2dae6b12589399",
+    "runtime/repair-rate-test-1a3890fe3536/cleanup.json": "b0ff32098de14bd8772a0f1e12728834eaef37c4afc47b4cf6d006786a666e47",
+    "runtime/repair-rate-test-1a3890fe3536/image.json": "3d9d31b02c054a0e44f12d1040884fc8f15b20a919c26eb9afd63d63edd2bdb9"
+  }
+}

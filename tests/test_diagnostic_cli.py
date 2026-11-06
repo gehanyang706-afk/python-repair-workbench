@@ -69,13 +69,16 @@ class DiagnosticCLITests(unittest.TestCase):
             code, _, _ = self.invoke([
                 'diagnose', '--baseline', '/baseline', '--output', '/run',
                 '--allow', 'map_exporter.py', '--task', 'Investigate', '--allow-real-model',
-                '--diagnostic-transport', 'mcp', '--investigator',
+                '--diagnostic-transport', 'mcp', '--investigator', '--tool-concurrency', '2',
+                '--tool-rate-config', '/operator/redis.json',
                 '--investigator-max-model-calls', '2', '--investigator-max-tools', '7',
                 '--investigator-timeout', '5', '--main-model-reserve', '3',
                 '--main-tool-reserve', '6', '--main-time-reserve', '8'])
         self.assertEqual(code, 2)
         arguments = session.call_args.kwargs
         self.assertEqual(arguments['diagnostic_transport'], 'mcp')
+        self.assertEqual(arguments['tool_concurrency'], 2)
+        self.assertEqual(str(arguments['tool_rate_config']), '/operator/redis.json')
         self.assertEqual(arguments['investigator_max_model_calls'], 2)
         self.assertEqual(arguments['investigator_max_tools'], 7)
         self.assertEqual(arguments['investigator_timeout_seconds'], 5)
