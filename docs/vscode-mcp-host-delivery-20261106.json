@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-06",
+  "host": "Visual Studio Code",
+  "host_version": "1.143.1",
+  "host_commit": "e646868227c3e3a9e3f24277c8c7220be42c0be7",
+  "server_id": "repair-evidence",
+  "status": "verified_in_native_host",
+  "transport": "stdio",
+  "model_requests_submitted": 0,
+  "workspace_scope": "Only this dedicated review folder is trusted; no global MCP configuration changed.",
+  "configuration": ".vscode/mcp.json",
+  "bundle_sha256": "6074e69df9181fcc016e13e4f30de3a0eac65be67ebe0bebb25649bdebc38f45",
+  "tools_discovered": 2,
+  "ui_observed": {
+    "catalog_uri": "diagnostic://catalog",
+    "report_uri": "diagnostic://reports/r-5d076bb4ae4fbb1f4c98b6ae7b6727df",
+    "editor_read_only": true,
+    "report_id": "r-5d076bb4ae4fbb1f4c98b6ae7b6727df",
+    "snapshot_id": "34b08120f340dcfbed4aef6d1a70b7b38f8fcf4cd1372d4c5a2dd5a6a8bb2a7e",
+    "section": "summary",
+    "scale": "large",
+    "object_count": 6000,
+    "resource_count": 600,
+    "total_calls": 6002,
+    "semantic_ok": true
+  },
+  "not_verified": [
+    "Model autonomous tool selection in VS Code",
+    "query_report tool execution from VS Code chat",
+    "Other hosts or remote transport"
+  ],
+  "evidence_sha256": {
+    ".vscode/mcp.json": "62b8c63fca9ee1c5aa35d9e9d6c044d6a35ad71fa275e97f48dd8089db099984",
+    "launch_evidence.py": "71ebb76251554e01c0a5b1b817f551cc5000efb09d48c3090d279a9add47852e",
+    "evidence.json": "6074e69df9181fcc016e13e4f30de3a0eac65be67ebe0bebb25649bdebc38f45",
+    "host-mcp.log": "b28e35c6c1cca55ccb0a9d3fe0ad821378b95ee011743ab82099bdde061a61c6"
+  },
+  "local_evidence": "runtime/vscode-mcp-review-20261106/receipt.json"
+}
