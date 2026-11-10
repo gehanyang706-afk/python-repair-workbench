@@ -16,12 +16,14 @@
 
 ## 真实任务完善交接（2026-11-10）
 
+- 最新实测见docs/swebench-qwen-max-pilot-20261110.md/json。用户明确批准清单6163d23ec5e6f1f2d9538b1b91cf72a50387780be12d8b79fedadee6dd9060dc，已执行结束：Django13315 R1→R0各1次，8真实请求、45,806 Token、2提交、官方均unresolved，F2P各0/1、P2P各146/146。194,194剩余批预算不能追加调用；无未知usage，不晋升R1，不称提升。旧源码/数据/配置89文件已在run/frozen-inputs逐hash归档，原始评测不得回写。
+- Batch/RunContext的execution_control仅作高频取消/墙钟/账本检查；check()仍作完整冻结验证，模型预留前、Agent后含无提交、导出/评分边界与行完成保留full gate。不得把liveness存活等同身份验证；漂移在下一受保护动作前拦截，不保证每次轮询即时检测。搜索前后完整树检查及逐文件哈希仍保留，局部推理截止需清理回执才可推进。
 - 第二轮交接见docs/real-task-progress-phase23-20261110.md。Django13315仅获一个镜像下载授权并已完成两轮官方资格；xarray未下载。显式python-repository-v1仅省略文档图片链接，完整Git来源绑定仍包含它们，代码/测试链接不能放行。
 - 两个真实完整仓库性能任务为已见dev，上游参考效果和操作方复现程序不计模型能力；SQL的两项原有xfail不能删除或当作全部passed。
 - reproduction.py通过--reproduction显式进入原UGC主诊断图，默认关闭；共享根工具/取消/截止时间，程序输出必须标model_program_output，不作可信评分依据。清理未知或运行期间版本漂移封锁执行器与会话；真实仓库工作负载进入主图仍未完成。
 - WorkloadSpec目前只完成冻结数据契约与开发投影，不是已接线的隐藏性能评分。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
 
-- 路线见docs/real-task-improvement-plan-20261109.md；最新交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；没有新真实模型批次授权。
+- 路线见docs/real-task-improvement-plan-20261109.md；基础交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；本次精确授权已执行完毕，后续新批次重新冻结范围和预算。
 - 新评测模型显式固定北京区原生endpoint，其他region未适配。输入/输出预留边界由冻结配置给出，未知usage和落盘错误停批；单批单进程账本不可恢复，不称分布式账单。
 - SWE首次有效提交即结束模型回合，最终评分独立计时、响应取消，submitted不能算passed。当前工具上限仍60、请求上限30，新入口拒绝虚报更高上限。
 - psf__requests-3362有显式requests-isolated-timeout-v1开发网络策略，派生环境补齐9份历史依赖。两次官方F2P/P2P资格通过，但完整原套件3失败1错误仍保留；不称原官方镜像原样通过或全套测试通过，不作为模型成绩。

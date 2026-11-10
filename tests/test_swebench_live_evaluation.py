@@ -15,6 +15,7 @@ from repair_workbench import swebench_live_evaluation as live
 from repair_workbench.experiment_manifest import create_manifest
 from repair_workbench.model_transport import ManagedTongyi
 from repair_workbench.evaluation_budget import _atomic_write
+from repair_workbench.evaluation_batch import FrozenEvaluationBatch
 
 
 spec = importlib.util.spec_from_file_location('live_swe_fixture',
@@ -99,7 +100,7 @@ class SWEBatchTests(unittest.TestCase):
         _atomic_write(output / 'result.json', result, create=True)
         return result
 
-    def run_plan(self, plan=None, *, provider=None, score=None, image=IMAGE):
+    def run_plan(self, plan=None, *, provider=None, score=None, image=IMAGE, current_config=None):
         plan = plan or self.plan()
         with ExitStack() as stack:
             stack.enter_context(patch.object(live, '_harness_preflight'))
@@ -108,8 +109,88 @@ class SWEBatchTests(unittest.TestCase):
                                                                   side_effect=provider or self.provider))
             self.score_mock = stack.enter_context(patch.object(adapter, 'evaluate', side_effect=score or self.score))
             return live.run_swebench_batch(plan, self.root / 'batch',
-                expected_sha256=plan['manifest_sha256'], current_config=lambda: copy.deepcopy(self.config),
+                expected_sha256=plan['manifest_sha256'], current_config=current_config or (lambda: copy.deepcopy(self.config)),
                 api_key='offline-test-only-key')
+
+    def test_source_and_score_polling_use_liveness_without_rehashing_every_tick(self):
+        reads = []
+        def current():
+            reads.append(1)
+            return copy.deepcopy(self.config)
+        def checked_score(*args, **kwargs):
+            before = len(reads)
+            for _ in range(100):
+                kwargs['execution_control'].check()
+            self.assertEqual(len(reads), before)
+            return self.score(*args, **kwargs)
+        original = adapter.run_qualified_agent
+        def checked_agent(*args, **kwargs):
+            before = len(reads)
+            for _ in range(100):
+                self.assertFalse(kwargs['cancellation_check']())
+            self.assertEqual(len(reads), before)
+            return original(*args, **kwargs)
+        with patch.object(adapter, 'run_qualified_agent', side_effect=checked_agent):
+            report = self.run_plan(score=checked_score, current_config=current)
+        self.assertEqual([row['outcome'] for row in report['rows']], ['passed', 'passed'])
+
+    def test_drift_after_agent_without_submission_stops_before_next_variant(self):
+        def changed_agent(*args, **kwargs):
+            self.qualification.joinpath('qualification.json').write_text('{}')
+            return {'status': 'inconclusive', 'stop_reason': 'offline-no-submission'}
+        with patch.object(adapter, 'run_qualified_agent', side_effect=changed_agent):
+            report = self.run_plan()
+        self.provider_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'ValueError')
+        self.assertEqual([row['state'] for row in report['rows']], ['error', 'not_run'])
+
+    def test_local_agent_deadline_keeps_cleanup_receipt_and_next_variant(self):
+        plan = self.plan()
+        now = [0]
+        batch = FrozenEvaluationBatch(plan, self.root / 'batch',
+            expected_sha256=plan['manifest_sha256'], current_config=lambda: copy.deepcopy(self.config),
+            clock=lambda: now[0])
+        def expired_agent(*args, **kwargs):
+            now[0] += self.config['limits']['run_seconds'] + 1
+            return {'status': 'inconclusive', 'stop_reason': 'run_deadline'}
+        with patch.object(live, '_harness_preflight'), \
+             patch.object(adapter, 'image_identity', return_value=IMAGE), \
+             patch.object(adapter, 'run_qualified_agent', side_effect=expired_agent), \
+             patch.object(ManagedTongyi, 'invoke_controlled') as provider:
+            report = batch.run(live.SWEbenchExecutor(batch, 'offline-test-only-key'))
+        provider.assert_not_called()
+        self.assertIsNone(report['stop_reason'])
+        self.assertEqual([row['state'] for row in report['rows']], ['stopped', 'stopped'])
+        self.assertTrue(all(row['outcome'] == 'run_deadline' for row in report['rows']))
+
+    def test_post_score_drift_keeps_cleanup_but_cannot_record_a_pass(self):
+        def changed_score(*args, **kwargs):
+            result = self.score(*args, **kwargs)
+            self.qualification.joinpath('qualification.json').write_text('{}')
+            return result
+        report = self.run_plan(score=changed_score)
+        self.assertEqual(report['stop_reason'], 'ValueError')
+        self.assertEqual([row['state'] for row in report['rows']], ['error', 'not_run'])
+        run = self.root / 'batch' / report['rows'][0]['run_id']
+        receipt = json.loads((run / 'swe-executor-receipt.json').read_text())
+        self.assertTrue(receipt['cleanup_ok'])
+        self.assertTrue((run / 'official-evaluation/result.json').is_file())
+
+    def test_export_crossing_run_deadline_cannot_refresh_as_final_scoring(self):
+        plan = self.plan()
+        now = [0]
+        original = adapter.export_prediction
+        def export(*args, **kwargs):
+            prediction = original(*args, **kwargs)
+            now[0] += self.config['limits']['run_seconds'] + 1
+            return prediction
+        with patch.object(live, 'FrozenEvaluationBatch', side_effect=lambda *a, **k:
+                FrozenEvaluationBatch(*a, **k, clock=lambda: now[0])), \
+             patch.object(adapter, 'export_prediction', side_effect=export):
+            report = self.run_plan(plan)
+        self.score_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'run_deadline')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
 
     def test_real_source_refs_export_and_independent_verdict_use_one_shared_ledger(self):
         report = self.run_plan()

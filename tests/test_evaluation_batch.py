@@ -84,6 +84,63 @@ class EvaluationBatchTests(unittest.TestCase):
         self.assertEqual([r['state'] for r in report['rows']], ['error', 'not_run'])
         self.assertEqual(report['stop_reason'], 'ValueError')
 
+    def test_frequent_execution_checks_do_not_rescan_but_model_gate_rejects_drift(self):
+        batch = self.batch()
+        checks = []
+        batch._current_config = lambda: checks.append(1) or copy.deepcopy(self.config)
+        def execute(context):
+            control = context.execution_control()
+            before = len(checks)
+            for _ in range(1000):
+                control.check()
+            self.assertEqual(len(checks), before)
+            self.source.write_text('value=2\n')
+            control.check()  # Liveness is separate; no new inference can use drifted data.
+            context.metered_model('offline-private-value').invoke_controlled([], object())
+        with patch.object(ManagedTongyi, 'invoke_controlled') as provider:
+            report = batch.run(execute)
+        provider.assert_not_called()
+        self.assertEqual(batch.ledger.state['calls'], [])
+        self.assertEqual(report['stop_reason'], 'ValueError')
+        self.assertEqual([r['state'] for r in report['rows']], ['error', 'not_run'])
+
+    def test_execution_control_uses_current_phase_deadline(self):
+        self.config['limits']['final_evaluation_seconds'] = 120
+        self.manifest = self.plan()
+        now = [0]
+        batch = self.batch(clock=lambda: now[0])
+        def execute(context):
+            control = context.execution_control()
+            now[0] += 50
+            context.begin_evaluation('frozen-candidate')
+            now[0] += 70
+            control.check()  # Inference's 60s limit no longer governs final scoring.
+            now[0] += 51
+            control.check()
+        report = batch.run(execute)
+        self.assertEqual(report['stop_reason'], 'final_evaluation_deadline')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
+
+    def test_execution_control_enforces_cancellation_and_unknown_usage(self):
+        batch = self.batch()
+        def execute(context):
+            call = batch.ledger.reserve(context.run_id)
+            batch.ledger.unknown(call, 'synthetic_unknown_receipt')
+            context.execution_control().check()
+        report = batch.run(execute)
+        self.assertEqual(report['stop_reason'], 'batch_usage_unknown')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
+
+    def test_execution_control_cancellation_is_immediate(self):
+        cancelled = [False]
+        batch = self.batch(cancelled=lambda: cancelled[0])
+        def execute(context):
+            cancelled[0] = True
+            context.execution_control().check()
+        report = batch.run(execute)
+        self.assertEqual(report['stop_reason'], 'cancel_requested')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
+
     def test_unknown_provider_usage_stops_pair_without_treating_it_as_zero(self):
         batch = self.batch()
         def execute(context):

@@ -1,0 +1,294 @@
+{
+  "manifest_sha256": "6163d23ec5e6f1f2d9538b1b91cf72a50387780be12d8b79fedadee6dd9060dc",
+  "source_commit": "59119e35f81db28f6c3ddabd2c8679bb41dedd6b",
+  "task_id": "django__django-13315",
+  "split": "dev",
+  "developer_exposed": true,
+  "model_alias": "qwen-max",
+  "model_alias_is_rolling": true,
+  "planned_runs": 2,
+  "completed_runs": 2,
+  "not_run": 0,
+  "submitted": 2,
+  "official_passed": 0,
+  "official_failed": 2,
+  "real_model_requests_with_complete_responses": 8,
+  "known_input_tokens": 43645,
+  "known_output_tokens": 2161,
+  "known_total_tokens": 45806,
+  "unknown_or_reserved_tokens": 0,
+  "usage_complete": true,
+  "authorized_token_cap": 240000,
+  "unused_batch_tokens": 194194,
+  "additional_paid_cny_cap": 0,
+  "free_tier_only_user_confirmed": true,
+  "actual_bill_verified": false,
+  "same_frozen_tool_schema_and_system_prompt": true,
+  "frozen_files_archived_and_verified": 89,
+  "rows": [
+    {
+      "variant": "R1",
+      "run_id": "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7",
+      "policy": "issue_evidence",
+      "state": "completed",
+      "official_outcome": "failed",
+      "official_status": "unresolved",
+      "tests": {
+        "FAIL_TO_PASS": {
+          "success": 0,
+          "failure": 1
+        },
+        "PASS_TO_PASS": {
+          "success": 146,
+          "failure": 0
+        },
+        "FAIL_TO_FAIL": {
+          "success": 0,
+          "failure": 0
+        },
+        "PASS_TO_FAIL": {
+          "success": 0,
+          "failure": 0
+        }
+      },
+      "model_session_attempts": 4,
+      "provider_workers_started": 4,
+      "settled_provider_responses": 4,
+      "model_tools_proposed": 5,
+      "model_tool_names": [
+        "read_symbol",
+        "read_symbol",
+        "search_source",
+        "read_symbol",
+        "submit_ref_edits"
+      ],
+      "charged_tool_calls": 6,
+      "submission_counts": {
+        "requests": 1,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 1,
+        "docker_verifications": 0
+      },
+      "agent_status": "submitted",
+      "agent_stop_reason": "candidate_submitted",
+      "tokens": {
+        "input": 23354,
+        "output": 911,
+        "total": 24265
+      },
+      "row_seconds": 418.380883,
+      "agent_elapsed_seconds": 367.72,
+      "official_elapsed_seconds": 39.351,
+      "context_stats": {
+        "reads": 16,
+        "returned_characters": 6614,
+        "unique_lines": 119,
+        "repeated_reads": 0,
+        "suppressed_reads": 0,
+        "invalid_requests": 0
+      },
+      "issue_context_stats": {
+        "search_attempts": 1,
+        "tool_calls": 1,
+        "retrieved_matches": 8,
+        "source_reads": 8,
+        "retrieved_characters": 1789,
+        "excerpt_count": 3,
+        "excerpt_characters": 805,
+        "packet_characters": 1872,
+        "complete": true
+      },
+      "searches": [
+        {
+          "query_sha256": "5590eb903c8c576937fac6cdbae278159f3fed2782bdb9a6fe30fed3603bf245",
+          "seconds": 20.17,
+          "matches": 8,
+          "truncated": true
+        },
+        {
+          "query_sha256": "2a20b45dfcd5db7988aea91c0ec93fccef7227ebb02217b1d1ba8a2c635b324c",
+          "seconds": 292.311,
+          "matches": 5,
+          "truncated": false
+        }
+      ],
+      "provider_returned_model_labels": [
+        "qwen-max"
+      ],
+      "model_and_container_cleanup_confirmed": true
+    },
+    {
+      "variant": "R0",
+      "run_id": "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4",
+      "policy": "on_demand",
+      "state": "completed",
+      "official_outcome": "failed",
+      "official_status": "unresolved",
+      "tests": {
+        "FAIL_TO_PASS": {
+          "success": 0,
+          "failure": 1
+        },
+        "PASS_TO_PASS": {
+          "success": 146,
+          "failure": 0
+        },
+        "FAIL_TO_FAIL": {
+          "success": 0,
+          "failure": 0
+        },
+        "PASS_TO_FAIL": {
+          "success": 0,
+          "failure": 0
+        }
+      },
+      "model_session_attempts": 4,
+      "provider_workers_started": 4,
+      "settled_provider_responses": 4,
+      "model_tools_proposed": 4,
+      "model_tool_names": [
+        "search_source",
+        "read_symbol",
+        "read_symbol",
+        "submit_ref_edits"
+      ],
+      "charged_tool_calls": 4,
+      "submission_counts": {
+        "requests": 1,
+        "schema_rejections": 0,
+        "preflight_rejections": 0,
+        "materialized": 1,
+        "docker_verifications": 0
+      },
+      "agent_status": "submitted",
+      "agent_stop_reason": "candidate_submitted",
+      "tokens": {
+        "input": 20291,
+        "output": 1250,
+        "total": 21541
+      },
+      "row_seconds": 104.869369,
+      "agent_elapsed_seconds": 62.696,
+      "official_elapsed_seconds": 34.808,
+      "context_stats": {
+        "reads": 10,
+        "returned_characters": 2615,
+        "unique_lines": 39,
+        "repeated_reads": 1,
+        "suppressed_reads": 0,
+        "invalid_requests": 0
+      },
+      "issue_context_stats": null,
+      "searches": [
+        {
+          "query_sha256": "5590eb903c8c576937fac6cdbae278159f3fed2782bdb9a6fe30fed3603bf245",
+          "seconds": 9.896999999999998,
+          "matches": 8,
+          "truncated": true
+        }
+      ],
+      "provider_returned_model_labels": [
+        "qwen-max"
+      ],
+      "model_and_container_cleanup_confirmed": true
+    }
+  ],
+  "R1_minus_R0": {
+    "input_tokens": 3063,
+    "output_tokens": -339,
+    "total_tokens": 2724,
+    "total_token_change_percent": 12.645652476672398,
+    "input_token_change_percent": 15.09536247597456,
+    "row_seconds": 313.511514,
+    "row_time_ratio": 3.98954324784771
+  },
+  "scope": "one exposed development task, one pair; no overall repair-rate, statistical, generalization or autonomous-experiment benefit claim",
+  "artifact_sha256": {
+    "plan.json": "239ceaf649591bade9337dce61cc6182247fbc73940c63398eea99cec49e83a2",
+    "evaluation.json": "f795ccf969db7e46f3bbf677d54bee9d49e9ad3260da037773092160ec816f15",
+    "token-ledger.json": "16517afb364c557a20fcd9a16cb9438ab182952c9e7e986880866a249b30711b",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-001.request.json": "234cc28f343314a58b08e18fc1d40977d5f59824877ab38ec960e98f2ed83eda",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-001.response.json": "060301a281be9d5562b69f67b6dc78ab440600cb70e53cdda339f04b43a4784e",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-002.request.json": "44c5ed63a72c9faa6940c1cf17ef3c61dbd94bf869d86c56ca8064f060c2d1b0",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-002.response.json": "76cf38a71ddd4c4a3403cd1d9d5f3c0abe939a656a6c4d5eaffe4fd5e123ffb5",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-003.request.json": "93a25afef94e99241e04ccc26bae84171efabaa817e33d09302338aaf0dca5f0",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-003.response.json": "cfe20fed1de0a45e8ae3065f16c786cb885de1b39353680d284b068832a2560d",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-004.request.json": "7d600b924b6dcbd683fcf3b68ad6b966584be43ad288083917e3ff92696bbcf1",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/call-004.response.json": "8491d09bdd3a63df3c5c128278962e278f7448ad6a4e989f573bb171d59367f9",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/agent/result.json": "b93227b5610c74032e545b67da92e9e37b998c84c521e5f55b946806c53c28c4",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/agent/events.jsonl": "f0be8408e8ad726cb7805cb8b37945597c1601f1667475c63cd59b670e2bae4b",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/official-evaluation/result.json": "ede3e0e90842e5f521bd7e48d146036568c9c4433b3845fcd16a753a978065a7",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/swe-executor-receipt.json": "78a6ad22ac63a87a105b60b1e62c094b1b4faa6a7d5360c6675a6405f76d23d4",
+    "5d27026c487dc8b0f477577a2077c897868e9748425a006aef031651e3f36ee7/predictions.jsonl": "2fe60b1738392ac5ae1d6e537834e386abebce0c7d53882e1c54e766f3a3cc6e",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-005.request.json": "07dca9a9a6b3bc5bb31159a5903a41da94b47d1ebebd47cfc7019933d8660eed",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-005.response.json": "fc7944b008d12b69d8f9f1a83a20a9a468a28b2108c9d73a77cded908b6a0b50",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-006.request.json": "f430b8aef254ee95d8e8f3a1457102b0872f6b78402ba03521476b9c35d9c34f",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-006.response.json": "0495f2c5927dde3e84b38d7a130eb44b66240f227748a5edc09837bdb75b4c24",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-007.request.json": "4e79c98cd04470a32a96d10edad76a984f5578ca0f3d0b6adc6f0d76cdd56284",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-007.response.json": "b3e860c23be58031201fe2794f6d5f73f0288a8e542c02f270097ad2b61927ff",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-008.request.json": "ab4196d256b00657df6309ec524e3be0fb76617d73f3e5ca8431f9107bda5da8",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/call-008.response.json": "aa6b588a4df52578aa1525bdeb71867930063ed61e903ee55796691aee7693cb",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/agent/result.json": "15cdca3625d0668a2cb280b7ab4bbb0c18fe9cb9deca710e978e89882a03c6f3",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/agent/events.jsonl": "c4479ff0b9f35fbca400f3c32d99feb9345898b34d9ba65f8073eb14f73ad8b8",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/official-evaluation/result.json": "2cbb322a5baa2fbbc7cbfb5c5985432be408ac79be3c3f19f76c11205906289c",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/swe-executor-receipt.json": "0292b389c01dccb55a3b343a3a4d18ae96913832b2f9fcb1b02331f872eddd70",
+    "876467d1741ebcf3d7e5d926e606db33bd02f89aa27e11c27446deb0e11796f4/predictions.jsonl": "3a3fb371ddcfcdf6efcbb89decd1d5ab51e2e2f8e6f4b6f0fb400d0aea860a6a"
+  },
+  "audit_script_sha256": "d9fc6adddf516b443f176e6b72d1419258f2cf47e55f517847fc6aee6015e79c",
+  "evidence_root": "runtime/django-qwen-pilot-run-20261110",
+  "audited_summary_sha256": "02aa9a2fc022336a20a4aabb3e675aff23c9075f98e20ac811140a1a13782a87",
+  "live_source_unmodified_until_both_rows_completed": true,
+  "post_run_engineering_validation": {
+    "real_model_calls": 0,
+    "full_regression": {
+      "total": 631,
+      "passed": 615,
+      "skipped_mysql": 16,
+      "failed": 0,
+      "seconds": 144.223,
+      "path": "runtime/post-django-live-full-regression-20261110-first.log",
+      "log_sha256": "7088c5eeb124ae371fca4a14b83e5b0ad2d087004c9d451ee59083af0683d3fb"
+    },
+    "targeted_regression": {
+      "total": 61,
+      "passed": 61,
+      "seconds": 11.786,
+      "path": "runtime/evaluation-liveness-regression-20261110-v2.log",
+      "log_sha256": "e88ca44537eb02b01267dcf32c97e1ed0536a848d9f20484320c6d0837354aac"
+    },
+    "offline_query_probe": {
+      "real_model_calls": 0,
+      "synthetic_provider_responses": 4,
+      "synthetic_usage_is_not_real_tokens": true,
+      "full_configuration_checks": 16,
+      "same_query": "def get_choices",
+      "unchanged_public_matches": true,
+      "source_files": 6408,
+      "frozen_file_bindings": 90,
+      "rows": [
+        {
+          "variant": "R1",
+          "query_seconds": 0.52,
+          "hit_count": 5,
+          "truncated": false
+        },
+        {
+          "variant": "R0",
+          "query_seconds": 0.511,
+          "hit_count": 5,
+          "truncated": false
+        }
+      ],
+      "scope": "two fixed offline loop invocations; local latency observation, not LLM performance evidence"
+    },
+    "wheel_delivery": {
+      "sha256": "f47dc874acf252c4825822578db5d6d484d88628406306000cc0b816b5ba9966",
+      "verified_files": 62,
+      "real_model_calls": 0,
+      "receipt": "runtime/post-django-live-wheel-delivery-20261110.json",
+      "receipt_sha256": "7e2477e9acf4fce18dc5d4ae982da00a089d7d6b93601e1060a3ce0bfd18b689"
+    }
+  },
+  "audited_summary_path": "runtime/django-qwen-pilot-run-20261110/audited-summary-v3.json"
+}

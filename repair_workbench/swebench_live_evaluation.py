@@ -179,8 +179,10 @@ class SWEbenchExecutor:
             ctx.emit("SWE_qualification_checked", **{key: binding["qualification_receipt"][key]
                      for key in ("image_id", "execution_policy", "qualification_sha256")})
 
+            execution_control = ctx.execution_control()
+
             def control():
-                ctx.check()
+                execution_control.check()
                 return False
 
             receipt["phase"] = "agent"
@@ -192,10 +194,19 @@ class SWEbenchExecutor:
                 event_sink=lambda event: ctx.emit("agent_event", receipt=event))
             receipt.update(agent_status=result.get("status"), agent_stop_reason=result.get("stop_reason"))
             ctx.emit("agent_finished", **{key: receipt[key] for key in ("agent_status", "agent_stop_reason")})
+            try:
+                ctx.check()  # Also fence drift on no-submission and budget-stop exits.
+            except BudgetExceeded as exc:
+                if str(exc) != 'run_deadline':
+                    raise
+                # check() validates frozen identity before its phase deadline.
+                # The Agent owns no running container here; return its cleanup
+                # receipt so the batch can retain a local stop and advance.
+                return {'outcome': 'inconclusive', 'cleanup_ok': True, 'reason': 'run_deadline',
+                        'agent_stop_reason': result.get('stop_reason'), 'agent_result': 'agent/result.json'}
             if result.get("status") != "submitted":
                 return {"outcome": "failed", "cleanup_ok": True, "reason": "no_final_submission",
                         "agent_stop_reason": result.get("stop_reason"), "agent_result": "agent/result.json"}
-            ctx.check()  # Unknown usage/cancellation cannot progress into evaluation.
             prediction_path = ctx.output / "predictions.jsonl"
             prediction = adapter.export_prediction(binding["workspace"], agent_output,
                 prediction_path, model_name=settings["model_label"])
@@ -211,8 +222,9 @@ class SWEbenchExecutor:
             official = adapter.evaluate(binding["record"], prediction, ctx.output / "official-evaluation",
                 _absolute(settings["harness_python"], "harness_python"),
                 workspace=binding["workspace"], timeout=timeout,
-                network_policy=settings["network_policy"], execution_control=ctx)
+                network_policy=settings["network_policy"], execution_control=execution_control)
             receipt["cleanup_ok"] = official.get("cleanup_ok") is True
+            ctx.check()  # Worker/container cleanup has finished before this full gate.
             status = official.get("status")
             qualified = binding["qualification_receipt"]
             if (receipt["cleanup_ok"] and status in {"resolved", "unresolved"}

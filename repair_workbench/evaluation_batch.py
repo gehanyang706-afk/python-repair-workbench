@@ -28,6 +28,19 @@ def _seconds(value, field):
     return value
 
 
+class _ExecutionControl:
+    """High-frequency cancellation/deadline checks, without file rehashing.
+
+    Only trusted executors receive this view. They must keep full frozen-state
+    checks at stage boundaries; a live process is not a verified implementation.
+    """
+    def __init__(self, context):
+        self._context = context
+
+    def check(self):
+        self._context.check_liveness()
+
+
 class RunContext:
     """Application-only controls; pass only ``task`` to the model's prompt.
 
@@ -45,9 +58,22 @@ class RunContext:
         self.output.mkdir()
         self.started = batch.clock()
         self._evaluation_started = None
+        self._execution_control = _ExecutionControl(self)
 
     def check(self):
         self._batch.check()
+        self._check_phase_deadline()
+
+    def check_liveness(self):
+        """Poll budgets/cancellation; full identity checks remain explicit gates."""
+        self._batch.check_liveness()
+        self._check_phase_deadline()
+
+    def execution_control(self):
+        """Return a check()-compatible view for file loops and process waiters."""
+        return self._execution_control
+
+    def _check_phase_deadline(self):
         if self.remaining_seconds() <= 0:
             raise BudgetExceeded('final_evaluation_deadline' if self._evaluation_started is not None
                                  else 'run_deadline')
@@ -151,14 +177,17 @@ class FrozenEvaluationBatch:
         _atomic_write(self.output / 'evaluation.json', self.report)
 
     def check(self):
+        self.check_liveness()
+        validate_manifest(self.manifest, current_config=self._current_config(),
+                          expected_sha256=self.expected_sha256)
+
+    def check_liveness(self):
         if self.cancelled():
             raise BudgetExceeded('cancel_requested')
         if self.clock() - self.started >= self.batch_seconds:
             raise BudgetExceeded('batch_deadline')
         if self.ledger.state['blocked']:
             raise BudgetExceeded(self.ledger.state['blocked'])
-        validate_manifest(self.manifest, current_config=self._current_config(),
-                          expected_sha256=self.expected_sha256)
 
     def run(self, execute):
         """Execute trusted callback serially. It must return outcome + cleanup_ok.
