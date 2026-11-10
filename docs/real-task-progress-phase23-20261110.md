@@ -19,10 +19,14 @@
 
 | 项目与来源 | 原测试基线/参考版本 | 测量用途 |
 |---|---|---|
-| [sqlparse真实问题与修复](https://github.com/andialbrecht/sqlparse/commit/ef2012a5eeb491e604dea2b00d516904a3830c87) | 各497通过、2项上游已有xfail | SQL注释输入增长下的耗时诊断 |
+| [sqlparse真实问题与修复](https://github.com/andialbrecht/sqlparse/commit/ef2012a5eeb491e604dea2b00d516904a3830c87) | 各496通过、1项原有XPASS、2项原有XFAIL | SQL注释输入增长下的耗时诊断 |
 | [more-itertools真实问题](https://github.com/more-itertools/more-itertools/issues/1019)、[修复PR](https://github.com/more-itertools/more-itertools/pull/1086) | 各717通过，无跳过 | 负索引迭代器切片的Python分配峰值 |
 
 两个仓库的缺陷版本与上游修复版本归档合计556,407字节，完整Git树验证通过。另考察的jsonschema候选包含当前不支持的测试目录符号链接，保留不适配记录，没有悄悄删去链接后计为合格任务。
+
+精确回执补充：sqlparse的旧JUnit汇总把1项非严格XPASS计入497个非失败项，原日志实际为496 passed、2 xfailed、1 xpassed；先前汇总未拆分，现更正。两份原始日志均保留，XPASS为 `tests/test_regressions.py::test_issue484_comments_and_newlines`。它不是本次Agent修复成果，未来契约须显式记录该原有状态，不能接受候选任意新增的XPASS。
+
+后续隔离候选中的四轮精确回执确认上述SQL状态及more-itertools两版本各717 passed。新的more-itertools复验曾在64进程限制下因原测试启动100线程失败；失败记录保留，随后明确固定原测试128进程、1CPU/256MiB、无网络，两版本使用同一策略通过。性能探针限制没有据此改变。该执行器与XPASS契约扩展暂存于隔离候选，尚未合入冻结主版本。
 
 开发测量采用同一已有镜像、1CPU/256MiB、无网络/只读源码，每个任务按benchmark、memory各做ABBA，合计16个物理探针。每次保存原始样本与输出指纹，计时不启用profiler，分配测量与计时分开。当前两档输入是公开开发输入，没有隐藏泛化结论。
 
