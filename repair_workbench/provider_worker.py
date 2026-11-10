@@ -7,6 +7,10 @@ import sys
 
 
 def request(payload):
+    endpoint = payload.get('provider_base_url')
+    if endpoint not in (None, 'https://dashscope.aliyuncs.com/api/v1'):
+        raise ValueError('unsupported explicit provider endpoint')
+    import dashscope
     from langchain_community.chat_models import ChatTongyi
     from langchain_core.messages import message_to_dict, messages_from_dict
     from langsmith import tracing_context
@@ -14,6 +18,9 @@ def request(payload):
     # The pinned SDK otherwise retransmits ConnectionError once even with the
     # LangChain retry count set to zero. One admitted model call sends once.
     original_send = transport._send_with_retry
+    original_endpoint = dashscope.base_http_api_url
+    if endpoint is not None:
+        dashscope.base_http_api_url = endpoint
     transport._send_with_retry = lambda send: send()
     try:
         options = payload.get('provider_options', {'max_tokens': 4096, 'temperature': None})
@@ -34,6 +41,7 @@ def request(payload):
             message = bound.invoke(messages_from_dict(payload['messages']), stop=payload['stop'])
         return {'message': message_to_dict(message)}
     finally:
+        dashscope.base_http_api_url = original_endpoint
         transport._send_with_retry = original_send
         transport.close_shared_sync_session()
 

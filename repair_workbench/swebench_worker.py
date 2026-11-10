@@ -6,7 +6,62 @@ import importlib.metadata
 import importlib.util
 import json
 from pathlib import Path
+import re
 import sys
+
+REQUESTS_NETWORK_POLICY = 'requests-isolated-timeout-v1'
+NETWORK_POLICIES = ('none', 'bridge', REQUESTS_NETWORK_POLICY)
+NETWORK_OWNER_LABEL = 'repair-workbench.owner-run'
+
+
+def execution_policy(network_policy, instance_id):
+    if network_policy not in NETWORK_POLICIES:
+        raise ValueError('unsupported frozen network policy')
+    policy = {'network': network_policy, 'cpus': 2, 'memory': '2g',
+              'capabilities': 'dropped', 'auto_pull': False}
+    if network_policy == REQUESTS_NETWORK_POLICY:
+        if instance_id != 'psf__requests-3362':
+            raise ValueError('requests-isolated-timeout-v1 only supports psf__requests-3362')
+        policy['network_adapter'] = {'driver': 'bridge', 'internal': True,
+            'subnet': '10.255.255.0/24', 'gateway': '10.255.255.254',
+            'container_ip': '10.255.255.2', 'unassigned_timeout_target': '10.255.255.1',
+            'scope': 'explicit environment adaptation; not the original official environment'}
+    return policy
+
+
+def network_plan(network_policy, instance_id, run_id):
+    policy = execution_policy(network_policy, instance_id)
+    if network_policy != REQUESTS_NETWORK_POLICY:
+        return None
+    if not re.fullmatch(r'repair-[a-f0-9]{32}', run_id):
+        raise ValueError('invalid network owner run id')
+    return {**policy['network_adapter'], 'name': 'repair-swe-net-' + run_id,
+            'labels': {NETWORK_OWNER_LABEL: run_id,
+                       'repair-workbench.network-policy': network_policy,
+                       'repair-workbench.instance': instance_id}}
+
+
+def prepare_network(client, plan, docker_types):
+    """Create one isolated, labelled network; the parent owns final cleanup."""
+    if plan is None:
+        return None
+    if client.networks.list(names=[plan['name']]):
+        raise ValueError('run network already exists; refusing reuse')
+    network = client.networks.create(plan['name'], driver=plan['driver'], internal=True,
+        check_duplicate=True, labels=plan['labels'],
+        ipam=docker_types.IPAMConfig(pool_configs=[docker_types.IPAMPool(
+            subnet=plan['subnet'], gateway=plan['gateway'])]))
+    network.reload()
+    attrs = network.attrs
+    actual = {key: attrs.get(key) for key in ('Id', 'Name', 'Driver', 'Internal', 'IPAM', 'Labels')}
+    Path('network-policy.json').write_text(json.dumps({'requested': plan, 'actual': actual}, indent=2) + '\n')
+    pools = (attrs.get('IPAM') or {}).get('Config', [])
+    if (attrs.get('Name') != plan['name'] or attrs.get('Driver') != 'bridge'
+            or attrs.get('Internal') is not True or attrs.get('Labels') != plan['labels']
+            or len(pools) != 1 or pools[0].get('Subnet') != plan['subnet']
+            or pools[0].get('Gateway') != plan['gateway']):
+        raise ValueError('isolated network policy was not applied')
+    return network
 
 
 def verify_harness():
@@ -49,21 +104,30 @@ def parse_source_blobs(raw):
 
 
 def run(payload):
+    policy = execution_policy(payload['network_policy'], payload['record']['instance_id'])
+    plan = network_plan(payload['network_policy'], payload['record']['instance_id'], payload['run_id'])
     lock = verify_harness()
     import docker
     from swebench.harness.run_evaluation import run_instance
     from swebench.harness.utils import make_test_spec
     client = HarnessClient(docker.from_env(timeout=60))
+    network = prepare_network(client, plan, docker.types)
     original_create = client.containers.create
 
     def create(*args, **kwargs):
         # Execution restrictions do not change the upstream test script/parser
         # or scoring. Python track needs no browser/SYS_ADMIN privileges.
         kwargs.pop('cap_add', None)
+        kwargs.pop('network', None)
+        kwargs.pop('networking_config', None)
         kwargs.update(network_disabled=payload['network_policy'] == 'none',
                       network_mode=payload['network_policy'], cap_drop=['ALL'],
                       security_opt=['no-new-privileges'], mem_limit='2g',
                       nano_cpus=2_000_000_000, pids_limit=256)
+        if network is not None:
+            kwargs.pop('network_mode')
+            kwargs.update(network=plan['name'], networking_config={plan['name']:
+                client.api.create_endpoint_config(ipv4_address=plan['container_ip'])})
         container = original_create(*args, **kwargs)
         container.reload()
         config = container.attrs['HostConfig']
@@ -71,8 +135,13 @@ def run(payload):
                   'memory_bytes': config['Memory'], 'nano_cpus': config['NanoCpus'],
                   'pids_limit': config['PidsLimit'], 'cap_drop': config['CapDrop'],
                   'cap_add': config['CapAdd'], 'security_opt': config['SecurityOpt']}
+        if plan is not None:
+            actual['network_policy'] = payload['network_policy']
+            actual['network_owner'] = plan['labels']
+            actual['network_adapter'] = policy['network_adapter']
         Path('container-policy.json').write_text(json.dumps(actual, indent=2) + '\n')
-        if (actual['image_id'] != payload['image_id'] or actual['network'] != payload['network_policy']
+        if (actual['image_id'] != payload['image_id']
+                or actual['network'] != (plan['name'] if plan else payload['network_policy'])
                 or actual['memory_bytes'] != 2 * 1024**3 or actual['nano_cpus'] != 2_000_000_000
                 or actual['pids_limit'] != 256 or actual['cap_add']
                 or 'ALL' not in (actual['cap_drop'] or [])):
@@ -81,6 +150,15 @@ def run(payload):
 
         def checked_start():
             original_start()
+            if plan is not None:
+                container.reload()
+                attached = container.attrs.get('NetworkSettings', {}).get('Networks', {})
+                endpoint = attached.get(plan['name'], {})
+                actual['network_endpoint'] = endpoint
+                Path('container-policy.json').write_text(json.dumps(actual, indent=2) + '\n')
+                if (set(attached) != {plan['name']} or endpoint.get('IPAddress') != plan['container_ip']
+                        or endpoint.get('NetworkID') != network.id):
+                    raise ValueError('container isolated endpoint was not applied')
             head = container.exec_run(['git', 'rev-parse', 'HEAD'], workdir='/testbed')
             listing = container.exec_run(['git', 'ls-tree', '-rz', 'HEAD'], workdir='/testbed')
             blobs = parse_source_blobs(listing.output)
@@ -117,8 +195,7 @@ def run(payload):
         reason = 'official_get_eval_report'
     return {'status': status, 'reason': reason, 'official_report': report,
             'harness_commit': lock['commit'],
-            'execution_policy': {'network': payload['network_policy'], 'cpus': 2, 'memory': '2g',
-                                 'capabilities': 'dropped', 'auto_pull': False}}
+            'execution_policy': policy}
 
 
 def main():

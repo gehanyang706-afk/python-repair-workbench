@@ -16,6 +16,8 @@ from uuid import uuid4
 from .candidate import create_candidate, validate_source_path
 from .snapshot import create_snapshot, snapshot_id, verify_snapshot
 from .session import RepairSession, BudgetExceeded
+from .swebench_worker import (NETWORK_POLICIES, REQUESTS_NETWORK_POLICY,
+                             execution_policy, network_plan)
 
 HARNESS_COMMIT = '02e7a74ffd0b707aab73d203fe87bdc7c76afc8e'
 PUBLIC_FIELDS = ('instance_id', 'repo', 'base_commit', 'problem_statement')
@@ -257,7 +259,11 @@ class SWEbenchSession(RepairSession):
     swebench_enabled = True
     candidate_evaluation_is_docker = False
 
-    def __init__(self, workspace, output, **kwargs):
+    def __init__(self, workspace, output, *, swe_policy='on_demand', **kwargs):
+        if not isinstance(swe_policy, str) or swe_policy not in {'on_demand', 'issue_evidence'}:
+            raise ValueError('SWE policy must be on_demand or issue_evidence')
+        self.swe_policy = swe_policy
+        self.issue_context_stats = None
         self.submitted_number = None
         self.workspace = Path(workspace).resolve(strict=True)
         receipt = load(self.workspace / 'workspace.json')
@@ -278,9 +284,14 @@ class SWEbenchSession(RepairSession):
         super().check_budget()
 
     def initial_context(self):
-        return {'mode': 'issue_only', 'tests_executed': False,
+        self.check_budget()
+        packet = {'mode': 'issue_only', 'tests_executed': False,
                 'repo': self.public_task['repo'], 'base_commit': self.public_task['base_commit'],
                 'navigation': 'Use list_sources, search_source and AST tools to locate code. No gold paths or failing-test names are supplied.'}
+        if self.swe_policy == 'issue_evidence':
+            from .issue_context import issue_evidence
+            packet['issue_evidence'] = issue_evidence(self)
+        return packet
 
     def read_test_log(self, attempt=0, offset=0):
         self.reserve_tool('read_test_log')
@@ -302,14 +313,15 @@ class SWEbenchSession(RepairSession):
 
     def save(self, state, **extra):
         extra.update(benchmark='swebench', evaluation_status='not_run',
-                     selected_attempt=self.submitted_number)
+                     selected_attempt=self.submitted_number, swe_policy=self.swe_policy,
+                     issue_context_stats=self.issue_context_stats)
         if self.submitted_number is not None:
             extra['patch'] = 'attempt-%02d/verification/patch.diff' % self.submitted_number
         return super().save(state, **extra)
 
 
-def run_qualified_agent(workspace, output, model, qualification, **limits):
-    """Application entry: failed/mismatched environment never reaches the model."""
+def validate_qualification(workspace, qualification):
+    """Validate both environment controls before any Agent or model is created."""
     workspace, qualification = Path(workspace), Path(qualification)
     task = load(workspace / 'task.json')
     q = load(qualification / 'qualification.json')
@@ -328,12 +340,23 @@ def run_qualified_agent(workspace, output, model, qualification, **limits):
         policies.append(result.get('execution_policy'))
     if len(images) != 1 or policies[0] is None or policies[0] != policies[1]:
         raise ValueError('qualification environments differ')
+    if policies[0].get('network') == REQUESTS_NETWORK_POLICY:
+        if policies[0] != execution_policy(REQUESTS_NETWORK_POLICY, task['instance_id']):
+            raise ValueError('qualification network adaptation differs from its frozen policy')
+    return {'task': {key: task[key] for key in PUBLIC_FIELDS},
+            'image_id': next(iter(images)), 'execution_policy': policies[0],
+            'qualification_sha256': sha((qualification / 'qualification.json').read_bytes())}
+
+
+def run_qualified_agent(workspace, output, model, qualification, **limits):
+    """Application entry: failed/mismatched environment never reaches the model."""
+    checked = validate_qualification(workspace, qualification)
     from .agent import run_agent
     session = SWEbenchSession(workspace, output, **limits)
     session.record('swebench_qualification_checked',
-                   qualification_sha256=sha((qualification / 'qualification.json').read_bytes()),
-                   image_id=next(iter(images)), execution_policy=policies[0])
-    return run_agent(session, model, task['problem_statement'])
+                   qualification_sha256=checked['qualification_sha256'],
+                   image_id=checked['image_id'], execution_policy=checked['execution_policy'])
+    return run_agent(session, model, checked['task']['problem_statement'])
 
 
 def export_prediction(workspace, agent_output, destination, model_name='workbench-swe'):
@@ -428,11 +451,56 @@ def start_worker(command, **kwargs):
     return subprocess.Popen(command, **kwargs)
 
 
-def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout=600, negative=False, gold_control=False, network_policy='none'):
+def wait_worker(process, timeout, execution_control=None):
+    if execution_control is None:
+        return process.wait(timeout=timeout)
+    deadline = time.monotonic() + timeout
+    while True:
+        execution_control.check()
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired('official harness', timeout)
+        try:
+            result = process.wait(timeout=min(0.25, remaining))
+        except subprocess.TimeoutExpired:
+            continue
+        execution_control.check()
+        return result
+
+
+def cleanup_run_network(plan):
+    """Remove only this run's labelled network and verify it is absent."""
+    receipt = {'name': plan['name'], 'cleanup_ok': False, 'owner_verified': False}
+    command = ['docker', 'network', 'inspect', plan['name']]
+    try:
+        inspect = subprocess.run(command, capture_output=True, text=True, timeout=15)
+        if inspect.returncode == 0:
+            records = json.loads(inspect.stdout)
+            if (not isinstance(records, list) or len(records) != 1
+                    or records[0].get('Name') != plan['name']
+                    or records[0].get('Labels') != plan['labels']
+                    or not re.fullmatch('[a-f0-9]{64}', records[0].get('Id', ''))):
+                return {**receipt, 'reason': 'network_owner_mismatch'}
+            receipt['owner_verified'] = True
+            receipt['network_id'] = records[0]['Id']
+            removal = subprocess.run(['docker', 'network', 'rm', records[0]['Id']],
+                                     capture_output=True, text=True, timeout=15)
+            receipt['remove_returncode'] = removal.returncode
+            inspect = subprocess.run(command, capture_output=True, text=True, timeout=15)
+        error = inspect.stderr.lower()
+        receipt['cleanup_ok'] = inspect.returncode != 0 and (
+            'no such network' in error or f'network {plan["name"]} not found' in error)
+        receipt['reason'] = 'network_absent' if receipt['cleanup_ok'] else 'network_cleanup_unconfirmed'
+    except (OSError, subprocess.SubprocessError, ValueError, TypeError, AttributeError) as exc:
+        receipt['reason'] = 'network_cleanup_unconfirmed'
+        receipt['error_type'] = type(exc).__name__
+    return receipt
+
+
+def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout=600, negative=False, gold_control=False, network_policy='none', execution_control=None):
     """Official run_instance/get_eval_report in a separate dependency environment."""
     validate_record(row)
-    if network_policy not in ('none', 'bridge'):
-        raise ValueError('network policy must be frozen as none or bridge')
+    policy = execution_policy(network_policy, row['instance_id'])
     if not 1 <= timeout <= 3600:
         raise ValueError('test timeout must be 1–3600 seconds')
     if (prediction.get('instance_id') != row['instance_id'] or
@@ -460,6 +528,7 @@ def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False, mode=0o700)
     run_id = 'repair-' + uuid4().hex
+    plan = network_plan(network_policy, row['instance_id'], run_id)
     name = 'sweb.eval.%s.%s' % (row['instance_id'].lower(), run_id)
     payload = {'record': row, 'prediction': prediction, 'image_id': image,
                'base_git_blobs': expected_blobs,
@@ -473,14 +542,17 @@ def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout
     started = time.monotonic()
     result = {'status': 'inconclusive', 'reason': 'official_report_missing', 'run_id': run_id,
               'instance_id': row['instance_id'], 'image_id': image, 'cleanup_ok': False,
-              'negative_control': negative, 'harness_commit': HARNESS_COMMIT}
+              'negative_control': negative, 'harness_commit': HARNESS_COMMIT,
+              'execution_policy': policy}
     process = None
     try:
+        if execution_control is not None:
+            execution_control.check()
         with (output / 'harness.log').open('wb') as log:
             process = start_worker(command, cwd=output, env=isolated_env(), start_new_session=True,
                                        stdout=log, stderr=subprocess.STDOUT)
             try:
-                process.wait(timeout=timeout + 60)
+                wait_worker(process, timeout + 60, execution_control)
             except subprocess.TimeoutExpired:
                 result['reason'] = 'harness_wall_timeout'
             response = output / 'worker-result.json'
@@ -488,6 +560,12 @@ def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout
                 result.update(load(response))
     except KeyboardInterrupt:
         result['reason'] = 'cancel_requested'
+        raise
+    except BudgetExceeded as exc:
+        result['reason'] = str(exc)
+        raise
+    except Exception as exc:
+        result.update(reason='harness_execution_error', error_type=type(exc).__name__)
         raise
     finally:
         if process is not None and process.poll() is None:
@@ -497,13 +575,26 @@ def evaluate(row, prediction, output, harness_python, *, workspace=None, timeout
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=3)
-        inspect = subprocess.run(['docker', 'inspect', name], capture_output=True, text=True, timeout=15)
-        if inspect.returncode == 0:
-            subprocess.run(['docker', 'rm', '-f', name], capture_output=True, timeout=15)
+        try:
             inspect = subprocess.run(['docker', 'inspect', name], capture_output=True, text=True, timeout=15)
-        result['cleanup_ok'] = inspect.returncode != 0 and 'no such' in inspect.stderr.lower()
-        if not result['cleanup_ok']:
+            if inspect.returncode == 0:
+                subprocess.run(['docker', 'rm', '-f', name], capture_output=True, timeout=15)
+                inspect = subprocess.run(['docker', 'inspect', name], capture_output=True, text=True, timeout=15)
+            result['cleanup_ok'] = inspect.returncode != 0 and 'no such' in inspect.stderr.lower()
+        except (OSError, subprocess.SubprocessError):
+            result['cleanup_ok'] = False
+        result['container_cleanup_ok'] = result['cleanup_ok']
+        if not result['container_cleanup_ok']:
             result.update(status='inconclusive', reason='container_cleanup_unconfirmed')
+        if plan is not None:
+            network_cleanup = (cleanup_run_network(plan) if result['container_cleanup_ok'] else
+                {'name': plan['name'], 'cleanup_ok': False, 'owner_verified': False,
+                 'reason': 'container_cleanup_unconfirmed'})
+            write(output / 'network-cleanup.json', network_cleanup)
+            result['network_cleanup_ok'] = network_cleanup['cleanup_ok']
+            result['cleanup_ok'] = result['container_cleanup_ok'] and result['network_cleanup_ok']
+            if result['container_cleanup_ok'] and not result['network_cleanup_ok']:
+                result.update(status='inconclusive', reason='network_cleanup_unconfirmed')
         result['elapsed_seconds'] = round(time.monotonic() - started, 3)
         write(output / 'result.json', result)
     return result
@@ -561,7 +652,7 @@ def main(argv=None):
         ev.add_argument('--output', type=Path, required=True)
         ev.add_argument('--harness-python', type=Path, required=True)
         ev.add_argument('--workspace', type=Path, required=True)
-        ev.add_argument('--network-policy', choices=['none', 'bridge'], default='none')
+        ev.add_argument('--network-policy', choices=NETWORK_POLICIES, default='none')
         ev.add_argument('--timeout', type=int, default=600)
         if name == 'evaluate':
             ev.add_argument('--predictions', type=Path, required=True)

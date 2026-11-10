@@ -108,6 +108,7 @@ class ManagedTongyi(BaseChatModel):
     read_timeout: float = 30
     max_output_tokens: int = Field(default=4096, ge=1, le=8192)
     sampling_temperature: float | None = Field(default=None, ge=0, le=2)
+    provider_base_url: str | None = None
 
     @property
     def _llm_type(self):
@@ -121,6 +122,7 @@ class ManagedTongyi(BaseChatModel):
             'messages': messages_to_dict(messages), 'tools': self.tool_schemas, 'stop': stop,
             'provider_options': {'max_tokens': self.max_output_tokens,
                                  'temperature': self.sampling_temperature},
+            'provider_base_url': self.provider_base_url,
             'connect_timeout': self.connect_timeout, 'read_timeout': self.read_timeout},
             session, self.call_timeout)
         return messages_from_dict([result['message']])[0]

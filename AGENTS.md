@@ -14,6 +14,14 @@
 - 单元测试：`.venv/bin/python -m unittest discover -s tests -v`。
 - Docker 集成测试：`RUN_DOCKER_TESTS=1 .venv/bin/python -m unittest discover -s tests -v`；使用已存在的本地镜像，不自动下载。
 
+## 真实任务完善交接（2026-11-10）
+
+- 路线见docs/real-task-improvement-plan-20261109.md；最新交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；没有新真实模型批次授权。
+- 新评测模型显式固定北京区原生endpoint，其他region未适配。输入/输出预留边界由冻结配置给出，未知usage和落盘错误停批；单批单进程账本不可恢复，不称分布式账单。
+- SWE首次有效提交即结束模型回合，最终评分独立计时、响应取消，submitted不能算passed。当前工具上限仍60、请求上限30，新入口拒绝虚报更高上限。
+- psf__requests-3362有显式requests-isolated-timeout-v1开发网络策略，派生环境补齐9份历史依赖。两次官方F2P/P2P资格通过，但完整原套件3失败1错误仍保留；不称原官方镜像原样通过或全套测试通过，不作为模型成绩。
+- 候选池工具只用元数据，固定数据300题/12仓库已生成池；正式子集、真实性能任务集与实测效果仍未完成。开发侧看过参考修复/隐藏反馈的任务归dev，Evaluator自动资格读取不构成开发暴露。
+
 ## 诊断与性能优化阶段（2026-10-31）
 
 - 当前交接：`docs/diagnostic-agent-handoff-20261031.md`；实现规格见phase1/phase2文档。

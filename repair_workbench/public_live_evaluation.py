@@ -9,14 +9,13 @@ import json
 from pathlib import Path
 import time
 
-from pydantic import Field
-from langchain_core.messages import message_to_dict, messages_to_dict
 
 from .agent import run_agent
 from .candidate import create_candidate
 from .diagnostic_evaluation import source_fingerprint, _image_id
 from .evaluation import load_dataset, write_json, digest, compare
-from .model_transport import ManagedTongyi
+from .evaluation_budget import EvaluationLedger
+from .evaluation_model import MeteredEvaluationTongyi
 from .runner import run_tests
 from .session import RepairSession, BudgetExceeded
 from .snapshot import verify_snapshot
@@ -29,86 +28,15 @@ LIMITS = {'batch_tokens': 300000, 'run_tokens': 100000, 'requests_per_run': 12,
           'test_seconds': 30, 'request_seconds': 45, 'output_tokens': 4096}
 
 
-class TokenLedger:
-    """One batch owner; reserve before send, settle only complete valid usage."""
+class TokenLedger(EvaluationLedger):
+    """Historical pilot defaults; new experiments pass explicit provider bounds."""
     def __init__(self, path, plan_hash, limits=None):
-        self.path = Path(path)
-        self.limits = dict(limits or LIMITS)
-        if self.path.exists():
-            raise FileExistsError('existing ledger cannot be resumed or reset')
-        self.state = {'plan_hash': plan_hash, 'limits': self.limits,
-                      'calls': [], 'blocked': None}
-        self.flush()
-
-    def flush(self):
-        write_json(self.path, self.state)
-
-    def charged(self, run_id=None):
-        return sum(c['charged_tokens'] for c in self.state['calls']
-                   if run_id is None or c['run_id'] == run_id)
-
-    def reserve(self, run_id):
-        if self.state['blocked']:
-            raise BudgetExceeded(self.state['blocked'])
-        for scope, cap in ((None, self.limits['batch_tokens']),
-                           (run_id, self.limits['run_tokens'])):
-            if self.charged(scope) + CONTEXT_RESERVATION > cap:
-                raise BudgetExceeded('batch_token_limit' if scope is None else 'run_token_limit')
-        call = {'index': len(self.state['calls']) + 1, 'run_id': run_id,
-                'state': 'reserved', 'charged_tokens': CONTEXT_RESERVATION,
-                'input_tokens': None, 'output_tokens': None}
-        self.state['calls'].append(call)
-        self.flush()
-        return call
-
-    def unknown(self, call, reason):
-        call.update(state='usage_unknown', reason=reason)
-        self.state['blocked'] = 'batch_usage_unknown'
-        self.flush()
-
-    def settle(self, call, message):
-        usage = message.usage_metadata or message.response_metadata.get('token_usage')
-        if not (isinstance(usage, dict) and
-                all(type(usage.get(k)) is int and usage[k] >= 0
-                    for k in ('input_tokens', 'output_tokens'))):
-            self.unknown(call, 'incomplete_provider_usage')
-            raise BudgetExceeded('batch_usage_unknown')
-        if usage['input_tokens'] > 30720 or usage['output_tokens'] > LIMITS['output_tokens']:
-            self.unknown(call, 'provider_usage_exceeds_native_bounds')
-            raise BudgetExceeded('batch_usage_unknown')
-        call.update(state='settled', input_tokens=usage['input_tokens'],
-                    output_tokens=usage['output_tokens'],
-                    charged_tokens=usage['input_tokens'] + usage['output_tokens'])
-        self.flush()
+        super().__init__(path, plan_hash, dict(limits or LIMITS),
+                         input_token_limit=30720, output_token_limit=4096)
 
 
-class MeteredTongyi(ManagedTongyi):
-    ledger: object = Field(exclude=True, repr=False)
-    run_id: str
-    trace_dir: Path = Field(exclude=True, repr=False)
-    validate_frozen: object = Field(exclude=True, repr=False)
-
-    def invoke_controlled(self, messages, session, stop=None, **kwargs):
-        self.validate_frozen()
-        call = self.ledger.reserve(self.run_id)
-        trace = self.trace_dir / ('call-%03d' % call['index'])
-        # This contains only fixed public task data and model-visible messages.
-        write_json(trace.with_suffix('.request.json'), {'messages': messages_to_dict(messages),
-            'tools': self.tool_schemas, 'model': self.model_name,
-            'max_output_tokens': self.max_output_tokens, 'temperature': self.sampling_temperature})
-        try:
-            message = super().invoke_controlled(messages, session, stop, **kwargs)
-        except BaseException as exc:
-            self.ledger.unknown(call, type(exc).__name__)
-            raise
-        saved = message_to_dict(message)
-        saved['data']['response_metadata'] = {
-            k: v for k, v in saved['data'].get('response_metadata', {}).items()
-            if k in {'token_usage', 'finish_reason', 'model_name', 'model'}}
-        saved['data']['id'] = None
-        write_json(trace.with_suffix('.response.json'), saved)
-        self.ledger.settle(call, message)
-        return message
+class MeteredTongyi(MeteredEvaluationTongyi):
+    """Compatibility name for the archived public-pilot protocol."""
 
 
 class PilotSession(RepairSession):

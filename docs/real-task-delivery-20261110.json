@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-10",
+  "parent_commit": "b7537171874a30bc203355b248c7a9ac2bdcc066",
+  "scope": "phase 0 foundation and phase 1 SWE development environment; phase 2 candidate preparation",
+  "real_model_calls": 0,
+  "model_performance_claims": null,
+  "regression": {
+    "total": 573,
+    "passed": 557,
+    "skipped_mysql": 16,
+    "failed": 0,
+    "seconds": 201.674,
+    "path": "runtime/real-task-phase01-regression-20261110-first.log",
+    "sha256": "2d86c6a68e37fa5dbf192c31ead0689a38d6c292c6318c9d1c74c3ac436d649f"
+  },
+  "wheel": {
+    "sha256": "af42aeddbbdf1b8e0374efbd9f7bcf0fb87918bbe29486434df20d1f5ca85421",
+    "verified_files": 58
+  },
+  "environment_controls": [
+    {
+      "path": "runtime/requests-adapted-qualification-20261110-v2",
+      "sha256": "4b2a94c48a269fd5535675da0db27fcc342fb0a87e01ad9c085b88d5b7a095b2",
+      "qualified": true,
+      "controls": {
+        "negative": {
+          "status": "unresolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:cfeca88ecbed6458741940fd81c5b88a9474029d09d93f475349c1427c35f58b",
+          "execution_policy": {
+            "network": "requests-isolated-timeout-v1",
+            "cpus": 2,
+            "memory": "2g",
+            "capabilities": "dropped",
+            "auto_pull": false,
+            "network_adapter": {
+              "driver": "bridge",
+              "internal": true,
+              "subnet": "10.255.255.0/24",
+              "gateway": "10.255.255.254",
+              "container_ip": "10.255.255.2",
+              "unassigned_timeout_target": "10.255.255.1",
+              "scope": "explicit environment adaptation; not the original official environment"
+            }
+          },
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 0,
+              "failure": 1
+            },
+            "PASS_TO_PASS": {
+              "success": 75,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          },
+          "raw_suite_summary": "== 4 failed, 178 passed, 1 xfailed, 1 xpassed, 21 warnings, 1 error in 21.78s ==",
+          "raw_output_sha256": "8e1a61a0606cd6367ff45d5be9f90f97e9c0398e9ce7114d8645e14325c44341"
+        },
+        "gold": {
+          "status": "resolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:cfeca88ecbed6458741940fd81c5b88a9474029d09d93f475349c1427c35f58b",
+          "execution_policy": {
+            "network": "requests-isolated-timeout-v1",
+            "cpus": 2,
+            "memory": "2g",
+            "capabilities": "dropped",
+            "auto_pull": false,
+            "network_adapter": {
+              "driver": "bridge",
+              "internal": true,
+              "subnet": "10.255.255.0/24",
+              "gateway": "10.255.255.254",
+              "container_ip": "10.255.255.2",
+              "unassigned_timeout_target": "10.255.255.1",
+              "scope": "explicit environment adaptation; not the original official environment"
+            }
+          },
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 1,
+              "failure": 0
+            },
+            "PASS_TO_PASS": {
+              "success": 75,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          },
+          "raw_suite_summary": "== 3 failed, 179 passed, 1 xfailed, 1 xpassed, 21 warnings, 1 error in 21.77s ==",
+          "raw_output_sha256": "ed7f5d6dc1389bc09a8200a937e71634dc51d03d108a813bd4ef5a6d50af6161"
+        }
+      }
+    },
+    {
+      "path": "runtime/requests-adapted-qualification-20261110-v3",
+      "sha256": "8113e5246a9fc97cdd54b17fdc86d071dad383a2ab7e3fd47c800e381e81a013",
+      "qualified": true,
+      "controls": {
+        "negative": {
+          "status": "unresolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:cfeca88ecbed6458741940fd81c5b88a9474029d09d93f475349c1427c35f58b",
+          "execution_policy": {
+            "network": "requests-isolated-timeout-v1",
+            "cpus": 2,
+            "memory": "2g",
+            "capabilities": "dropped",
+            "auto_pull": false,
+            "network_adapter": {
+              "driver": "bridge",
+              "internal": true,
+              "subnet": "10.255.255.0/24",
+              "gateway": "10.255.255.254",
+              "container_ip": "10.255.255.2",
+              "unassigned_timeout_target": "10.255.255.1",
+              "scope": "explicit environment adaptation; not the original official environment"
+            }
+          },
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 0,
+              "failure": 1
+            },
+            "PASS_TO_PASS": {
+              "success": 75,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          },
+          "raw_suite_summary": "== 4 failed, 178 passed, 1 xfailed, 1 xpassed, 21 warnings, 1 error in 21.63s ==",
+          "raw_output_sha256": "cd53f1f149659446e167ceee1d9ae9031c9aae29c3f962d09c9c9216fa01c48b"
+        },
+        "gold": {
+          "status": "resolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:cfeca88ecbed6458741940fd81c5b88a9474029d09d93f475349c1427c35f58b",
+          "execution_policy": {
+            "network": "requests-isolated-timeout-v1",
+            "cpus": 2,
+            "memory": "2g",
+            "capabilities": "dropped",
+            "auto_pull": false,
+            "network_adapter": {
+              "driver": "bridge",
+              "internal": true,
+              "subnet": "10.255.255.0/24",
+              "gateway": "10.255.255.254",
+              "container_ip": "10.255.255.2",
+              "unassigned_timeout_target": "10.255.255.1",
+              "scope": "explicit environment adaptation; not the original official environment"
+            }
+          },
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 1,
+              "failure": 0
+            },
+            "PASS_TO_PASS": {
+              "success": 75,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          },
+          "raw_suite_summary": "== 3 failed, 179 passed, 1 xfailed, 1 xpassed, 21 warnings, 1 error in 21.74s ==",
+          "raw_output_sha256": "1d395edda4472bd55f1370246ca63df9d1983a2e4a43db47303c9555d6699596"
+        }
+      }
+    }
+  ],
+  "remaining_environment_issues": [
+    "pytest string raises API incompatibility",
+    "missing mocker fixture",
+    "historical httpbin TLS certificate rejected by current SSL policy"
+  ],
+  "candidate_pool": {
+    "rows": 300,
+    "repositories": 12,
+    "pool_sha256": "2d698b74d3a102b7cce41538172148a4c0b79adb1c74cdb96a0d5e827a221f22",
+    "formal_subset_frozen": false,
+    "final_task_qualification_complete": false
+  },
+  "source_files_sha256": {
+    "AGENTS.md": "1526c77a8fa37e6135e862b89c2852249b24be15aedf66c073174ee41e282504",
+    "README.md": "99684549928a891267501c43336412476489259c7e82935b0031ec40302d3715",
+    "docs/real-task-improvement-plan-20261109.md": "5cd91c83f5299803683e2e75f41851d2fe53a67c7da23831cb365255746f8c5a",
+    "docs/real-task-progress-20261110.md": "5931052edc72440a03a6cb97cab6b1477a5a36d7dcdac3da6252be72ddac88c2",
+    "repair_workbench/benchmark_selection.py": "84c0f83f0161f9c4700de7b82ed28336d6ce88b161244ab97be78b8eb99a9d06",
+    "repair_workbench/evaluation_batch.py": "2ca1bae639672583c9781e08f3b167a1aed1982b893c59481de2e93118fe0cb5",
+    "repair_workbench/evaluation_budget.py": "50766b1c89464c18063f166b399dcc5160e79e625ad625da9d8c28232d421a98",
+    "repair_workbench/evaluation_model.py": "2bb3492b2d095ccbb3d9309f08295cfec165f57455441205ffcd2703a66f2321",
+    "repair_workbench/experiment_manifest.py": "80ac9c05ada9df87337d9da32352510d194a6ebb28e70f1c1fb58f846348927a",
+    "repair_workbench/issue_context.py": "b08e46d06b8009b40cb420b2f74b822c444dd096e11698c8abff845d956dbf95",
+    "repair_workbench/model_transport.py": "c3d6f12694eb33a6a0acfc352070d684fc39a4d9bfffb5856617858aa1eb0fc0",
+    "repair_workbench/provider_worker.py": "042afcfc1d93377ead216d7188db8f17c16d47f3ea085237f65abdc4fd88f626",
+    "repair_workbench/public_live_evaluation.py": "f5ddbb46ca041474ee7ea376dc9a21a4803b73403d4aff057f171a8dfd3452ec",
+    "repair_workbench/swebench_adapter.py": "f0cb98f4bd2ce10893e4489033ff6fd600b688d3f460c6b754bc253f0aaecac6",
+    "repair_workbench/swebench_live_evaluation.py": "4a004161c8a3ee6b8389a4662f16a85e748f34d956bece93eae1b3a1dd465c70",
+    "repair_workbench/swebench_worker.py": "a57917cda25187ecbbe43b99abd613cbc54f5d3bb242d0c1532c160a51eec2c3",
+    "scripts/build_requests_environment.py": "29e8ac7d8075c03d169272ce4b8595d63b10fe59a6e71618ee8c14ace070ca6d",
+    "scripts/prepare_requests_environment.py": "8b10273ebb7e1a7d244ae407e2f16dc1a0956eca4633c9d748dc0d270865b158",
+    "tests/test_benchmark_selection.py": "774e344ed0bf4a1c70dc72742ca27f8e5c198f4898e0be2edbe2fd6bc3192231",
+    "tests/test_evaluation_batch.py": "b760929d2545ba355babdaa626a24c4da73f0f8c0371d5e78b0136fbca0ab119",
+    "tests/test_evaluation_budget.py": "54b763d2f9e0409dd54b4e9a83419861a4793648bb9fd3761fb735ef766c1379",
+    "tests/test_experiment_manifest.py": "cde0c95f1593629d3df6c55d054f3fc212e07df639b6ac780d834e4e7c81c978",
+    "tests/test_issue_context.py": "7077d5c132d7ca4242eb3cf2d4f78052c926ab6f01e3b83f7fba03f78fe50c54",
+    "tests/test_swebench_live_evaluation.py": "c4eabfd6a1377cbcdd1ae77dd431665b291f8039084080f84575f369a8f021ea",
+    "tests/test_swebench_network.py": "344eb566ab7476762b14328fd4cf33f5e206454d1c38be7615186fb96ef9f532"
+  },
+  "pending": [
+    "remaining full-suite environment compatibility",
+    "formal qualified task subset",
+    "real performance task adapters and reproducer",
+    "hidden performance evaluator",
+    "new explicitly bounded real model batch"
+  ]
+}
