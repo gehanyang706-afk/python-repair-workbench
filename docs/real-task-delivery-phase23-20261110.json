@@ -1,0 +1,231 @@
+{
+  "date": "2026-11-10",
+  "parent_commit": "f070c2b91cc42ff8aa5039fd7ce6b7f95e593a55",
+  "scope": "Django environment qualification; real repository development inputs; reproduction tools wired into UGC Agent; frozen workload contract; bounded integrity-preserving source navigation",
+  "real_model_calls": 0,
+  "model_performance_claims": null,
+  "regression": {
+    "total": 622,
+    "passed": 606,
+    "skipped_mysql": 16,
+    "failed": 0,
+    "seconds": 243.386,
+    "path": "runtime/real-task-phase23-main-graph-regression-20261110-v2.log"
+  },
+  "wheel": {
+    "sha256": "a4fbb4519ccace22e3abc203900a57003446cc1a230bf967b1a3736530e82080",
+    "verified_files": 62
+  },
+  "environment_controls": [
+    {
+      "path": "runtime/django-13315-qualification-20261110-first",
+      "sha256": "338b9623d56e45c5293613056da3990aada2b9f3f51bc2b4905f35de9677c6a3",
+      "qualified": true,
+      "controls": {
+        "negative": {
+          "status": "unresolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 0,
+              "failure": 1
+            },
+            "PASS_TO_PASS": {
+              "success": 146,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          }
+        },
+        "gold": {
+          "status": "resolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 1,
+              "failure": 0
+            },
+            "PASS_TO_PASS": {
+              "success": 146,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "runtime/django-13315-qualification-20261110-v2",
+      "sha256": "b3875b355e96e84ebbb5fd48a075d1cd3f852757dd94f71e0c414c5d03707e7f",
+      "qualified": true,
+      "controls": {
+        "negative": {
+          "status": "unresolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 0,
+              "failure": 1
+            },
+            "PASS_TO_PASS": {
+              "success": 146,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          }
+        },
+        "gold": {
+          "status": "resolved",
+          "cleanup_ok": true,
+          "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+          "tests": {
+            "FAIL_TO_PASS": {
+              "success": 1,
+              "failure": 0
+            },
+            "PASS_TO_PASS": {
+              "success": 146,
+              "failure": 0
+            },
+            "FAIL_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            },
+            "PASS_TO_FAIL": {
+              "success": 0,
+              "failure": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "performance_tasks": {
+    "split": "dev",
+    "upstream_reference_seen": true,
+    "repositories": 2,
+    "physical_observation_probes": 16,
+    "operator_authored_reproducer_smokes": 2,
+    "independent_final_evaluation": false
+  },
+  "evidence_sha256": {
+    "runtime/real-task-phase23-regression-20261110-first.log": "c25fb135632415f6fa1160ffefed255eecbccfd94bfdb47e065f78904270c697",
+    "runtime/real-task-phase23-wheel-check-20261110.json": "9a818f9240934ba8ac43d3a772d9de3f8d85bd3b3e9e0b15c3ff9b1661630a22",
+    "runtime/real-reproduction-smoke-20261110/smoke.json": "e173d1fad5f6134d7083863ec62874452b6432a0a150c073d7b88f87381e6a80",
+    "runtime/real-performance-sources-20261110/source-receipt.json": "df75040c493289959fbcd8dc978ef7c4f2d041d4d064409ebc6d30c44a73f832",
+    "runtime/real-performance-original-tests-20261110/results.json": "2594c75256c1f021fabf3884615259d1f8add825da74a0b330c2fefd43a99f02",
+    "runtime/real-performance-observations-20261110/qualification.json": "1533cac57d525823ad57f6650ccb04524ac31c9a86112deb57bc446641b7ecaa",
+    "runtime/real-task-phase23-main-graph-regression-20261110-first.log": "50ac29d7a7586efa4ee3828fd42da8dd4a3ce9b82d76fcee053b78f61d8cbd96",
+    "runtime/real-task-phase23-main-graph-regression-20261110-v2.log": "0e513035d95a21d8e53877a548256f4bdb4506fbac282417a5f876e74ed9bddf",
+    "runtime/real-task-phase23-final-targeted-20261110-first.log": "5ab78bd069abfe78432078acda3b23aeab86f6f053b0a91b86e49d5409a1ff6c",
+    "runtime/real-task-phase23-final-wheel-check-20261110.json": "8ac9588c53d035ec65ee428ea8b19f6e2b16f6eae4bbaab412780f5366b950a7",
+    "runtime/django-qwen-pilot-preparation-20261110-v2/protocol.json": "fa8a72025984ff6b575cf7b57829818dd1f9557127d125300bd6452675fa9465",
+    "runtime/django-qwen-pilot-preparation-20261110-v3/protocol.json": "6e40efdde1c33e76899089f6428f7435d1dcae5b4ac54130668fcc1df1a8d528",
+    "runtime/swebench-candidate-pool-20261110-v2/qualification-coverage.json": "64b77bebdcf6fa48331d3ba4674a588969ba4e81c6c6df35caa67f6b68a990cc",
+    "runtime/workload-contract-regression-20261110-first.log": "2997060d0504a669b36eb3e12be6b8b9ea85c9879b084c44b356f426d61d0791"
+  },
+  "source_files_sha256": {
+    "AGENTS.md": "044e10b4ec12fb9c9d29943c08c994d3e85dcb33be344ca89b9a9f4f85bdc135",
+    "README.md": "f70822bdc59fadd0f96b037ac906b4dc8ed5fe14c9b2351f27434695dc985c0a",
+    "docs/real-task-progress-phase23-20261110.md": "e9a35166e04cb10f22678098ab8682b724c68bde17b7ac4c169c51c6d7b69792",
+    "repair_workbench/__main__.py": "79c7523899497b982ac0b5133d7dfcc49c2e6ecd58f86320c29527cfcb81345c",
+    "repair_workbench/agent.py": "ac42d9da0d10064b56b951f12d2e362b95b1849c33bc7ba7d79060d56bfc7bc1",
+    "repair_workbench/diagnosis.py": "f1b81df600df4d69064a131fd464d121e9ccac7b0c753dde5e909cbec7e7d375",
+    "repair_workbench/diagnostic_agent.py": "6769f041c0049da9d5f785b065897b97b167a2fd6d549b202b3eee137ca7a4b3",
+    "repair_workbench/diagnostic_delegation.py": "1e5f9aafedeb10bb32feadf0277c2e1c16586d0d288669e4365a81810e6a43d7",
+    "repair_workbench/diagnostic_evaluation.py": "8c7027c43d379c6e2453c67dc76cf0f07c6599467dc713cdaabe70d39a7af078",
+    "repair_workbench/repository_probe_worker.py": "9d4cacd9dbfe478fa99c54f35bad9d52dac5356c20c007b0381a2fdb97066d1c",
+    "repair_workbench/reproduction.py": "3e3442c64ed6f7a720615bfe43bc3c892977a2c4bc778fe597a0a05ee03a8a12",
+    "repair_workbench/reproduction_worker.py": "d689330a0b8f49b9055b26678329f61c2713baf9ebc2064e6464325d26215211",
+    "repair_workbench/session.py": "f8c0c1e488b866abc9fab2a6cb1fe97453fa5cf93094786b382df602cb934344",
+    "repair_workbench/snapshot.py": "4af1aff5fbaae9dd9b8d61c2ba6d45cd5169b031e111997c28bf2db49461287b",
+    "repair_workbench/swebench_adapter.py": "89744a017ee821e4de6b0613af5a6d2605926a1dc964513ae5b705c36743375e",
+    "repair_workbench/swebench_worker.py": "060431da1891db431ac0aaaadcb04fc7eb7c0b442f40754766fd220e08c2b808",
+    "scripts/prepare_performance_development.py": "ea27985ac97ae14264b3e2962dd98a4b3e23c08a158709a5b34766beb87d2586",
+    "scripts/qualify_real_performance.py": "f7218459f2856477a9beddd19a72cb1832375ac7b2e5d6f566d78c43de8ff68b",
+    "tests/test_diagnostic_cli.py": "4b2843759f6c3c623b038ff526a79f8b20a249ccc4dd48c9c3862389c0d94730",
+    "tests/test_issue_context.py": "0d98d449492b269a74e868eba4cf23dc3df3f48cce0e4f1759a3b27fc46c9682",
+    "tests/test_repository_probe_worker.py": "0234c3b5a55732b702ac76e8a4ec0f4908852941d1cac03e6a43e88c2f4c30f4",
+    "tests/test_reproduction.py": "669d441b8fe0376d1a510626a9a4b3a43d7be4b6dda6e37b7e20135e7286caff",
+    "tests/test_snapshot_profiles.py": "6bd64c1c8c69c2c9f1e84abe6c8dafa51220a533b4a06a3e61ab13ce90460876",
+    "repair_workbench/workload_contract.py": "11dfb805466fc68c66fbd9d5f582341470c0edb517f8cfdb6aab3641c5fe821e",
+    "tests/test_diagnostic_reproduction.py": "12015daee8db5e295dbba8fa7309cfa3194df25b469a068134aa2d61a1617dd7",
+    "tests/test_source_search_integrity.py": "7808f4f527a4d0e096435437e1ba77203321cdf0975854b3207cc9b9ffdc899a",
+    "tests/test_workload_contract.py": "140fc378eb56f560180cc9017d9725aaca046ebb81d565d227e96c0ab67a42fb"
+  },
+  "pending": [
+    "formal qualified SWE subset at declared size and repository diversity",
+    "new explicitly bounded real-model batch",
+    "multi-repository workloads wired into diagnostic graph",
+    "trusted hidden performance scoring and fixed/adaptive real-model comparison"
+  ],
+  "final_targeted_regression": {
+    "total": 56,
+    "passed": 56,
+    "failed": 0,
+    "seconds": 28.448,
+    "path": "runtime/real-task-phase23-final-targeted-20261110-first.log",
+    "scope": "after final provenance propagation change"
+  },
+  "preserved_failures": [
+    {
+      "path": "runtime/real-task-phase23-main-graph-regression-20261110-first.log",
+      "failures": 2,
+      "reason": "old offline comparator expected only two disabled options; backward-compatible strict false-only validation added"
+    },
+    {
+      "path": "runtime/reproduction-main-graph-regression-20261110-first.log",
+      "errors": 1,
+      "reason": "test expected budget exception, existing closed-session guard correctly rejected further reads; test corrected"
+    },
+    {
+      "path": "runtime/django-qwen-pilot-preparation-20261110/capture.log",
+      "reason": "offline capture script attempted encode on structured system content; new capture directories retained"
+    }
+  ],
+  "reproduction": {
+    "main_graph_opt_in": true,
+    "default_enabled": false,
+    "main_graph_supported_workload": "ugc-export-v1",
+    "version_checks_before_and_after": true,
+    "cleanup_uncertain_blocks_session": true,
+    "output_trust": "model_program_output",
+    "real_model_calls": 0
+  },
+  "candidate_pool": {
+    "pool_sha256": "45c6feba1b8cd6dcc4e9368ad4ce0e693d149b5197bd22866f3df8f4f6ec1b37",
+    "qualified_dev": 2,
+    "qualified_validation": 0,
+    "qualified_test": 0,
+    "shortfall": {
+      "dev": 4,
+      "validation": 6,
+      "test": 30
+    },
+    "formal_subset_ready": false
+  }
+}

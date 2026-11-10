@@ -70,6 +70,7 @@ class DiagnosticCLITests(unittest.TestCase):
                 'diagnose', '--baseline', '/baseline', '--output', '/run',
                 '--allow', 'map_exporter.py', '--task', 'Investigate', '--allow-real-model',
                 '--diagnostic-transport', 'mcp', '--investigator', '--tool-concurrency', '2',
+                '--reproduction', '--max-repro-programs', '2', '--max-repro-runs', '4',
                 '--tool-rate-config', '/operator/redis.json',
                 '--investigator-max-model-calls', '2', '--investigator-max-tools', '7',
                 '--investigator-timeout', '5', '--main-model-reserve', '3',
@@ -77,6 +78,9 @@ class DiagnosticCLITests(unittest.TestCase):
         self.assertEqual(code, 2)
         arguments = session.call_args.kwargs
         self.assertEqual(arguments['diagnostic_transport'], 'mcp')
+        self.assertTrue(arguments['enable_reproduction'])
+        self.assertEqual(arguments['max_repro_programs'], 2)
+        self.assertEqual(arguments['max_repro_runs'], 4)
         self.assertEqual(arguments['tool_concurrency'], 2)
         self.assertEqual(str(arguments['tool_rate_config']), '/operator/redis.json')
         self.assertEqual(arguments['investigator_max_model_calls'], 2)

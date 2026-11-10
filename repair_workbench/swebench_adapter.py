@@ -14,7 +14,8 @@ import time
 from uuid import uuid4
 
 from .candidate import create_candidate, validate_source_path
-from .snapshot import create_snapshot, snapshot_id, verify_snapshot
+from .edits import EditRejected
+from .snapshot import create_snapshot, snapshot_id, verify_snapshot, snapshot_limits, documentation_link
 from .session import RepairSession, BudgetExceeded
 from .swebench_worker import (NETWORK_POLICIES, REQUESTS_NETWORK_POLICY,
                              execution_policy, network_plan)
@@ -140,13 +141,15 @@ def git_blobs(repo, revision):
         if not entry:continue
         header, path = entry.split(b'\t', 1)
         mode, kind, oid = header.decode().split()
-        if kind != 'blob' or mode not in ('100644', '100755'):
+        if kind != 'blob' or (mode not in ('100644', '100755')
+                              and not (mode == '120000' and documentation_link(path.decode()))):
             raise ValueError('unsupported Git source entry')
         files[path.decode()] = oid
     return files
 
 
-def prepare_workspace(dataset, instance_id, repo, output, source_roots=(), *, source_proof=None):
+def prepare_workspace(dataset, instance_id, repo, output, source_roots=(), *, source_proof=None,
+                      snapshot_profile='bounded-v1'):
     row = task_record(dataset, instance_id)
     output, repo = Path(output).resolve(), Path(repo).resolve(strict=True)
     private = Path(dataset).resolve()
@@ -164,7 +167,7 @@ def prepare_workspace(dataset, instance_id, repo, output, source_roots=(), *, so
         if source_proof['upstream_commit'] != row['base_commit'] or tree != source_proof['tree']:
             raise ValueError('archive source proof mismatch')
         revision = 'HEAD'
-    manifest = create_snapshot(repo, base, revision)
+    manifest = create_snapshot(repo, base, revision, profile=snapshot_profile)
     if source_proof is not None:
         manifest['normalized_archive_commit'] = manifest['commit']
         manifest['commit'] = row['base_commit']
@@ -200,7 +203,8 @@ def prepare_workspace(dataset, instance_id, repo, output, source_roots=(), *, so
     return receipt
 
 
-def prepare_archive_workspace(dataset, instance_id, archive, commit_metadata, output, source_roots=()):
+def prepare_archive_workspace(dataset, instance_id, archive, commit_metadata, output, source_roots=(), *,
+                              snapshot_profile='bounded-v1'):
     """Fallback for Git transport failures; verify the whole upstream Git tree."""
     row = task_record(dataset, instance_id)
     metadata = load(commit_metadata)
@@ -211,7 +215,8 @@ def prepare_archive_workspace(dataset, instance_id, archive, commit_metadata, ou
         raise ValueError('archive exceeds 32 MiB')
     repo = output.with_name(output.name + '-verified-source')
     repo.mkdir(parents=True, exist_ok=False)
-    total, seen, prefix = 0, set(), None
+    max_files, max_bytes = snapshot_limits(snapshot_profile)
+    total, seen, prefix, links = 0, set(), None, []
     from pathlib import PurePosixPath
     with tarfile.open(archive, 'r:gz') as tar:
         for member in tar:
@@ -226,18 +231,33 @@ def prepare_archive_workspace(dataset, instance_id, archive, commit_metadata, ou
                 raise ValueError('archive must have one root')
             if member.isdir():
                 continue
-            if not member.isfile() or len(p.parts) < 2:
+            if len(p.parts) < 2:
                 raise ValueError('links/special archive entries are unsupported')
             relative = PurePosixPath(*p.parts[1:]).as_posix()
+            allowed_link = (snapshot_profile == 'python-repository-v1' and member.issym()
+                            and documentation_link(relative) and not Path(member.linkname).is_absolute())
+            if not member.isfile() and not allowed_link:
+                raise ValueError('links/special archive entries are unsupported')
             total += member.size
-            if relative in seen or len(seen) >= 2000 or total > 20 * 1024 * 1024:
+            if relative in seen or len(seen) >= max_files or total > max_bytes:
                 raise ValueError('archive exceeds snapshot limits or duplicates paths')
             seen.add(relative)
             target = repo / relative
             target.parent.mkdir(parents=True, exist_ok=True)
+            if allowed_link:
+                links.append((target, member.linkname))
+                continue
             with tar.extractfile(member) as stream:
                 target.write_bytes(stream.read())
             target.chmod(0o755 if member.mode & 0o111 else 0o644)
+    # Retain these Git entries only in the source proof repository. The Agent
+    # snapshot omits them. Resolve after all regular files exist, never follow a
+    # link while extracting another archive member.
+    for target, linkname in links:
+        resolved = (target.parent / linkname).resolve(strict=True)
+        if repo not in resolved.parents or not resolved.is_file():
+            raise ValueError('documentation image link escapes the verified source')
+        target.symlink_to(linkname)
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
     env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
                GIT_AUTHOR_DATE='2000-01-01T00:00:00Z', GIT_COMMITTER_DATE='2000-01-01T00:00:00Z')
@@ -252,7 +272,8 @@ def prepare_archive_workspace(dataset, instance_id, archive, commit_metadata, ou
     proof = {'upstream_commit': row['base_commit'], 'tree': tree,
              'archive_sha256': sha(archive.read_bytes()), 'metadata_sha256': sha(Path(commit_metadata).read_bytes()),
              'method': 'whole Git tree verified; local commit normalized; no upstream history exposed'}
-    return prepare_workspace(dataset, instance_id, repo, output, source_roots, source_proof=proof)
+    return prepare_workspace(dataset, instance_id, repo, output, source_roots, source_proof=proof,
+                             snapshot_profile=snapshot_profile)
 
 
 class SWEbenchSession(RepairSession):
@@ -292,6 +313,20 @@ class SWEbenchSession(RepairSession):
             from .issue_context import issue_evidence
             packet['issue_evidence'] = issue_evidence(self)
         return packet
+
+    def list_sources(self, offset=0, limit=100):
+        self.reserve_tool('list_sources')
+        if type(offset) is not int or offset < 0 or type(limit) is not int or not 1 <= limit <= 100:
+            raise EditRejected('invalid_page_range')
+        paths = sorted(self.files)
+        page = paths[offset:offset + limit]
+        while len(json.dumps(page, ensure_ascii=False)) > 8000 and len(page) > 1:
+            page.pop()
+        return {'files': page, 'total': len(paths),
+                'allowed_paths': [path for path in page if path in self.allowed_paths],
+                'allowed_path_count': len(self.allowed_paths),
+                'allowed_paths_scope': 'Current page only; use pagination to inspect the remaining files.',
+                'next_offset': offset + len(page) if offset + len(page) < len(paths) else None}
 
     def read_test_log(self, attempt=0, offset=0):
         self.reserve_tool('read_test_log')
@@ -633,6 +668,7 @@ def main(argv=None):
     prep.add_argument('--repo', type=Path, required=True)
     prep.add_argument('--output', type=Path, required=True)
     prep.add_argument('--source-root', action='append', default=[])
+    prep.add_argument('--snapshot-profile', choices=['bounded-v1', 'python-repository-v1'], default='bounded-v1')
     arc = sub.add_parser('prepare-archive')
     arc.add_argument('--dataset', type=Path, required=True)
     arc.add_argument('--instance', required=True)
@@ -640,6 +676,7 @@ def main(argv=None):
     arc.add_argument('--commit-metadata', type=Path, required=True)
     arc.add_argument('--output', type=Path, required=True)
     arc.add_argument('--source-root', action='append', default=[])
+    arc.add_argument('--snapshot-profile', choices=['bounded-v1', 'python-repository-v1'], default='bounded-v1')
     exp = sub.add_parser('export')
     exp.add_argument('--workspace', type=Path, required=True)
     exp.add_argument('--agent-output', type=Path, required=True)
@@ -661,10 +698,11 @@ def main(argv=None):
         result = import_dataset(args.input, args.output, dataset_name=args.dataset_name,
                                 revision=args.revision, split=args.split)
     elif args.command == 'prepare':
-        result = prepare_workspace(args.dataset, args.instance, args.repo, args.output, args.source_root)
+        result = prepare_workspace(args.dataset, args.instance, args.repo, args.output, args.source_root,
+                                   snapshot_profile=args.snapshot_profile)
     elif args.command == 'prepare-archive':
         result = prepare_archive_workspace(args.dataset, args.instance, args.archive,
-            args.commit_metadata, args.output, args.source_root)
+            args.commit_metadata, args.output, args.source_root, snapshot_profile=args.snapshot_profile)
     elif args.command == 'export':
         result = export_prediction(args.workspace, args.agent_output, args.output, args.model_label)
         result = {k: v for k, v in result.items() if k != 'model_patch'}

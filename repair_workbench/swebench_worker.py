@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import re
 import sys
+from .snapshot import documentation_link
 
 REQUESTS_NETWORK_POLICY = 'requests-isolated-timeout-v1'
 NETWORK_POLICIES = ('none', 'bridge', REQUESTS_NETWORK_POLICY)
@@ -94,7 +95,8 @@ def parse_source_blobs(raw):
         if not entry:continue
         header, path = entry.split(b'\t', 1)
         mode, kind, oid = header.decode().split()
-        if kind != 'blob' or mode not in ('100644', '100755'):
+        if kind != 'blob' or (mode not in ('100644', '100755')
+                              and not (mode == '120000' and documentation_link(path.decode()))):
             raise ValueError('unsupported image Git entry')
         name = path.decode()
         if name in blobs:

@@ -57,6 +57,27 @@ class IssueContextTests(unittest.TestCase):
         return SWEbenchSession(self.workspace, self.root / f'agent-{self.sequence}',
                                swe_policy=policy, **kwargs)
 
+    def test_large_permission_catalog_is_projected_and_paged_without_widening_authority(self):
+        session = self.session(policy='on_demand')
+        # Synthetic catalog tests prompt size and paging, not repository/model quality.
+        paths = {'package/module_%03d.py' % index for index in range(400)}
+        session.files |= paths
+        session.allowed_paths = frozenset(set(session.allowed_paths) | paths)
+        first = session.list_sources(limit=50)
+        following = session.list_sources(offset=first['next_offset'], limit=50)
+        self.assertLessEqual(len(first['allowed_paths']), 50)
+        self.assertEqual(first['allowed_path_count'], 401)
+        self.assertTrue(set(first['files']).isdisjoint(following['files']))
+        with self.assertRaises(ValueError):
+            session.list_sources(offset=True)
+        model = CaptureIssueModel()
+        result = run_agent(session, model, 'Inspect the public issue.')
+        self.assertEqual(result['stop_reason'], 'agent_finished')
+        self.assertEqual(len(model.payload['allowed_paths']), 32)
+        self.assertTrue(model.payload['allowed_paths_may_be_truncated'])
+        self.assertEqual(model.payload['allowed_path_count'], 401)
+        self.assertEqual(len(session.allowed_paths), 401)
+
     def with_issue(self, issue, *, source=None, sentinels=False):
         row = {**self.row, 'problem_statement': issue}
         if source is not None:

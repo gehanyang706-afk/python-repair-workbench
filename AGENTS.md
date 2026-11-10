@@ -16,6 +16,11 @@
 
 ## 真实任务完善交接（2026-11-10）
 
+- 第二轮交接见docs/real-task-progress-phase23-20261110.md。Django13315仅获一个镜像下载授权并已完成两轮官方资格；xarray未下载。显式python-repository-v1仅省略文档图片链接，完整Git来源绑定仍包含它们，代码/测试链接不能放行。
+- 两个真实完整仓库性能任务为已见dev，上游参考效果和操作方复现程序不计模型能力；SQL的两项原有xfail不能删除或当作全部passed。
+- reproduction.py通过--reproduction显式进入原UGC主诊断图，默认关闭；共享根工具/取消/截止时间，程序输出必须标model_program_output，不作可信评分依据。清理未知或运行期间版本漂移封锁执行器与会话；真实仓库工作负载进入主图仍未完成。
+- WorkloadSpec目前只完成冻结数据契约与开发投影，不是已接线的隐藏性能评分。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
+
 - 路线见docs/real-task-improvement-plan-20261109.md；最新交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；没有新真实模型批次授权。
 - 新评测模型显式固定北京区原生endpoint，其他region未适配。输入/输出预留边界由冻结配置给出，未知usage和落盘错误停批；单批单进程账本不可恢复，不称分布式账单。
 - SWE首次有效提交即结束模型回合，最终评分独立计时、响应取消，submitted不能算passed。当前工具上限仍60、请求上限30，新入口拒绝虚报更高上限。

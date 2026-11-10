@@ -376,6 +376,11 @@ def run_agent(session: RepairSession, model: BaseChatModel, task: str) -> dict:
                 payload['allowed_paths'] = payload['initial_context']['allowed_paths']
                 payload['allowed_path_count'] = len(session.allowed_paths)
                 payload['allowed_paths_may_be_truncated'] = payload['initial_context']['context_truncated']
+            elif getattr(session, 'swebench_enabled', False):
+                payload['allowed_paths'] = sorted(session.allowed_paths)[:32]
+                payload['allowed_path_count'] = len(session.allowed_paths)
+                payload['allowed_paths_may_be_truncated'] = len(session.allowed_paths) > 32
+                payload['source_navigation'] = 'Use paginated list_sources(offset,limit); paths grant no extra permissions.'
             graph_input = {'messages':[{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]}
             if getattr(session, 'diagnostics_enabled', False) and session.use_skills:
                 graph_input['files'] = session.initial_files()

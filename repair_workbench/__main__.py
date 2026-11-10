@@ -92,6 +92,10 @@ def main(argv=None):
     diagnose.add_argument('--investigator', action='store_true', help='允许按需只读调查委派')
     diagnose.add_argument('--max-delegations', type=int, default=1)
     diagnose.add_argument('--diagnostic-transport', choices=('local', 'mcp'), default='local')
+    diagnose.add_argument('--reproduction', action='store_true',
+                          help='允许在同一工具/时间预算内提出和隔离运行基线复现程序')
+    diagnose.add_argument('--max-repro-programs', type=int, default=3)
+    diagnose.add_argument('--max-repro-runs', type=int, default=6)
     diagnose.add_argument('--tool-concurrency', type=int, choices=(1, 2, 3, 4), default=1,
                           help='独立只读工具的图内并发上限；状态工具必须单独调用')
     diagnose.add_argument('--tool-rate-config', type=Path,
@@ -205,6 +209,8 @@ def main(argv=None):
                 use_skills=args.skills, use_investigator=args.investigator,
                 max_delegations=args.max_delegations,
                 diagnostic_transport=args.diagnostic_transport,
+                enable_reproduction=args.reproduction,
+                max_repro_programs=args.max_repro_programs, max_repro_runs=args.max_repro_runs,
                 tool_concurrency=args.tool_concurrency,
                 tool_rate_config=args.tool_rate_config,
                 investigator_max_model_calls=args.investigator_max_model_calls,

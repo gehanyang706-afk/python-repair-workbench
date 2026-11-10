@@ -46,7 +46,15 @@ class DiagnosticSession(RepairSession):
                  investigator_max_model_calls=3, investigator_max_tools=12,
                  investigator_timeout_seconds=30, main_model_reserve=2,
                  main_tool_reserve=4, main_time_reserve_seconds=10,
-                 diagnostic_transport='local', tool_concurrency=1, tool_rate_config=None, **kwargs):
+                 diagnostic_transport='local', tool_concurrency=1, tool_rate_config=None,
+                 enable_reproduction=False, max_repro_programs=3, max_repro_runs=6, **kwargs):
+        if (type(enable_reproduction) is not bool
+                or type(max_repro_programs) is not int or not 1 <= max_repro_programs <= 12
+                or type(max_repro_runs) is not int or not 1 <= max_repro_runs <= 12):
+            raise ValueError('复现工具开关与次数上限无效')
+        self.enable_reproduction = enable_reproduction
+        self.max_repro_programs, self.max_repro_runs = max_repro_programs, max_repro_runs
+        self.reproduction_workspace = None
         if type(tool_concurrency) is not int or not 1 <= tool_concurrency <= 4:
             raise ValueError('tool_concurrency must be an integer in 1..4')
         self.tool_concurrency = tool_concurrency
@@ -192,15 +200,15 @@ class DiagnosticSession(RepairSession):
         if 'map_exporter.py' not in self.files:
             raise ValueError('当前工作负载要求 map_exporter.py')
 
-    def _add_evidence(self, kind, observation, binding):
+    def _add_evidence(self, kind, observation, binding, *, trust='tool_observation'):
         with self.lock:
-            return self._store_evidence(kind, observation, binding)
+            return self._store_evidence(kind, observation, binding, trust=trust)
 
-    def _store_evidence(self, kind, observation, binding):
+    def _store_evidence(self, kind, observation, binding, *, trust='tool_observation'):
         # References prove provenance, not the truth of a model's causal claim.
         identity = f'E{len(self.evidence) + 1:04d}'
         item = {'evidence_ref': identity, 'kind': kind, 'snapshot_id': binding,
-                'observation': observation, 'trust': 'tool_observation'}
+                'observation': observation, 'trust': trust}
         item['sha256'] = hashlib.sha256(json.dumps(item, sort_keys=True,
                                                    ensure_ascii=False).encode()).hexdigest()
         self.evidence[identity] = item
@@ -263,6 +271,12 @@ class DiagnosticSession(RepairSession):
                 'scope': 'Public development workload; no independent answers or reference patch.',
                 'context_truncated': len(self.files) > 100 or len(self.allowed_paths) > 32,
                 'navigation': 'Use list_sources(offset,limit) and read_evidence(ref) for omitted details.'}
+        if self.enable_reproduction:
+            packet['reproduction'] = {
+                'tools': ['propose_reproducer', 'run_reproducer'],
+                'max_programs': self.max_repro_programs, 'max_runs': self.max_repro_runs,
+                'target': 'immutable baseline only', 'network': 'none',
+                'trust': 'model_program_output; execution is not independent acceptance'}
         while len(json.dumps(packet, ensure_ascii=False)) > 12000:
             packet['context_truncated'] = True
             if packet['diagnostic_summaries']:
@@ -276,6 +290,66 @@ class DiagnosticSession(RepairSession):
         self.record('diagnostic_initial_context', characters=len(json.dumps(packet, ensure_ascii=False)),
                     truncated=packet['context_truncated'])
         return packet
+
+    def _reproduction_admission(self, operation):
+        # The public session method charges once before workspace creation. The
+        # executor rechecks cancellation/closure at its own admission boundary.
+        _SessionControl(self).check()
+        if self.final_decision:
+            raise EditRejected('diagnosis_already_concluded')
+
+    def _get_reproduction_workspace(self):
+        if not self.enable_reproduction:
+            raise EditRejected('reproduction_disabled')
+        if self.reproduction_workspace is None:
+            from .reproduction import ReproductionWorkspace
+            self.reproduction_workspace = ReproductionWorkspace(
+                self.baseline, self.output / 'reproduction', self.before['image_id'],
+                max_programs=self.max_repro_programs, max_runs=self.max_repro_runs,
+                execution_control=_SessionControl(self), admit=self._reproduction_admission)
+        return self.reproduction_workspace
+
+    def propose_reproducer(self, code):
+        with self.lock:
+            self.reserve_tool('propose_reproducer')
+            self._reproduction_admission('propose_reproducer')
+            workspace = self._get_reproduction_workspace()
+            result = self.tool_runtime.invoke('local', 'propose_reproducer', {},
+                lambda: workspace.propose_reproducer(code), check=_SessionControl(self).check)
+            self.record('reproducer_proposed', **result)
+            self.save('running')
+            return result
+
+    def run_reproducer(self, reproducer_ref, timeout_seconds=30):
+        with self.lock:
+            self.reserve_tool('run_reproducer')
+            self._reproduction_admission('run_reproducer')
+            workspace = self._get_reproduction_workspace()
+            if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
+                    or not 0 < timeout_seconds <= 60):
+                raise EditRejected('invalid_reproduction_timeout')
+            remaining = self.deadline_seconds - (time.monotonic() - self.started)
+            result = self.tool_runtime.invoke('local', 'run_reproducer',
+                {'reproducer_ref': reproducer_ref},
+                lambda: workspace.run_reproducer(reproducer_ref,
+                    timeout_seconds=min(timeout_seconds, remaining), max_output_bytes=4096),
+                check=_SessionControl(self).check)
+            # Model programs can print forged claims. Preserve that provenance
+            # through read_evidence and never route their JSON into a verifier.
+            observation = {key: value for key, value in result.items()
+                           if key not in {'scope', 'trust'}}
+            ref = self._add_evidence('reproduction_observation', observation,
+                snapshot_id(self.manifest), trust='model_program_output')
+            self.record('reproducer_finished', evidence_ref=ref,
+                        status=result['status'], cleanup_ok=result.get('cleanup_ok', False))
+            if result.get('cleanup_ok') is not True or result.get('input_integrity_ok') is not True:
+                self.diagnostic_stop_reason = ('reproduction_cleanup_unconfirmed'
+                    if result.get('cleanup_ok') is not True else 'reproduction_inputs_changed')
+                self.save('stopped', stop_reason=self.diagnostic_stop_reason)
+                raise BudgetExceeded(self.diagnostic_stop_reason)
+            self.save('running')
+            self.check_budget()
+            return visible_evidence(self.evidence[ref])
 
     def _check_refs(self, evidence_refs):
         if (not isinstance(evidence_refs, list) or len(evidence_refs) > 12
@@ -501,7 +575,11 @@ class DiagnosticSession(RepairSession):
                             diagnostic_progress={key: value for key, value in self.diagnostic_progress.items()
                                                  if key not in {'records', 'processed_rounds'}},
                             diagnostic_options={'skills': self.use_skills,
-                                                'investigator': self.use_investigator},
+                                                'investigator': self.use_investigator,
+                                                'reproduction': self.enable_reproduction},
+                            reproduction_limits={'max_programs': self.max_repro_programs,
+                                                 'max_runs': self.max_repro_runs,
+                                                 'max_output_bytes': 4096},
                             skill_manifest=self.skill_manifest,
                             delegation_count=self.delegation_count,
                             delegation_history=self.delegation_history,

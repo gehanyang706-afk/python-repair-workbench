@@ -1,6 +1,8 @@
 """修复任务的应用状态与受控操作，不依赖模型或 Agent 框架。"""
 from __future__ import annotations
 
+from contextlib import contextmanager
+import hashlib
 import json
 import math
 import secrets
@@ -59,6 +61,9 @@ class RepairSession:
         self.manifest = verify_snapshot(self.baseline)
         self.allowed_paths = frozenset(allowed_paths)
         self.files = {f['path'] for f in self.manifest['files']}
+        self._source_hashes = {f['path']: f['sha256'] for f in self.manifest['files']}
+        self._baseline_id = snapshot_id(self.manifest)
+        self._source_scope = threading.local()
         if not allowed_paths:
             raise ValueError('必须明确批准至少一个源文件')
         for relative in allowed_paths:
@@ -121,7 +126,7 @@ class RepairSession:
         elif tool in {'record_behavior_summary','set_repair_plan','record_hypothesis',
                       'read_evidence','conclude_diagnosis'}:
             category='analysis'
-        elif tool in {'run_probe', 'read_probe_report'}:
+        elif tool in {'run_probe', 'read_probe_report', 'propose_reproducer', 'run_reproducer'}:
             category='diagnostic'
             self.tool_statistics['by_category'].setdefault('diagnostic', {'calls':0,'schema_rejections':0})
         elif tool == 'task':
@@ -181,6 +186,34 @@ class RepairSession:
         self.reserve_tool('read_source')
         return self._read_source(path,start_line,line_count,raw,force)
 
+    def _check_source_snapshot(self):
+        try:
+            if snapshot_id(verify_snapshot(self.baseline)) != self._baseline_id:
+                raise ValueError('baseline manifest changed')
+        except ValueError:
+            raise EditRejected('baseline_version_changed', field='baseline') from None
+        except OSError:
+            raise EditRejected('source_unavailable', field='path') from None
+
+    @contextmanager
+    def _source_read_operation(self):
+        """Check the complete tree at both ends of one bounded source operation.
+
+        Every individual file is still content-checked. Thread-local nesting
+        prevents concurrent read tools from borrowing another tool's checks.
+        Exceptions never return a partially validated search result.
+        """
+        depth = getattr(self._source_scope, 'depth', 0)
+        if not depth:
+            self._check_source_snapshot()
+        self._source_scope.depth = depth + 1
+        try:
+            yield
+            if not depth:
+                self._check_source_snapshot()
+        finally:
+            self._source_scope.depth = depth
+
     def _source_text(self, path):
         if not isinstance(path, str):
             raise EditRejected('invalid_source_path', field='path', expected_type='canonical relative string')
@@ -190,17 +223,18 @@ class RepairSession:
             raise EditRejected('invalid_source_path', field='path', allowed='canonical snapshot-relative path; no traversal')
         if path not in self.files:
             raise EditRejected('path_not_in_baseline', field='path', allowed='paths returned by list_sources')
-        try:
-            verify_snapshot(self.baseline)
-        except ValueError:
-            raise EditRejected('baseline_version_changed', field='baseline') from None
-        except OSError:
-            raise EditRejected('source_unavailable', field='path') from None
+        if not getattr(self._source_scope, 'depth', 0):
+            self._check_source_snapshot()
         target = self.baseline / 'workspace' / path
         try:
+            if target.is_symlink():
+                raise EditRejected('baseline_version_changed', field='baseline')
             if target.stat().st_size > 1024 * 1024:
                 raise EditRejected('source_too_large', field='path', allowed={'max_bytes':1024*1024})
-            return target.read_bytes().decode('utf-8')
+            data = target.read_bytes()
+            if hashlib.sha256(data).hexdigest() != self._source_hashes[path]:
+                raise EditRejected('baseline_version_changed', field='baseline')
+            return data.decode('utf-8')
         except UnicodeError:
             raise EditRejected('source_not_utf8', field='path', allowed='UTF-8 source') from None
         except OSError:
@@ -272,6 +306,10 @@ class RepairSession:
         self.reserve_tool('search_source')
         if not isinstance(query,str) or not 1 <= len(query) <= 160 or '\n' in query:
             raise EditRejected('invalid_literal_search',field='query',allowed={'characters':[1,160],'newlines':False})
+        with self._source_read_operation():
+            return self._search_source(query, path)
+
+    def _search_source(self, query, path):
         if path is not None:
             self._source_text(path)
         hits=[];truncated=False;skipped=0

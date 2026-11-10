@@ -249,7 +249,7 @@ def investigation_context(session, description):
     upstream = []
     for ref in request['evidence_refs']:
         item = session.evidence[ref]
-        packet = {k: item[k] for k in ('evidence_ref', 'kind', 'snapshot_id', 'sha256')}
+        packet = {k: item[k] for k in ('evidence_ref', 'kind', 'snapshot_id', 'sha256', 'trust')}
         observed = item['observation']
         packet['observation'] = {k: observed[k] for k in ('path', 'start_line', 'status', 'probe', 'content_sha256')
                                  if k in observed}

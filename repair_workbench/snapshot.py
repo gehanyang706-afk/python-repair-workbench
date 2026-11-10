@@ -7,6 +7,21 @@ import subprocess
 from pathlib import Path, PurePosixPath
 
 
+def snapshot_limits(profile='bounded-v1'):
+    if profile == 'bounded-v1':
+        return 2000, 20 * 1024 * 1024
+    if profile == 'python-repository-v1':
+        return 10000, 64 * 1024 * 1024
+    raise ValueError('unknown snapshot profile')
+
+
+def documentation_link(relative):
+    """Only non-code documentation images may be omitted, never followed."""
+    path = PurePosixPath(relative)
+    return (path.parts[0:1] == ('docs',) and path.suffix.lower() in {'.png', '.svg', '.jpg', '.gif'}
+            and not path.is_absolute() and '..' not in path.parts and '\\' not in relative)
+
+
 def git(repo: Path, *args: str) -> bytes:
     """用参数列表调用 Git；不经过 Shell，也不改全局 Git 配置。"""
     return subprocess.run(
@@ -14,7 +29,7 @@ def git(repo: Path, *args: str) -> bytes:
     ).stdout
 
 
-def create_snapshot(repo: Path, destination: Path, revision: str = "HEAD") -> dict:
+def create_snapshot(repo: Path, destination: Path, revision: str = "HEAD", *, profile='bounded-v1') -> dict:
     """输入提交，输出 workspace/ 与 manifest.json；目标目录必须不存在。
 
     用 Git 对象里的内容，而不是 shutil.copytree(repo)：后者会把未提交改动、
@@ -22,6 +37,7 @@ def create_snapshot(repo: Path, destination: Path, revision: str = "HEAD") -> di
     快照只接受普通文件，拒绝符号链接和子模块，不自动跟随它们读取外部内容。
     """
     repo = repo.resolve(strict=True)
+    max_files, max_bytes = snapshot_limits(profile)
     destination = destination.resolve()
     if destination == repo or repo in destination.parents:
         raise ValueError("快照目录必须位于原项目之外")
@@ -41,12 +57,15 @@ def create_snapshot(repo: Path, destination: Path, revision: str = "HEAD") -> di
                or part.startswith(".env") for part in path.parts):
             omitted.append(relative)
             continue
+        if profile == 'python-repository-v1' and kind == 'blob' and mode == '120000' and documentation_link(relative):
+            omitted.append(relative)
+            continue
         if mode not in {"100644", "100755"} or kind != "blob":
             raise ValueError(f"不支持符号链接或子模块：{relative}")
         size = int(git(repo, "cat-file", "-s", oid))
         total_size += size
-        if len(files) >= 2000 or total_size > 20 * 1024 * 1024:
-            raise ValueError("快照限制为 2000 个文件、总计 20 MiB")
+        if len(files) >= max_files or total_size > max_bytes:
+            raise ValueError(f"snapshot exceeds {profile} file/byte limits")
         files.append((relative, mode, oid))
 
     # 所有路径检查完以后才建立目录；任何异常都不碰原项目。
@@ -54,6 +73,9 @@ def create_snapshot(repo: Path, destination: Path, revision: str = "HEAD") -> di
     workspace = destination / "workspace"
     workspace.mkdir()
     manifest = {"source_repo": str(repo), "commit": commit, "files": [], "omitted": omitted}
+    if profile != 'bounded-v1':
+        manifest['snapshot_profile'] = profile
+        manifest['omission_policy'] = 'Non-code documentation image symlinks omitted; never followed; all source/test regular files retained.'
     for relative, mode, oid in files:
         content = git(repo, "cat-file", "blob", oid)
         target = workspace / relative

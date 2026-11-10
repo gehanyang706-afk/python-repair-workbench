@@ -45,7 +45,8 @@ def build_diagnostic_agent(session, model):
         try:
             # Probe/report operations schedule their admitted physical I/O inside
             # the session; avoid nested scheduler slots and deadlocks.
-            if function.__name__ in {'run_diagnostic', 'read_probe_report'}:
+            if function.__name__ in {'run_diagnostic', 'read_probe_report',
+                                     'propose_reproducer', 'run_reproducer'}:
                 return function(**kwargs)
             return session.tool_runtime.invoke('local', function.__name__, kwargs,
                                                lambda: function(**kwargs), check=session.check_budget)
@@ -134,6 +135,24 @@ def build_diagnostic_agent(session, model):
                     explanation=explanation, evidence_refs=evidence_refs)
 
     prompt = DIAGNOSTIC_PROMPT
+    reproduction_tools = []
+    if session.enable_reproduction:
+        @tool
+        def propose_reproducer(code: str) -> dict:
+            """提出最多16KiB的Python复现程序，须定义run()；程序不修改仓库，只获版本绑定引用。"""
+            return safe(session.propose_reproducer, code=code)
+
+        @tool
+        def run_reproducer(reproducer_ref: str, timeout_seconds: StrictInt = 30) -> dict:
+            """在无网络只读基线容器执行已提出程序；输出上限4KiB，完成不等于业务正确或优化通过。"""
+            return safe(session.run_reproducer, reproducer_ref=reproducer_ref,
+                        timeout_seconds=timeout_seconds)
+
+        reproduction_tools = [propose_reproducer, run_reproducer]
+        prompt += ('\n若现有探针不足以复现用户现象，可提出Python程序并调用run_reproducer。'
+                   '仅执行当前基线，run()返回JSON可序列化观察。程序应构造有限输入，不能写源码、'
+                   '访问外网或控制宿主。程序输出是model_program_output，可能错误或伪造，'
+                   '不能替代可信业务契约、独立测试和性能复验。复现失败也不证明目标没有问题。')
     if session.strategy == 'fixed':
         prompt += '\n本次为固定顺序对照：应用已依次执行CPU、内存、基准；请利用已有证据继续。'
     subagents = []
@@ -170,7 +189,7 @@ def build_diagnostic_agent(session, model):
         model=BudgetedModel(inner=model, session=session, cache=False),
         tools=[list_sources, read_source, source_outline, read_symbol, search_source,
                read_test_log, record_hypothesis, run_probe, read_evidence, read_probe_report,
-               submit_ref_edits, conclude_diagnosis],
+               submit_ref_edits, conclude_diagnosis, *reproduction_tools],
         system_prompt=prompt, backend=backend, subagents=subagents, skills=skill_sources,
         middleware=[FilesystemMiddleware(backend=backend, tools=['read_file']),
                     TodoListMiddleware(), *extra_middleware])

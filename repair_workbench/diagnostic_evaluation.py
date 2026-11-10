@@ -319,10 +319,16 @@ def _verify_run(plan, row, directory, baseline, task):
     audit = _audit_module().audit_run(root, directory / 'provenance.json')
     result = _json(root / 'result.json')
     common = plan['common']
+    options = result.get('diagnostic_options')
+    # Historical receipts predate reproduction tools. Missing means disabled;
+    # an enabled/new mechanism must never enter the fixed offline comparator.
+    options_disabled = (type(options) is dict
+        and set(options) in ({'skills', 'investigator'}, {'skills', 'investigator', 'reproduction'})
+        and all(value is False for value in options.values()))
     _require(result.get('baseline_id') == baseline_id and result.get('diagnostic_strategy') == row['condition']
              and result.get('diagnostic_transport') == common['diagnostic_transport']
              and result.get('diagnostic_workload') == common['workload']
-             and result.get('diagnostic_options') == {'skills': False, 'investigator': False}
+             and options_disabled
              and result.get('allowed_paths') == task['allowed_paths'], 'run_configuration_mismatch')
     _require(result.get('limits') == {'attempts': common['max_attempts'], 'model_calls': common['max_model_calls'],
                                      'deadline_seconds': common['deadline_seconds']}
