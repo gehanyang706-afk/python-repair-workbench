@@ -46,6 +46,34 @@ def make(data=None, **kwargs):
 
 
 class WorkloadContractTests(unittest.TestCase):
+    def test_microbenchmark_iterations_are_explicit_bounded_and_final_case_bound(self):
+        data = contract(); data['measurement']['batch_iterations_by_case'] = {'final-1': 1000}
+        self.assertEqual(make(data).as_dict()['measurement']['batch_iterations_by_case'], {'final-1': 1000})
+        for value in ({'unknown': 1000}, {'final-1': True}, {'final-1': 10001}):
+            data['measurement']['batch_iterations_by_case'] = value
+            with self.subTest(value=value), self.assertRaises(ValueError): make(data)
+    def test_parameterized_nodeid_is_literal_even_with_sql_syntax_and_escapes(self):
+        data = contract()
+        identity = r'tests/test_format.py::test_sql[foo\\bar::SELECT * FROM ?]'
+        data['original_tests']['nodeids'].append(identity)
+        spec = make(data)
+        self.assertIn(identity, spec.as_dict()['original_tests']['nodeids'])
+        for invalid in ('tests/*.py::test_a', 'tests/a.py::*', '../tests/a.py::test_a'):
+            changed = contract(); changed['original_tests']['nodeids'].append(invalid)
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError): make(changed)
+    def test_known_original_xpass_is_explicit_and_new_xpass_is_not_silently_accepted(self):
+        data = contract()
+        identity = 'tests/test_format.py::test_original_non_strict_xpass'
+        data['original_tests']['nodeids'].append(identity)
+        data['original_tests']['expected_xpass'] = [identity]
+        spec = make(data)
+        outcomes = {key: 'xfailed' if key in data['original_tests']['expected_xfail'] else
+                    'xpassed' if key == identity else 'passed' for key in data['original_tests']['nodeids']}
+        self.assertTrue(spec.original_test_result(outcomes)['accepted'])
+        outcomes['tests/test_format.py::test_comments'] = 'xpassed'
+        self.assertFalse(spec.original_test_result(outcomes)['accepted'])
+        data['original_tests']['expected_xpass'] = list(data['original_tests']['expected_xfail'])
+        with self.assertRaises(ValueError): make(data)
     def test_speed_and_memory_goals_are_independently_explicit(self):
         for goal in ('speed', 'memory'):
             with self.subTest(goal=goal):

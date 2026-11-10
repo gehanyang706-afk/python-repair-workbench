@@ -87,7 +87,8 @@ class BudgetedModel(BaseChatModel):
             known = {'list_sources', 'read_source', 'read_test_log', 'submit_candidate',
                      'submit_edits', 'submit_ref_edits', 'read_file', 'write_todos',
                      'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary',
-                     'record_hypothesis', 'run_probe', 'read_evidence', 'conclude_diagnosis', 'task'}
+                     'record_hypothesis', 'run_probe', 'read_evidence', 'conclude_diagnosis', 'task',
+                     'propose_reproducer', 'run_reproducer'}
             reason = message.response_metadata.get('finish_reason')
             if reason not in {'stop', 'length', 'tool_calls', 'function_call', 'content_filter', 'null', None}:
                 reason = 'other'
@@ -340,6 +341,23 @@ old_text 必须在已返回的源码中且在整个基线文件中唯一；多�
             '提交接口只做权限、版本、语法检查和独立重建，不执行官方测试。'
             '收到 submitted 即表示最终补丁已收存，必须停止；它不表示测试通过。'
             '预检拒绝可在候选预算内纠正，提交成功后不再基于官方反馈迭代。')
+        if session.enable_reproduction:
+            @tool
+            def propose_reproducer(code: str) -> dict:
+                """提出独立Python复现程序，定义run()并返回JSON观察；程序仅在受限容器内执行，不修改源码。"""
+                return safe_call(session.propose_reproducer, code=code)
+
+            @tool
+            def run_reproducer(reproducer_ref: str, timeout_seconds: StrictInt = 30) -> dict:
+                """在冻结公开基线上执行已登记的复现程序；最多60秒。观察不是官方验收，也不运行最终候选。"""
+                return safe_call(session.run_reproducer, reproducer_ref=reproducer_ref,
+                                 timeout_seconds=timeout_seconds)
+
+            business_tools += [propose_reproducer, run_reproducer]
+            prompt += ('\n可在最终提交前用propose_reproducer登记独立Python程序，再用run_reproducer检验假设。'
+                '程序须定义run()并返回JSON观察；可调用公开API或原仓库已有公开测试，不可访问官方测试补丁或评分。'
+                '程序始终运行在原始基线，不能据此宣称候选通过；输出标记为model_program_output，'
+                '由模型程序生成，可能错误或伪造，不构成可信验收。复现与其失败均计共享工具/时间预算。')
 
     # 单独的模型包装器名称限定 profile 作用范围，不覆盖其他模型的配置。
     register_harness_profile('repair-workbench:bounded', HarnessProfile(

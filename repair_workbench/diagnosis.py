@@ -144,6 +144,8 @@ class DiagnosticSession(RepairSession):
         self.save('running')
 
     def check_budget(self):
+        if self.reproduction_workspace is not None and self.reproduction_workspace.blocked_reason:
+            self.diagnostic_stop_reason = self.reproduction_workspace.blocked_reason
         super().check_budget()
         if self.diagnostic_stop_reason:
             raise BudgetExceeded(self.diagnostic_stop_reason)
@@ -329,11 +331,17 @@ class DiagnosticSession(RepairSession):
                     or not 0 < timeout_seconds <= 60):
                 raise EditRejected('invalid_reproduction_timeout')
             remaining = self.deadline_seconds - (time.monotonic() - self.started)
-            result = self.tool_runtime.invoke('local', 'run_reproducer',
-                {'reproducer_ref': reproducer_ref},
-                lambda: workspace.run_reproducer(reproducer_ref,
-                    timeout_seconds=min(timeout_seconds, remaining), max_output_bytes=4096),
-                check=_SessionControl(self).check)
+            try:
+                result = self.tool_runtime.invoke('local', 'run_reproducer',
+                    {'reproducer_ref': reproducer_ref},
+                    lambda: workspace.run_reproducer(reproducer_ref,
+                        timeout_seconds=min(timeout_seconds, remaining), max_output_bytes=4096),
+                    check=_SessionControl(self).check)
+            finally:
+                if workspace.cleanup_ok is not True:
+                    self.diagnostic_stop_reason = 'reproduction_cleanup_unconfirmed'
+                elif workspace.blocked_reason:
+                    self.diagnostic_stop_reason = workspace.blocked_reason
             # Model programs can print forged claims. Preserve that provenance
             # through read_evidence and never route their JSON into a verifier.
             observation = {key: value for key, value in result.items()

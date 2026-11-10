@@ -127,11 +127,17 @@ def _test_ids(values, name, *, empty=False):
     seen = set()
     for value in values:
         _require(type(value) is str and 1 <= len(value) <= 1024 and value not in seen
-                 and not any(c in value for c in ('\n', '\r', '\x00', '*', '?')), f'invalid {name}')
-        parts = value.split('::')
-        path = PurePosixPath(parts[0])
-        _require(len(parts) >= 2 and all(parts) and not path.is_absolute() and '..' not in path.parts
-                 and '\\' not in value and path.as_posix() == parts[0] and parts[0].endswith('.py'),
+                 and not any(c in value for c in ('\n', '\r', '\x00')), f'invalid {name}')
+        filename, separator, identity = value.partition('::')
+        path = PurePosixPath(filename)
+        qualified, parameter, suffix = identity.partition('[')
+        # Parameter IDs are exact literal keys and can contain backslashes,
+        # SQL wildcard characters or '::'. They never grant path permissions.
+        _require(bool(separator) and not path.is_absolute() and '..' not in path.parts
+                 and not any(c in filename for c in ('\\', '*', '?'))
+                 and path.as_posix() == filename and filename.endswith('.py')
+                 and re.fullmatch(r'[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*', qualified)
+                 and (not parameter or identity.endswith(']')),
                  f'{name} requires exact pytest node ids')
         seen.add(value)
     return seen
@@ -163,8 +169,20 @@ def _validate(data, adapters, checkers):
     _number(thresholds['max_relative_noise'], 0, 1, 'max_relative_noise', low_open=True)
 
     measurement = data['measurement']
-    _fields(measurement, {'order', 'warmups', 'repeats', 'timeout_seconds', 'image_id',
-                           'cpus', 'memory_limit_bytes', 'time_metric', 'memory_metric'}, 'measurement')
+    required_measurement = {'order', 'warmups', 'repeats', 'timeout_seconds', 'image_id',
+                            'cpus', 'memory_limit_bytes', 'time_metric', 'memory_metric'}
+    _require(type(measurement) is dict and required_measurement <= set(measurement)
+             <= required_measurement | {'batch_iterations', 'gc_policy', 'warmup_seconds', 'cpu_affinity',
+                                         'batch_iterations_by_case'}, 'invalid measurement fields')
+    _require(type(measurement.get('batch_iterations', 1)) is int
+             and 1 <= measurement.get('batch_iterations', 1) <= 100,
+             'invalid timing batch iterations')
+    _require(measurement.get('gc_policy', 'unmodified') in ('unmodified', 'collect_before_sample'),
+             'invalid GC policy')
+    _number(measurement.get('warmup_seconds', 0), 0, 5, 'minimum warmup duration')
+    affinity = measurement.get('cpu_affinity')
+    _require(affinity is None or type(affinity) is str and re.fullmatch(r'[0-9]{1,2}', affinity),
+             'invalid single CPU affinity')
     _require(measurement['order'] == ['baseline', 'candidate', 'candidate', 'baseline'], 'ABBA order required')
     for key, low, high in (('warmups', 1, 10), ('repeats', 3, 100), ('memory_limit_bytes', 64 * 1024**2, 64 * 1024**3)):
         _require(type(measurement[key]) is int and low <= measurement[key] <= high, f'invalid {key}')
@@ -205,15 +223,24 @@ def _validate(data, adapters, checkers):
         seen.add(identity)
 
     tests = data['original_tests']
-    _fields(tests, {'suite_sha256', 'nodeids', 'expected_xfail'}, 'original_tests')
+    _require(type(tests) is dict and set(tests) in (
+        {'suite_sha256', 'nodeids', 'expected_xfail'},
+        {'suite_sha256', 'nodeids', 'expected_xfail', 'expected_xpass'}), 'invalid original_tests fields')
     _sha(tests['suite_sha256'], 'original suite hash')
     nodeids = _test_ids(tests['nodeids'], 'original test list')
     xfails = _test_ids(tests['expected_xfail'], 'expected xfail list', empty=True)
     _require(xfails <= nodeids, 'expected xfail must name an original test')
+    xpasses = _test_ids(tests.get('expected_xpass', []), 'expected xpass list', empty=True)
+    _require(xpasses <= nodeids and not xpasses & xfails,
+             'expected xpass must name a separate original test')
     development = _input_set(data['development_inputs'], 'development inputs')
     final = _input_set(data['final_inputs'], 'final inputs')
     _require(not development[0] & final[0] and not development[1] & final[1],
              'exploration and final input identities overlap')
+    iterations = measurement.get('batch_iterations_by_case', {})
+    _require(type(iterations) is dict and set(iterations) <= final[0]
+             and all(type(v) is int and 1 <= v <= 10000 for v in iterations.values()),
+             'invalid final-case timing iterations')
 
 
 @dataclass(frozen=True, init=False)
@@ -246,10 +273,12 @@ class WorkloadSpec:
                  'test outcomes must map exact node ids to explicit statuses')
         tests = self.as_dict()['original_tests']
         declared, xfails = set(tests['nodeids']), set(tests['expected_xfail'])
+        xpasses = set(tests.get('expected_xpass', []))
         missing, unexpected = sorted(declared - outcomes.keys()), sorted(outcomes.keys() - declared)
-        mismatched = {key: {'expected': 'xfailed' if key in xfails else 'passed', 'actual': outcomes[key]}
+        expected = lambda key: 'xfailed' if key in xfails else 'xpassed' if key in xpasses else 'passed'
+        mismatched = {key: {'expected': expected(key), 'actual': outcomes[key]}
                       for key in sorted(declared & outcomes.keys())
-                      if outcomes[key] != ('xfailed' if key in xfails else 'passed')}
+                      if outcomes[key] != expected(key)}
         return {'accepted': not (missing or unexpected or mismatched), 'missing': missing,
                 'unexpected': unexpected, 'mismatched': mismatched}
 

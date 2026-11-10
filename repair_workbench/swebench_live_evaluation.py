@@ -99,9 +99,22 @@ class SWEbenchExecutor:
         if config.get('implementation') != source_fingerprint():
             raise ValueError('SWE_implementation_or_dependency_drift')
         settings = config.get("swebench")
-        if (type(settings) is not dict or set(settings) != {
-                "harness_python", "network_policy", "evaluation_timeout_seconds", "model_label"}):
+        required_settings = {"harness_python", "network_policy", "evaluation_timeout_seconds", "model_label"}
+        if (type(settings) is not dict or not required_settings <= set(settings)
+                <= required_settings | {"reproduction"}):
             raise ValueError("invalid_SWE_shared_settings")
+        if 'reproduction' in settings:
+            reproduction = settings['reproduction']
+            if (type(reproduction) is not dict or set(reproduction) != {'enabled', 'max_programs', 'max_runs'}
+                    or type(reproduction['enabled']) is not bool
+                    or any(type(reproduction[key]) is not int or not 1 <= reproduction[key] <= 12
+                           for key in ('max_programs', 'max_runs'))):
+                raise ValueError('invalid_SWE_reproduction_settings')
+            declared = set(config.get('tools', []))
+            names = {'propose_reproducer', 'run_reproducer'}
+            if ((reproduction['enabled'] and not names <= declared)
+                    or (not reproduction['enabled'] and names & declared)):
+                raise ValueError('SWE_reproduction_tools_not_matching_frozen_switch')
         timeout = settings["evaluation_timeout_seconds"]
         if type(timeout) is not int or not 1 <= timeout <= 3600:
             raise ValueError("invalid_SWE_evaluation_timeout")
@@ -186,26 +199,49 @@ class SWEbenchExecutor:
                 return False
 
             receipt["phase"] = "agent"
+            reproduction = settings.get('reproduction', {'enabled': False})
+            reproduction_kwargs = {}
+            if reproduction['enabled']:
+                reproduction_kwargs = {'enable_reproduction': True,
+                    'max_repro_programs': reproduction['max_programs'], 'max_repro_runs': reproduction['max_runs']}
+                # A public experiment can own a container now. Fail closed if
+                # the Agent exits unexpectedly without its cleanup receipt.
+                receipt['cleanup_ok'] = False
             agent_output = ctx.output / "agent"
             result = adapter.run_qualified_agent(binding["workspace"], agent_output, model,
                 binding["qualification"], swe_policy=ctx.policy,
                 max_attempts=limits["max_attempts"], max_model_calls=limits["requests_per_run"],
                 deadline_seconds=ctx.remaining_seconds(), cancellation_check=control,
-                event_sink=lambda event: ctx.emit("agent_event", receipt=event))
+                event_sink=lambda event: ctx.emit("agent_event", receipt=event), **reproduction_kwargs)
             receipt.update(agent_status=result.get("status"), agent_stop_reason=result.get("stop_reason"))
+            public = None
+            if reproduction['enabled']:
+                public = result.get('swe_reproduction')
+                receipt['cleanup_ok'] = (type(public) is dict and public.get('enabled') is True
+                    and public.get('cleanup_ok') is True
+                    and public.get('image_id') == binding['qualification_receipt']['image_id']
+                    and public.get('runtime_profile') == 'swebench-testbed-v1')
             ctx.emit("agent_finished", **{key: receipt[key] for key in ("agent_status", "agent_stop_reason")})
             try:
                 ctx.check()  # Also fence drift on no-submission and budget-stop exits.
             except BudgetExceeded as exc:
                 if str(exc) != 'run_deadline':
                     raise
+                if type(public) is dict and public.get('stop_reason') == 'reproduction_inputs_changed':
+                    raise ValueError('SWE_public_reproduction_input_drift') from exc
                 # check() validates frozen identity before its phase deadline.
-                # The Agent owns no running container here; return its cleanup
-                # receipt so the batch can retain a local stop and advance.
-                return {'outcome': 'inconclusive', 'cleanup_ok': True, 'reason': 'run_deadline',
+                # Public experiments must have confirmed cleanup before a
+                # local stop can advance to the next variant.
+                return {'outcome': 'inconclusive', 'cleanup_ok': receipt['cleanup_ok'], 'reason': 'run_deadline',
                         'agent_stop_reason': result.get('stop_reason'), 'agent_result': 'agent/result.json'}
+            if reproduction['enabled']:
+                if not receipt['cleanup_ok']:
+                    return {'outcome': 'inconclusive', 'cleanup_ok': False,
+                            'reason': 'public_reproduction_cleanup_or_binding_unconfirmed'}
+                if public.get('stop_reason') == 'reproduction_inputs_changed':
+                    raise ValueError('SWE_public_reproduction_input_drift')
             if result.get("status") != "submitted":
-                return {"outcome": "failed", "cleanup_ok": True, "reason": "no_final_submission",
+                return {"outcome": "failed", "cleanup_ok": receipt['cleanup_ok'], "reason": "no_final_submission",
                         "agent_stop_reason": result.get("stop_reason"), "agent_result": "agent/result.json"}
             prediction_path = ctx.output / "predictions.jsonl"
             prediction = adapter.export_prediction(binding["workspace"], agent_output,

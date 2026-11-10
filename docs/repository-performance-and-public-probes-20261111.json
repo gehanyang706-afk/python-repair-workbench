@@ -1,0 +1,407 @@
+{
+  "date": "2026-11-11",
+  "status": "engineering acceptance complete; real-repository diagnostic graph still pending",
+  "real_model_calls": 0,
+  "previous_live_batch_reused": false,
+  "full_regression": {
+    "total": 687,
+    "passed": 671,
+    "skipped_mysql": 16,
+    "failed": 0,
+    "seconds": 147.099,
+    "path": "runtime/repository-and-swe-full-regression-20261111-v2.log",
+    "sha256": "0bf0d3275ba041ee0da097e52e46a3c16f935ffefcbc6888954693fcaa9ae003"
+  },
+  "wheel_delivery": {
+    "datasets": [
+      {
+        "dataset": "bugsinpy-derived-v1",
+        "tasks": 2,
+        "sha256": "ed27bfbe0aed98aa5a9d0d1f4a520c0ab45df2009163f440fea61be9cd3231eb"
+      },
+      {
+        "dataset": "cross-project-v1",
+        "tasks": 2,
+        "sha256": "4734629af8b6f5bab9953a089e257c7fa6251925d163d099a892795974ed8708"
+      },
+      {
+        "dataset": "delivery-heldout-v1",
+        "tasks": 2,
+        "sha256": "1dfdd11805005b8fab95d1b17e64d5a599084be30e6775ae11db42f19be83301"
+      },
+      {
+        "dataset": "generalization-v1",
+        "tasks": 2,
+        "sha256": "53cc892a79ea4848a8dbb7f5c505cc7b3bcfa7516dd36b0df97d24a886995e27"
+      },
+      {
+        "dataset": "real-bugs-v1",
+        "tasks": 4,
+        "sha256": "469fb897059715fc53a849459c9c1366cf4a038acba720a28ad95e9802de33fc"
+      },
+      {
+        "dataset": "ugc-diagnostics-dev-v1",
+        "tasks": 4,
+        "sha256": "2302915b4d2fa0951b22fa9347eb0076c268c6191736ab84588b98249c1f7e14",
+        "split": "dev",
+        "synthetic": true,
+        "public": true,
+        "independent_evaluation": false,
+        "verified_files": 12
+      }
+    ],
+    "real_model_calls": 0,
+    "wheel": {
+      "sha256": "cf6af4cfc9e1a9713f3924d5bfb2989ab0854a92fc7f057cf3d95082fc80f2c0",
+      "verified_files": 67
+    }
+  },
+  "reference_control_scope": "exposed dev repositories; trusted reference and deliberate verifier negative control; not Agent performance",
+  "physical_controls": {
+    "control-first": {
+      "summary": {
+        "status": "passed",
+        "reason": "original_tests_semantics_and_resource_targets_met",
+        "real_model_calls": 0,
+        "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+        "scheduled": 16,
+        "states": {
+          "not_run": 0,
+          "running": 0,
+          "completed": 16,
+          "inconclusive": 0,
+          "stopped": 0,
+          "error": 0
+        },
+        "original_tests": {
+          "baseline": "tests_passed",
+          "candidate": "tests_passed"
+        },
+        "seconds": 65.19163749995641,
+        "scope": "exposed historical reference; independent final-runner engineering control, not LLM performance"
+      },
+      "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+      "exact_original_test_states": {
+        "baseline": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        },
+        "candidate": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        }
+      },
+      "result_sha256": "0b15407c9031052c5e5bfd0cd86f04f076cfc06d810254ab93c22c82d1552fb0",
+      "implementation_archive": "postrun hash verified against each pre-run record; 11 implementation files; no full dependency archive claim",
+      "cases": {
+        "final-target": {
+          "role": "target",
+          "time_ratio": 0.049747348011890874,
+          "benchmark_medians": {
+            "baseline": 0.18437380148333332,
+            "candidate": 0.009172107666666665
+          },
+          "benchmark_relative_spread": {
+            "baseline": 0.0711745795466839,
+            "candidate": 0.07349167619525318
+          },
+          "memory_ratio": 0.997136462736052,
+          "memory_medians": {
+            "baseline": 276581.0,
+            "candidate": 275789.0
+          },
+          "memory_relative_spread": {
+            "baseline": 0.00023139695062206008,
+            "candidate": 0.0
+          }
+        },
+        "final-guard": {
+          "role": "guardrail",
+          "time_ratio": 0.9431764817246654,
+          "benchmark_medians": {
+            "baseline": 0.008400974299999999,
+            "candidate": 0.007923601383333333
+          },
+          "benchmark_relative_spread": {
+            "baseline": 0.2126289447165668,
+            "candidate": 0.04260303495033421
+          },
+          "memory_ratio": 1.0,
+          "memory_medians": {
+            "baseline": 187487.0,
+            "candidate": 187487.0
+          },
+          "memory_relative_spread": {
+            "baseline": 0.0,
+            "candidate": 0.0
+          }
+        }
+      }
+    },
+    "negative-first": {
+      "summary": {
+        "status": "failed",
+        "reason": "candidate_original_tests_rejected",
+        "real_model_calls": 0,
+        "measurement_runs_completed": 0,
+        "not_run": 16,
+        "original_tests": {
+          "baseline": {
+            "status": "tests_passed",
+            "cleanup_ok": true,
+            "counts": {
+              "total": 499,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 2,
+              "passed": 497
+            }
+          },
+          "candidate": {
+            "status": "tests_failed",
+            "cleanup_ok": true,
+            "counts": {
+              "total": 499,
+              "failed": 98,
+              "errors": 0,
+              "skipped": 2,
+              "passed": 399
+            }
+          }
+        },
+        "seconds": 3.504764625104144,
+        "scope": "verifier negative control, not model performance"
+      },
+      "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+      "exact_original_test_states": {
+        "baseline": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        },
+        "candidate": {
+          "passed": 398,
+          "failed": 98,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        }
+      },
+      "result_sha256": "f7c29d947e01e2467ee1ff0a069ada04722bf0b4adbec28f2789b4cc7e267e54",
+      "implementation_archive": "postrun hash verified against each pre-run record; 11 implementation files; no full dependency archive claim"
+    },
+    "control-v2": {
+      "summary": {
+        "status": "passed",
+        "reason": "original_tests_semantics_and_resource_targets_met",
+        "real_model_calls": 0,
+        "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+        "scheduled": 16,
+        "states": {
+          "not_run": 0,
+          "running": 0,
+          "completed": 16,
+          "inconclusive": 0,
+          "stopped": 0,
+          "error": 0
+        },
+        "original_tests": {
+          "baseline": "tests_passed",
+          "candidate": "tests_passed"
+        },
+        "seconds": 63.40771825006232,
+        "scope": "exposed historical reference; independent final-runner engineering control, not LLM performance"
+      },
+      "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+      "exact_original_test_states": {
+        "baseline": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        },
+        "candidate": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        }
+      },
+      "result_sha256": "cc82f60f9d3173951e229d8c94fcba6a95bb8e0667d2ae4c53daa46983119803",
+      "implementation_archive": "postrun hash verified against each pre-run record; 11 implementation files; no full dependency archive claim",
+      "cases": {
+        "final-target": {
+          "role": "target",
+          "time_ratio": 0.048064039515495864,
+          "benchmark_medians": {
+            "baseline": 0.183131398,
+            "candidate": 0.00880203475
+          },
+          "benchmark_relative_spread": {
+            "baseline": 0.025220097247696822,
+            "candidate": 0.05684844253388868
+          },
+          "memory_ratio": 0.997136462736052,
+          "memory_medians": {
+            "baseline": 276581.0,
+            "candidate": 275789.0
+          },
+          "memory_relative_spread": {
+            "baseline": 0.00023139695062206008,
+            "candidate": 0.0
+          }
+        },
+        "final-guard": {
+          "role": "guardrail",
+          "time_ratio": 0.9883316680528093,
+          "benchmark_medians": {
+            "baseline": 0.008000820833333333,
+            "candidate": 0.0079074646
+          },
+          "benchmark_relative_spread": {
+            "baseline": 0.03574633227736527,
+            "candidate": 0.04730568969814508
+          },
+          "memory_ratio": 1.0,
+          "memory_medians": {
+            "baseline": 187487.0,
+            "candidate": 187487.0
+          },
+          "memory_relative_spread": {
+            "baseline": 0.0,
+            "candidate": 0.0
+          }
+        }
+      }
+    },
+    "negative-v2": {
+      "summary": {
+        "status": "failed",
+        "reason": "candidate_original_tests_rejected",
+        "real_model_calls": 0,
+        "measurement_runs_completed": 0,
+        "not_run": 16,
+        "original_tests": {
+          "baseline": {
+            "status": "tests_passed",
+            "cleanup_ok": true,
+            "counts": {
+              "total": 499,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 2,
+              "passed": 497
+            }
+          },
+          "candidate": {
+            "status": "tests_failed",
+            "cleanup_ok": true,
+            "counts": {
+              "total": 499,
+              "failed": 98,
+              "errors": 0,
+              "skipped": 2,
+              "passed": 399
+            }
+          }
+        },
+        "seconds": 2.942473500035703,
+        "scope": "verifier negative control, not model performance"
+      },
+      "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+      "exact_original_test_states": {
+        "baseline": {
+          "passed": 496,
+          "failed": 0,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        },
+        "candidate": {
+          "passed": 398,
+          "failed": 98,
+          "error": 0,
+          "skipped": 0,
+          "xfailed": 2,
+          "xpassed": 1
+        }
+      },
+      "result_sha256": "44ee2af91decb3fb40898a670b76a75241f3839131f4453c189151317e510e8c",
+      "implementation_archive": "postrun hash verified against each pre-run record; 11 implementation files; no full dependency archive claim"
+    }
+  },
+  "artifact_sha256": {
+    "runtime/repository-final-control-20261111-first/contract.json": "5845ece5c1638a47a40ae546e7338c04933999cfb3a86c0dc71176576adb7486",
+    "runtime/repository-final-control-20261111-first/plan.json": "90eb7d2a589f22075728ad91de4222e675f50b1f501f85d915c8881c28cda090",
+    "runtime/repository-final-control-20261111-first/summary.json": "e6120d3d34e299d81fd92d1ad1a612c3e66db2d306c0054cfdf58a22cc1b9200",
+    "runtime/repository-final-control-20261111-first/independent-evaluation/result.json": "0b15407c9031052c5e5bfd0cd86f04f076cfc06d810254ab93c22c82d1552fb0",
+    "runtime/repository-final-control-20261111-first/postrun-verified-implementation/receipt.json": "7d9e80ceff58836043966805a33a1d891369a74f3e7ee2f80698cea78431e131",
+    "runtime/repository-final-negative-20261111-first/contract.json": "5845ece5c1638a47a40ae546e7338c04933999cfb3a86c0dc71176576adb7486",
+    "runtime/repository-final-negative-20261111-first/plan.json": "56bb020a514df5031f0ec217dc529b5107e75386b569b0648a81d4de985317e0",
+    "runtime/repository-final-negative-20261111-first/summary.json": "ddcc14b7a7330c9dd00c7a3ab558edc8cb19b0254f85ac520fdf48ce83661bba",
+    "runtime/repository-final-negative-20261111-first/independent-evaluation/result.json": "f7c29d947e01e2467ee1ff0a069ada04722bf0b4adbec28f2789b4cc7e267e54",
+    "runtime/repository-final-negative-20261111-first/postrun-verified-implementation/receipt.json": "7d9e80ceff58836043966805a33a1d891369a74f3e7ee2f80698cea78431e131",
+    "runtime/repository-final-control-20261111-v2/contract.json": "5845ece5c1638a47a40ae546e7338c04933999cfb3a86c0dc71176576adb7486",
+    "runtime/repository-final-control-20261111-v2/plan.json": "51f9fccdea238ed310bbd5c31ba8b3777b306cc78777ae98a79bb6c481fbfa23",
+    "runtime/repository-final-control-20261111-v2/summary.json": "7f330d720ae04339f8b78be06e6248e8d6ae29c30ea69489952298d65a02aa2a",
+    "runtime/repository-final-control-20261111-v2/independent-evaluation/result.json": "cc82f60f9d3173951e229d8c94fcba6a95bb8e0667d2ae4c53daa46983119803",
+    "runtime/repository-final-control-20261111-v2/postrun-verified-implementation/receipt.json": "7551e040fdb5f283c539f2039ed9f930b31bd87a80813e96586f3fc2d7353750",
+    "runtime/repository-final-negative-20261111-v2/contract.json": "5845ece5c1638a47a40ae546e7338c04933999cfb3a86c0dc71176576adb7486",
+    "runtime/repository-final-negative-20261111-v2/plan.json": "a190c8a83c6fdbe3561e0d44d4666dd407985e6f6f9035aae3c765fb08d50f0c",
+    "runtime/repository-final-negative-20261111-v2/summary.json": "415938120d4e308f3c7f3307ee3dacccea4583659160fb0899b22751e2b2e926",
+    "runtime/repository-final-negative-20261111-v2/independent-evaluation/result.json": "44ee2af91decb3fb40898a670b76a75241f3839131f4453c189151317e510e8c",
+    "runtime/repository-final-negative-20261111-v2/postrun-verified-implementation/receipt.json": "7551e040fdb5f283c539f2039ed9f930b31bd87a80813e96586f3fc2d7353750",
+    "runtime/swe-public-reproduction-django-20261111-v1/qualification-summary.json": "fefef052d08b06afb4d191c282eb23c4602d128b794fa13b104db5a57d548b44",
+    "runtime/repository-final-regression-20261111-v5.log": "4dd50ac4a25ef18248a81119786e0266ea469fc5d12b687aa2ae2031f4ab651a",
+    "runtime/swe-reproduction-fail-closed-red-20261111.log": "4fc3b04c44be73b9a96ddb564ee5e45dc2f13d62f5a7eb8728f1ad2514cb35cc",
+    "runtime/swe-reproduction-fail-closed-green-20261111-v2.log": "6b4716cd9c869a451be3a4da8e76334a107bf3b46b32589cf8a89304ec0f551a",
+    "runtime/repository-final-crlf-red-20261111.log": "afa299d4c886c6e06cf404ddab92228900fdec5846a9f79323304915712bbb8b",
+    "runtime/repository-and-swe-full-regression-20261111-first.log": "2c337b6de7b0d1f15dd932b7235c7a98cdf4494cfd4a6e31767fac447039ea77"
+  },
+  "django_public_runtime_qualification": {
+    "real_model_calls": 0,
+    "official_evaluations": 0,
+    "tool_calls": 2,
+    "snapshot_ref": "de824c7c1a7e5f1e23d560e1415c735eed844e10eec6e2c155b66acc34d31e7a",
+    "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+    "runtime_profile": "swebench-testbed-v1",
+    "observation": {
+      "python": "/opt/miniconda3/envs/testbed/bin/python",
+      "django_file": "/workspace/django/__init__.py",
+      "django_version": "3.2",
+      "testbed_entries": [],
+      "testbed_git_visible": false,
+      "workspace_git_visible": false
+    },
+    "cleanup_ok": true,
+    "input_integrity_ok": true,
+    "trust": "model_program_output",
+    "scope": "runtime/source isolation qualification only; not a bug repair or model success"
+  },
+  "not_supported": [
+    "real-repository Agent graph",
+    "public CPU probe",
+    "public candidate iteration",
+    "MCP repository case protocol",
+    "healthy-task final scoring",
+    "formal unseen performance set",
+    "real-model fixed/adaptive benefit"
+  ]
+}

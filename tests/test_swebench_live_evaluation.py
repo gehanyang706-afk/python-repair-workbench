@@ -134,6 +134,58 @@ class SWEBatchTests(unittest.TestCase):
             report = self.run_plan(score=checked_score, current_config=current)
         self.assertEqual([row['outcome'] for row in report['rows']], ['passed', 'passed'])
 
+    def enable_public_reproduction(self):
+        self.config['swebench']['reproduction'] = {'enabled': True, 'max_programs': 2, 'max_runs': 4}
+        self.config['tools'] += ['propose_reproducer', 'run_reproducer']
+
+    def public_agent_receipt(self, *, cleanup=True):
+        return {'status': 'inconclusive', 'swe_reproduction': {'enabled': True, 'cleanup_ok': cleanup,
+            'image_id': IMAGE, 'runtime_profile': 'swebench-testbed-v1', 'stop_reason': None}}
+
+    def test_public_reproduction_uses_frozen_limits_and_cleanup_receipts(self):
+        self.enable_public_reproduction()
+        def clean(*args, **kwargs):
+            self.assertTrue(kwargs['enable_reproduction'])
+            self.assertEqual(kwargs['max_repro_programs'], 2)
+            self.assertEqual(kwargs['max_repro_runs'], 4)
+            return self.public_agent_receipt()
+        with patch.object(adapter, 'run_qualified_agent', side_effect=clean):
+            report = self.run_plan()
+        self.score_mock.assert_not_called()
+        self.assertIsNone(report['stop_reason'])
+        self.assertEqual([row['state'] for row in report['rows']], ['completed', 'completed'])
+
+    def test_public_reproduction_unconfirmed_cleanup_stops_remaining_variant(self):
+        self.enable_public_reproduction()
+        with patch.object(adapter, 'run_qualified_agent', return_value=self.public_agent_receipt(cleanup=False)):
+            report = self.run_plan()
+        self.score_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'container_cleanup_unconfirmed')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
+
+    def test_public_reproduction_missing_receipt_cannot_assume_no_container(self):
+        self.enable_public_reproduction()
+        with patch.object(adapter, 'run_qualified_agent', return_value={'status': 'inconclusive'}):
+            report = self.run_plan()
+        self.score_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'container_cleanup_unconfirmed')
+
+    def test_public_reproduction_input_drift_stops_even_with_cleaned_container(self):
+        self.enable_public_reproduction()
+        result = self.public_agent_receipt()
+        result['swe_reproduction']['stop_reason'] = 'reproduction_inputs_changed'
+        with patch.object(adapter, 'run_qualified_agent', return_value=result):
+            report = self.run_plan()
+        self.score_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'ValueError')
+        self.assertEqual(report['rows'][1]['state'], 'not_run')
+
+    def test_public_reproduction_tools_must_be_in_the_frozen_configuration(self):
+        self.config['swebench']['reproduction'] = {'enabled': True, 'max_programs': 2, 'max_runs': 4}
+        report = self.run_plan()
+        self.provider_mock.assert_not_called()
+        self.assertEqual(report['stop_reason'], 'ValueError')
+
     def test_drift_after_agent_without_submission_stops_before_next_variant(self):
         def changed_agent(*args, **kwargs):
             self.qualification.joinpath('qualification.json').write_text('{}')

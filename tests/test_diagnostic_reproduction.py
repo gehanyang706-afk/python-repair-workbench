@@ -99,6 +99,7 @@ class DiagnosticReproductionTests(unittest.TestCase):
         session = self.session(enable_reproduction=True)
         with patch('repair_workbench.reproduction.ReproductionWorkspace') as factory:
             manager = factory.return_value
+            manager.blocked_reason, manager.cleanup_ok = None, True
             manager.propose_reproducer.return_value = {'reproducer_ref': 'rp-fixed'}
             manager.run_reproducer.return_value = {
                 'status': 'completed', 'cleanup_ok': True, 'input_integrity_ok': True,
@@ -125,6 +126,7 @@ class DiagnosticReproductionTests(unittest.TestCase):
     def test_unconfirmed_cleanup_or_input_drift_stops_all_session_tools(self):
         session = self.session(enable_reproduction=True)
         with patch('repair_workbench.reproduction.ReproductionWorkspace') as factory:
+            factory.return_value.blocked_reason, factory.return_value.cleanup_ok = None, True
             factory.return_value.run_reproducer.return_value = {
                 'status': 'cleanup_unconfirmed', 'cleanup_ok': False,
                 'input_integrity_ok': True, 'observation': 1}
@@ -139,6 +141,7 @@ class DiagnosticReproductionTests(unittest.TestCase):
     def test_execution_time_input_drift_stops_session_before_any_edit(self):
         session = self.session(enable_reproduction=True)
         with patch('repair_workbench.reproduction.ReproductionWorkspace') as factory:
+            factory.return_value.blocked_reason, factory.return_value.cleanup_ok = None, True
             factory.return_value.run_reproducer.return_value = {
                 'status': 'input_changed', 'cleanup_ok': True, 'input_integrity_ok': False}
             with self.assertRaisesRegex(BudgetExceeded, 'reproduction_inputs_changed'):

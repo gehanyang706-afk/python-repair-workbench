@@ -26,6 +26,14 @@ from .snapshot import snapshot_id, verify_snapshot
 from .session import BudgetExceeded
 
 
+RUNTIME_PROFILES = {
+    'standalone-v1': ('python', ()),
+    # Official Python SWE images keep their clean checkout, including .git,
+    # under /testbed. Reproduction sees only our mounted, frozen source tree.
+    'swebench-testbed-v1': ('/opt/miniconda3/envs/testbed/bin/python', ('/testbed',)),
+}
+
+
 def _hash(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -48,12 +56,15 @@ class ReproductionWorkspace:
     model is loaded here. The eventual Agent tools must wire both explicitly.
     """
     def __init__(self, snapshot, output, image, *, max_programs=3, max_runs=6,
-                 execution_control=None, admit=None):
+                 execution_control=None, admit=None, runtime_profile='standalone-v1'):
         for value in (max_programs, max_runs):
             if type(value) is not int or not 1 <= value <= 12:
                 raise ValueError('reproduction counts must be integers in 1..12')
         if admit is not None and not callable(admit):
             raise ValueError('admission callback must be callable')
+        if type(runtime_profile) is not str or runtime_profile not in RUNTIME_PROFILES:
+            raise ValueError('unsupported reproduction runtime profile')
+        self.runtime_profile = runtime_profile
         self.snapshot, self.output = Path(snapshot).resolve(strict=True), Path(output).resolve()
         self.manifest = verify_snapshot(self.snapshot)
         self.snapshot_ref = snapshot_id(self.manifest)
@@ -66,6 +77,7 @@ class ReproductionWorkspace:
         self.control, self.admit = execution_control, admit
         self.programs, self.proposals, self.runs = {}, 0, 0
         self.blocked_reason = None
+        self.cleanup_ok = True
         self._lock = threading.RLock()
         self.output.mkdir(parents=True, exist_ok=False, mode=0o700)
         self.wrapper_path = self.output / '_worker.py'
@@ -78,8 +90,10 @@ class ReproductionWorkspace:
         _atomic_write(self.output / 'workspace.json', {
             'snapshot_ref': self.snapshot_ref, 'programs': self.programs,
             'image_id': self.image_id, 'wrapper_sha256': self.wrapper_hash,
+            'runtime_profile': self.runtime_profile,
             'proposals': self.proposals, 'runs': self.runs,
             'blocked_reason': self.blocked_reason,
+            'cleanup_ok': self.cleanup_ok,
             'limits': {'max_programs': self.max_programs, 'max_runs': self.max_runs}})
 
     def _check(self, operation):
@@ -92,14 +106,22 @@ class ReproductionWorkspace:
         self._verify_inputs()
 
     def _verify_inputs(self, program=None, program_hash=None):
-        if snapshot_id(verify_snapshot(self.snapshot)) != self.snapshot_ref:
-            raise ValueError('reproduction_snapshot_changed')
-        if _hash(Path(reproduction_worker.__file__).read_bytes()) != self.wrapper_hash:
-            raise ValueError('reproduction_wrapper_changed')
-        if self.wrapper_path.is_symlink() or _hash(self.wrapper_path.read_bytes()) != self.wrapper_hash:
-            raise ValueError('reproduction_wrapper_changed')
-        if program is not None and (program.is_symlink() or _hash(program.read_bytes()) != program_hash):
-            raise ValueError('reproducer_program_changed')
+        try:
+            if snapshot_id(verify_snapshot(self.snapshot)) != self.snapshot_ref:
+                raise ValueError('reproduction_snapshot_changed')
+            if _hash(Path(reproduction_worker.__file__).read_bytes()) != self.wrapper_hash:
+                raise ValueError('reproduction_wrapper_changed')
+            if self.wrapper_path.is_symlink() or _hash(self.wrapper_path.read_bytes()) != self.wrapper_hash:
+                raise ValueError('reproduction_wrapper_changed')
+            if program is not None and (program.is_symlink() or _hash(program.read_bytes()) != program_hash):
+                raise ValueError('reproducer_program_changed')
+        except (OSError, ValueError):
+            # Pre-launch checks can fail before run's finally exists. Persist
+            # the integrity stop here, so callers cannot recover by just
+            # treating the exception as a rejected argument.
+            self.blocked_reason = 'reproduction_inputs_changed'
+            self._save()
+            raise
 
     def propose_reproducer(self, code):
         with self._lock:
@@ -116,7 +138,8 @@ class ReproductionWorkspace:
             if not any(isinstance(n, ast.FunctionDef) and n.name == 'run' for n in parsed.body):
                 raise ValueError('reproducer must define run()')
             digest = _hash(code.encode())
-            ref = 'rp-' + _hash((self.snapshot_ref + self.image_id + self.wrapper_hash + digest).encode())[:32]
+            ref = 'rp-' + _hash((self.snapshot_ref + self.image_id + self.wrapper_hash
+                                + self.runtime_profile + digest).encode())[:32]
             if ref not in self.programs:
                 path = self.output / ref
                 path.mkdir(mode=0o700)
@@ -125,6 +148,7 @@ class ReproductionWorkspace:
                 self.programs[ref] = {'code_sha256': digest, 'snapshot_ref': self.snapshot_ref}
                 self._save()
             return {'reproducer_ref': ref, **self.programs[ref],
+                    'runtime_profile': self.runtime_profile,
                     'scope': 'proposed program; behavior must be independently checked'}
 
     def run_reproducer(self, reproducer_ref, *, timeout_seconds=30, max_output_bytes=65536):
@@ -143,6 +167,7 @@ class ReproductionWorkspace:
             program_hash = self.programs[reproducer_ref]['code_sha256']
             self._verify_inputs(program, program_hash)
             self.runs += 1
+            self.cleanup_ok = False  # Remains false if cleanup itself is interrupted.
             self._save()
             output = self.output / ('run-%02d' % self.runs)
             output.mkdir()
@@ -152,6 +177,7 @@ class ReproductionWorkspace:
                       'reproducer_ref': reproducer_ref, 'snapshot_ref': self.snapshot_ref,
                       'code_sha256': self.programs[reproducer_ref]['code_sha256'],
                       'image_id': self.image_id, 'wrapper_sha256': self.wrapper_hash,
+                      'runtime_profile': self.runtime_profile,
                       'trust': 'model_program_output',
                       'scope': 'untrusted reproduction observation; not an independent verdict'}
             process, data = None, bytearray()
@@ -167,15 +193,19 @@ class ReproductionWorkspace:
                 if time.monotonic() - started >= timeout_seconds:
                     result['status'] = 'timeout'
                     return result
+                python, masked_paths = RUNTIME_PROFILES[self.runtime_profile]
+                masks = [arg for path in masked_paths
+                         for arg in ('--tmpfs', path + ':rw,nosuid,nodev,size=1m')]
                 command = ['docker', 'run', '--pull', 'never', '--name', name, '--network', 'none',
                     '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
                     '--user', f'{os.getuid()}:{os.getgid()}', '--memory', '256m', '--cpus', '1',
                     '--pids-limit', '64', '--tmpfs', '/tmp:rw,nosuid,nodev,size=32m',
+                    *masks,
                     '--mount', f'type=bind,src={self.snapshot / "workspace"},dst=/workspace,readonly',
                     '--mount', f'type=bind,src={program},dst=/reproducer/program.py,readonly',
                     '--mount', f'type=bind,src={wrapper},dst=/trusted/worker.py,readonly',
                     '--workdir', '/workspace', '--env', 'PYTHONDONTWRITEBYTECODE=1',
-                    '--env', 'HOME=/tmp', '--entrypoint', 'python', self.image_id, '-I', '/trusted/worker.py']
+                    '--env', 'HOME=/tmp', '--entrypoint', python, self.image_id, '-I', '/trusted/worker.py']
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                            start_new_session=True)
                 with selectors.DefaultSelector() as selector:
@@ -230,6 +260,8 @@ class ReproductionWorkspace:
                     result['cleanup_ok'] = check.returncode != 0 and 'no such' in check.stderr.lower()
                 except (OSError, subprocess.SubprocessError) as exc:
                     result['cleanup_error_type'] = type(exc).__name__
+                self.cleanup_ok = result['cleanup_ok']
+                self._save()
                 try:
                     self._verify_inputs(program, program_hash)
                     result['input_integrity_ok'] = True

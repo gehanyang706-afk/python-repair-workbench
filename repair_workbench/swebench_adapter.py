@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -280,10 +281,25 @@ class SWEbenchSession(RepairSession):
     swebench_enabled = True
     candidate_evaluation_is_docker = False
 
-    def __init__(self, workspace, output, *, swe_policy='on_demand', **kwargs):
+    def __init__(self, workspace, output, *, swe_policy='on_demand', enable_reproduction=False,
+                 reproduction_image=None, max_repro_programs=3, max_repro_runs=6, **kwargs):
         if not isinstance(swe_policy, str) or swe_policy not in {'on_demand', 'issue_evidence'}:
             raise ValueError('SWE policy must be on_demand or issue_evidence')
         self.swe_policy = swe_policy
+        if (type(enable_reproduction) is not bool
+                or type(max_repro_programs) is not int or not 1 <= max_repro_programs <= 12
+                or type(max_repro_runs) is not int or not 1 <= max_repro_runs <= 12):
+            raise ValueError('invalid SWE reproduction switch or limits')
+        if enable_reproduction:
+            if type(reproduction_image) is not str or not re.fullmatch('sha256:[a-f0-9]{64}', reproduction_image):
+                raise ValueError('SWE reproduction requires a qualified immutable image')
+        elif reproduction_image is not None:
+            raise ValueError('reproduction image requires explicit enablement')
+        self.enable_reproduction = enable_reproduction
+        self.reproduction_image = reproduction_image
+        self.max_repro_programs, self.max_repro_runs = max_repro_programs, max_repro_runs
+        self.reproduction_workspace = None
+        self.reproduction_stop_reason = None
         self.issue_context_stats = None
         self.submitted_number = None
         self.workspace = Path(workspace).resolve(strict=True)
@@ -300,8 +316,12 @@ class SWEbenchSession(RepairSession):
             raise ValueError('issue-only baseline required; benchmark tests must remain private')
 
     def check_budget(self):
+        if self.reproduction_workspace is not None and self.reproduction_workspace.blocked_reason:
+            self.reproduction_stop_reason = self.reproduction_workspace.blocked_reason
         if self.submitted_number is not None:
             raise BudgetExceeded('candidate_submitted')
+        if self.reproduction_stop_reason is not None:
+            raise BudgetExceeded(self.reproduction_stop_reason)
         super().check_budget()
 
     def initial_context(self):
@@ -312,7 +332,77 @@ class SWEbenchSession(RepairSession):
         if self.swe_policy == 'issue_evidence':
             from .issue_context import issue_evidence
             packet['issue_evidence'] = issue_evidence(self)
+        if self.enable_reproduction:
+            packet['reproduction'] = {
+                'tools': ['propose_reproducer', 'run_reproducer'],
+                'max_programs': self.max_repro_programs, 'max_runs': self.max_repro_runs,
+                'target': 'immutable public baseline only', 'network': 'none',
+                'runtime_profile': 'swebench-testbed-v1',
+                'trust': 'model_program_output; not an independent verdict',
+                'contract': 'Python code must define run() and return a JSON-serializable observation. '
+                            'Only base sources and existing public tests are available; no official acceptance feedback.',
+            }
         return packet
+
+    def _check_reproduction(self):
+        self.check_budget()
+        if self.execution_control is not None:
+            self.execution_control.check()
+
+    def _get_reproduction_workspace(self):
+        if not self.enable_reproduction:
+            raise EditRejected('reproduction_disabled')
+        if self.reproduction_workspace is None:
+            from .reproduction import ReproductionWorkspace
+
+            class Control:
+                def check(control):
+                    self._check_reproduction()
+
+            self.reproduction_workspace = ReproductionWorkspace(
+                self.baseline, self.output / 'reproduction', self.reproduction_image,
+                max_programs=self.max_repro_programs, max_runs=self.max_repro_runs,
+                execution_control=Control(), admit=lambda operation: self._check_reproduction(),
+                runtime_profile='swebench-testbed-v1')
+        return self.reproduction_workspace
+
+    def propose_reproducer(self, code):
+        with self.lock:
+            self.reserve_tool('propose_reproducer')
+            result = self._get_reproduction_workspace().propose_reproducer(code)
+            self.record('reproducer_proposed', **result)
+            self.save('running')
+            return result
+
+    def run_reproducer(self, reproducer_ref, timeout_seconds=30):
+        with self.lock:
+            self.reserve_tool('run_reproducer')
+            if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
+                    or not 0 < timeout_seconds <= 60):
+                raise EditRejected('invalid_reproduction_timeout')
+            workspace = self._get_reproduction_workspace()
+            remaining = self.deadline_seconds - (time.monotonic() - self.started)
+            try:
+                result = workspace.run_reproducer(reproducer_ref,
+                    timeout_seconds=min(timeout_seconds, remaining), max_output_bytes=4096)
+            finally:
+                if workspace.cleanup_ok is not True:
+                    self.reproduction_stop_reason = 'reproduction_cleanup_unconfirmed'
+                elif workspace.blocked_reason is not None:
+                    self.reproduction_stop_reason = workspace.blocked_reason
+            self.record('reproducer_finished', reproducer_ref=reproducer_ref,
+                        status=result['status'], cleanup_ok=result.get('cleanup_ok', False),
+                        trust='model_program_output')
+            if result.get('cleanup_ok') is not True or result.get('input_integrity_ok') is not True:
+                self.reproduction_stop_reason = ('reproduction_cleanup_unconfirmed'
+                    if result.get('cleanup_ok') is not True else 'reproduction_inputs_changed')
+                self.save('stopped', stop_reason=self.reproduction_stop_reason)
+                raise BudgetExceeded(self.reproduction_stop_reason)
+            self.save('running')
+            self.check_budget()
+            # Preserve the executor's outer provenance even when the program
+            # claims success or forges a nested trust/status field.
+            return result
 
     def list_sources(self, offset=0, limit=100):
         self.reserve_tool('list_sources')
@@ -352,6 +442,16 @@ class SWEbenchSession(RepairSession):
                      issue_context_stats=self.issue_context_stats)
         if self.submitted_number is not None:
             extra['patch'] = 'attempt-%02d/verification/patch.diff' % self.submitted_number
+        if self.enable_reproduction:
+            extra['swe_reproduction'] = {
+                'enabled': True, 'runtime_profile': 'swebench-testbed-v1',
+                'image_id': self.reproduction_image, 'max_programs': self.max_repro_programs,
+                'max_runs': self.max_repro_runs, 'stop_reason': self.reproduction_stop_reason,
+                'workspace': 'reproduction/workspace.json' if self.reproduction_workspace is not None else None,
+                'cleanup_ok': (self.reproduction_workspace is None
+                               or self.reproduction_workspace.cleanup_ok is True),
+                'trust': 'model_program_output; not official acceptance',
+            }
         return super().save(state, **extra)
 
 
@@ -383,11 +483,16 @@ def validate_qualification(workspace, qualification):
             'qualification_sha256': sha((qualification / 'qualification.json').read_bytes())}
 
 
-def run_qualified_agent(workspace, output, model, qualification, **limits):
+def run_qualified_agent(workspace, output, model, qualification, *, enable_reproduction=False,
+                        max_repro_programs=3, max_repro_runs=6, **limits):
     """Application entry: failed/mismatched environment never reaches the model."""
     checked = validate_qualification(workspace, qualification)
+    if 'reproduction_image' in limits:
+        raise ValueError('reproduction image is owned by environment qualification')
     from .agent import run_agent
-    session = SWEbenchSession(workspace, output, **limits)
+    session = SWEbenchSession(workspace, output, enable_reproduction=enable_reproduction,
+        reproduction_image=checked['image_id'] if enable_reproduction else None,
+        max_repro_programs=max_repro_programs, max_repro_runs=max_repro_runs, **limits)
     session.record('swebench_qualification_checked',
                    qualification_sha256=checked['qualification_sha256'],
                    image_id=checked['image_id'], execution_policy=checked['execution_policy'])

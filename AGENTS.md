@@ -14,14 +14,19 @@
 - 单元测试：`.venv/bin/python -m unittest discover -s tests -v`。
 - Docker 集成测试：`RUN_DOCKER_TESTS=1 .venv/bin/python -m unittest discover -s tests -v`；使用已存在的本地镜像，不自动下载。
 
-## 真实任务完善交接（2026-11-10）
+## 真实任务完善交接（2026-11-11）
+
+- 最新工程交接见docs/repository-performance-and-public-probes-20261111.md/json。已合入隔离候选的参数化测量/精确原测试回执/评分，新增repository_performance独立重建验收与CLI；调用方冻结spec与修改权限，最终回执不得来自模型。只支持当前注册构造器、1CPU256MiB/Python traced/canonical JSON；RSS/额外oracle等未实现不能贴标签。
+- 本轮真实模型调用0。SQL已见dev的参考源差异在新独立入口通过两份原测试及16/16探针；故意错误format控制98项原测试失败、16项探针not_run。这些是验收器工程资格，不是Agent成绩。more-itertools旧噪声inconclusive不覆盖、不降门槛。仍未接入真实仓库诊断主图和正式性能最终集。
+- SWE复现默认关闭；开启时使用资格same image与固定swebench-testbed-v1，指定conda Python并遮蔽/testbed。复现仅原始公开基线，模型输出始终model_program_output，不能获取官方test patch/验收日志或试跑最终候选。swebench.reproduction及两工具须一起冻结，缺少清理回执/清理未知/输入漂移停止剩余批次。实际Django只读探针通过，不是修复成绩。
+- 高频轮询继续使用轻量control；原测试与最终评分的完整性/版本门不能削弱。原测试必须status=tests_passed、cleanup确认且精确名单匹配；包括预登记XFAIL/XPASS。评分前后都做fence，候选源文件按原始UTF-8字节重建，不能read_text隐式归一化CRLF。
 
 - 最新实测见docs/swebench-qwen-max-pilot-20261110.md/json。用户明确批准清单6163d23ec5e6f1f2d9538b1b91cf72a50387780be12d8b79fedadee6dd9060dc，已执行结束：Django13315 R1→R0各1次，8真实请求、45,806 Token、2提交、官方均unresolved，F2P各0/1、P2P各146/146。194,194剩余批预算不能追加调用；无未知usage，不晋升R1，不称提升。旧源码/数据/配置89文件已在run/frozen-inputs逐hash归档，原始评测不得回写。
 - Batch/RunContext的execution_control仅作高频取消/墙钟/账本检查；check()仍作完整冻结验证，模型预留前、Agent后含无提交、导出/评分边界与行完成保留full gate。不得把liveness存活等同身份验证；漂移在下一受保护动作前拦截，不保证每次轮询即时检测。搜索前后完整树检查及逐文件哈希仍保留，局部推理截止需清理回执才可推进。
 - 第二轮交接见docs/real-task-progress-phase23-20261110.md。Django13315仅获一个镜像下载授权并已完成两轮官方资格；xarray未下载。显式python-repository-v1仅省略文档图片链接，完整Git来源绑定仍包含它们，代码/测试链接不能放行。
 - 两个真实完整仓库性能任务为已见dev，上游参考效果和操作方复现程序不计模型能力；SQL的两项原有xfail不能删除或当作全部passed。
 - reproduction.py通过--reproduction显式进入原UGC主诊断图，默认关闭；共享根工具/取消/截止时间，程序输出必须标model_program_output，不作可信评分依据。清理未知或运行期间版本漂移封锁执行器与会话；真实仓库工作负载进入主图仍未完成。
-- WorkloadSpec目前只完成冻结数据契约与开发投影，不是已接线的隐藏性能评分。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
+- WorkloadSpec已接入独立仓库验收器，开发投影排除最终输入；真实仓库主图与最终提交接线仍未完成。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
 
 - 路线见docs/real-task-improvement-plan-20261109.md；基础交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；本次精确授权已执行完毕，后续新批次重新冻结范围和预算。
 - 新评测模型显式固定北京区原生endpoint，其他region未适配。输入/输出预留边界由冻结配置给出，未知usage和落盘错误停批；单批单进程账本不可恢复，不称分布式账单。
