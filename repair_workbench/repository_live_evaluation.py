@@ -28,6 +28,7 @@ from .workload_contract import WorkloadSpec
 _TOOLS = {'list_sources', 'read_source', 'source_outline', 'read_symbol', 'search_source', 'read_test_log',
           'record_hypothesis', 'run_probe', 'read_evidence', 'read_probe_report', 'submit_ref_edits',
           'conclude_diagnosis', 'read_file', 'write_todos'}
+_PREVIEW_TOOLS = {'preview_ref_edits', 'run_preview_probe', 'finalize_preview'}
 _PRIVATE = {'baseline', 'contract', 'contract_sha256', 'qualification'}
 _QUALIFICATION = {'schema_version', 'contract_sha256', 'baseline_ref', 'image_id', 'implementation_sha256',
                   'positive_execution', 'positive_result', 'positive_implementation', 'negative_result',
@@ -151,11 +152,15 @@ class RepositoryEvaluationExecutor:
         if config.get('implementation') != implementation:
             raise ValueError('repository_implementation_or_dependency_drift')
         settings = config.get('repository_diagnostic')
-        if (type(settings) is not dict or set(settings) != {'enable_reproduction', 'test_pids_limit'}
+        required = {'enable_reproduction', 'test_pids_limit'}
+        if (type(settings) is not dict or not required <= set(settings) <= required | {'enable_candidate_preview'}
                 or type(settings['enable_reproduction']) is not bool
+                or type(settings.get('enable_candidate_preview', False)) is not bool
                 or type(settings['test_pids_limit']) is not int or not 64 <= settings['test_pids_limit'] <= 256):
             raise ValueError('invalid_repository_diagnostic_settings')
         tools = _TOOLS | ({'propose_reproducer', 'run_reproducer'} if settings['enable_reproduction'] else set())
+        if settings.get('enable_candidate_preview', False):
+            tools |= _PREVIEW_TOOLS
         if set(config['tools']) != tools:
             raise ValueError('repository_frozen_toolset_mismatch')
         limits = config['limits']
@@ -231,6 +236,7 @@ class RepositoryEvaluationExecutor:
                 max_model_calls=limits['requests_per_run'], max_probe_runs=limits['max_probe_runs'],
                 deadline_seconds=ctx.remaining_seconds(), final_seconds=math.ceil(limits['final_evaluation_seconds']),
                 enable_reproduction=settings['enable_reproduction'], test_pids_limit=settings['test_pids_limit'],
+                enable_candidate_preview=settings.get('enable_candidate_preview', False),
                 execution_control=ctx.execution_control(), identity_check=ctx.check,
                 on_final_submission=ctx.begin_evaluation, event_sink=lambda event: ctx.emit('agent_event', receipt=event))
             receipt.update(phase='completed', cleanup_ok=result.get('cleanup_ok') is True,

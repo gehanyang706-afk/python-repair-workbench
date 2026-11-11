@@ -119,14 +119,14 @@ class RepairSession:
                 self.event_sink(entry)
 
     def record_tool_statistic(self, tool, *, schema_error=False):
-        if tool in {'submit_ref_edits','submit_edits','submit_candidate'}:
+        if tool in {'submit_ref_edits','submit_edits','submit_candidate','preview_ref_edits','finalize_preview'}:
             category='edit'
         elif tool in {'read_source','read_test_log','list_sources','source_outline','read_symbol','search_source'}:
             category='read_search'
         elif tool in {'record_behavior_summary','set_repair_plan','record_hypothesis',
                       'read_evidence','conclude_diagnosis'}:
             category='analysis'
-        elif tool in {'run_probe', 'read_probe_report', 'propose_reproducer', 'run_reproducer'}:
+        elif tool in {'run_probe', 'run_preview_probe', 'read_probe_report', 'propose_reproducer', 'run_reproducer'}:
             category='diagnostic'
             self.tool_statistics['by_category'].setdefault('diagnostic', {'calls':0,'schema_rejections':0})
         elif tool == 'task':
@@ -538,7 +538,7 @@ class RepairSession:
                     self.durability.candidate_verified(number, root / 'verification', verdict)
                 if verdict['status'] == 'submitted':
                     attempt['next_action'] = 'Final patch staged. Stop; official acceptance runs outside the Agent loop.'
-                elif verdict['status'] != 'passed':
+                elif verdict['status'] != 'passed' and 'next_action' not in verdict:
                     log = root / 'verification/reports/pytest.log'
                     if log.exists():
                         with log.open('rb') as stream:

@@ -285,13 +285,14 @@ def _run_cpu_probe(snapshot, destination, image_id, job, *, timeout_seconds, exe
 class RepositoryProbeWorkspace:
     """One owned public baseline, bounded physical probes and immutable reports."""
     def __init__(self, snapshot, output, image, development_workload, *, max_runs=6,
-                 execution_control=None, admit=None, sampling=None):
+                 execution_control=None, admit=None, sampling=None, physical_admit=None):
         self.development_workload = validate_development_workload(development_workload)
         self.public_workload_sha256 = _hash(self.development_workload)
         self.sampling = _sampling(sampling)
         self.sampling_sha256 = _hash(self.sampling)
         _require(type(max_runs) is int and 1 <= max_runs <= 64, 'invalid_public_probe_run_limit')
         _require(admit is None or callable(admit), 'invalid_public_probe_admission')
+        _require(physical_admit is None or callable(physical_admit), 'invalid_public_probe_physical_admission')
         self.snapshot, self.output = Path(snapshot).resolve(strict=True), Path(output).resolve()
         manifest = verify_snapshot(self.snapshot)
         expected = self.development_workload['base_commit']
@@ -311,6 +312,7 @@ class RepositoryProbeWorkspace:
             execution_control.check()
         self.image_id = resolve_image(image)
         self.control, self.admit, self.max_runs = execution_control, admit, max_runs
+        self.physical_admit = physical_admit
         self.runs, self.cleanup_ok, self.blocked_reason = 0, True, None
         self.cache, self.reports = {}, {}
         self._lock = threading.RLock()
@@ -384,6 +386,8 @@ class RepositoryProbeWorkspace:
                 report = self._report(self.cache[key])
                 return {**report, 'cache_hit': True, 'dispatched': False}
             _require(self.runs < self.max_runs, 'repository_probe_run_limit')
+            if self.physical_admit is not None:
+                self.physical_admit()
             job = {'workload_id': binding['workload_id'], 'input': copy.deepcopy(case['input']),
                    'input_sha256': binding['input_sha256'], 'probe': probe,
                    **{k: v for k, v in self.sampling.items() if k not in ('timeout_seconds', 'cpu_affinity')}}

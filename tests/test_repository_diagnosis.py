@@ -40,6 +40,7 @@ class PublicProbeStub:
         self.runs, self.cleanup_ok, self.blocked_reason = 0, True, None
         self.control, self.admit, self.cache = execution_control, admit, {}
         self.max_runs, self.order = max_runs, []
+        self.physical_admit = kwargs.get('physical_admit')
 
     def run_probe(self, probe, case_id=None):
         self.admit('run_probe')
@@ -55,6 +56,8 @@ class PublicProbeStub:
             return {**self.cache[key], 'cache_hit': True, 'dispatched': False}
         if self.runs >= self.max_runs:
             raise BudgetExceeded('repository_probe_limit')
+        if self.physical_admit is not None:
+            self.physical_admit()
         self.runs += 1
         self.order.append(probe)
         result = {'status': 'ok', 'cleanup_ok': True, 'input_integrity_ok': True,
@@ -63,7 +66,7 @@ class PublicProbeStub:
             'workload_id': self.data['workload_id'], 'probe': probe,
             'case_id': selected['case_id'], 'input_sha256': selected['sha256'],
             'adapter_sha256': 'a' * 64, 'cache_hit': False, 'dispatched': True,
-            'report_ref': 'public-report-' + str(self.runs), 'report_sha256': 'b' * 64,
+            'report_ref': 'public-report-' + self.snapshot_ref[:8] + '-' + str(self.runs), 'report_sha256': 'b' * 64,
             'summary': {'metric': 'offline_fixed_observation', 'median': 100}}
         self.cache[key] = result
         return result

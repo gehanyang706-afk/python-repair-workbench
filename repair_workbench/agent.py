@@ -88,7 +88,7 @@ class BudgetedModel(BaseChatModel):
                      'submit_edits', 'submit_ref_edits', 'read_file', 'write_todos',
                      'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary',
                      'record_hypothesis', 'run_probe', 'read_evidence', 'read_probe_report', 'conclude_diagnosis', 'task',
-                     'propose_reproducer', 'run_reproducer'}
+                     'propose_reproducer', 'run_reproducer', 'preview_ref_edits', 'run_preview_probe', 'finalize_preview'}
             reason = message.response_metadata.get('finish_reason')
             if reason not in {'stop', 'length', 'tool_calls', 'function_call', 'content_filter', 'null', None}:
                 reason = 'other'

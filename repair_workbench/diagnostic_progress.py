@@ -13,7 +13,8 @@ _VOLATILE = {'source_ref', 'source_refs', 'evidence_ref', 'evidence_refs', 'hypo
              'revision', 'remaining_model_calls', 'remaining_calls', 'elapsed_seconds',
              'delegation_elapsed_seconds', 'reused', 'scope', 'next_action', 'diagnosis'}
 _OBSERVATIONS = {'read_source', 'read_symbol', 'source_outline', 'search_source',
-                 'list_sources', 'read_evidence', 'read_probe_report', 'read_test_log', 'run_probe', 'read_file'}
+                 'list_sources', 'read_evidence', 'read_probe_report', 'read_test_log', 'run_probe',
+                 'run_preview_probe', 'read_file'}
 _JUDGEMENTS = {'record_hypothesis', 'write_todos'}
 
 
@@ -108,7 +109,7 @@ def _fingerprint(session, call, message, model_round=None):
         rejected = data.get('status') in {'rejected', 'inconclusive', 'error'}
         observation = not rejected
         material, args = dict(data), dict(arguments)
-        if name in {'run_probe', 'read_evidence'}:
+        if name in {'run_probe', 'run_preview_probe', 'read_evidence'}:
             material.pop('sha256', None)  # Evidence JSON hash includes issued random refs.
             args.pop('evidence_ref', None)
         if name == 'read_source':
@@ -118,13 +119,20 @@ def _fingerprint(session, call, message, model_round=None):
             args = {'query': arguments.get('query'), 'path': arguments.get('path')}
         elif name == 'list_sources':
             args = {'offset': arguments.get('offset', 0), 'limit': arguments.get('limit', 100)}
-        elif name == 'run_probe':
+        elif name in {'run_probe', 'run_preview_probe'}:
             args = {'probe': arguments.get('probe'), 'attempt': arguments.get('attempt', 0)}
+            if getattr(session, 'repository_diagnostics_enabled', False):
+                observation_data = data.get('observation')
+                args['case_id'] = (observation_data.get('case_id', arguments.get('case_id'))
+                                   if isinstance(observation_data, dict) else arguments.get('case_id'))
+                if name == 'run_preview_probe':
+                    args['preview_ref'] = arguments.get('preview_ref')
         if rejected:
             material = {'status': data.get('status'), 'reason': data.get('reason')}
-    elif name == 'submit_ref_edits' and isinstance(data, dict):
+    elif name in {'submit_ref_edits', 'preview_ref_edits'} and isinstance(data, dict):
         attempt = next((item for item in session.attempts if item['number'] == data.get('number')), {})
-        observation = bool(attempt.get('content_id') and data.get('evidence_ref'))
+        observation = bool(attempt.get('content_id') and (data.get('evidence_ref') or
+                           (name == 'preview_ref_edits' and attempt.get('status') == 'preview_ready')))
         material = {'content_id': attempt.get('content_id'), 'status': data.get('status'),
                     'reason': data.get('reason')}
         args = {}

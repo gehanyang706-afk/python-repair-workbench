@@ -524,7 +524,7 @@ class DiagnosticSession(RepairSession):
             if (decision not in {'no_change', 'insufficient_evidence'}
                     or not isinstance(explanation, str) or not 1 <= len(explanation.strip()) <= 1500):
                 raise EditRejected('invalid_diagnostic_conclusion')
-            if self.attempts or self.final_decision:
+            if not self._conclusion_attempts_allowed() or self.final_decision:
                 raise EditRejected('diagnosis_already_modified_or_concluded')
             refs = self._check_refs(evidence_refs)
             if not refs:
@@ -535,6 +535,9 @@ class DiagnosticSession(RepairSession):
             self.record('diagnosis_concluded', **self.final_decision)
             self.save('running')
             return self.final_decision
+
+    def _conclusion_attempts_allowed(self):
+        return not self.attempts
 
     def prepare_fixed_diagnostics(self):
         if self.strategy != 'fixed' or self.fixed_diagnostics_done:

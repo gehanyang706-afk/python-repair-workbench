@@ -36,7 +36,11 @@ class RepositoryDiagnosticSession(DiagnosticSession):
     candidate_evaluation_is_docker = False
 
     def __init__(self, baseline, output, allowed_paths, development_workload,
-                 baseline_qualification, **kwargs):
+                 baseline_qualification, *, enable_candidate_preview=False, **kwargs):
+        if type(enable_candidate_preview) is not bool:
+            raise ValueError('invalid_candidate_preview_switch')
+        self.enable_candidate_preview = enable_candidate_preview
+        self.previews, self.preview_probe_workspaces = {}, {}
         from .repository_probes import validate_development_workload
         self.development_workload = validate_development_workload(development_workload)
         self.public_workload_sha256 = _digest(canonical_json(self.development_workload).encode())
@@ -98,9 +102,9 @@ class RepositoryDiagnosticSession(DiagnosticSession):
             raise ValueError('repository_baseline_qualification_mismatch')
 
     def check_budget(self):
-        workspace = self.repository_probe_workspace
-        if workspace is not None and workspace.blocked_reason:
-            self.diagnostic_stop_reason = workspace.blocked_reason
+        for workspace in self._probe_workspaces():
+            if workspace.blocked_reason:
+                self.diagnostic_stop_reason = workspace.blocked_reason
         if self.final_submission is not None:
             raise BudgetExceeded('repository_submission_sealed')
         super().check_budget()
@@ -125,6 +129,10 @@ class RepositoryDiagnosticSession(DiagnosticSession):
             packet['reproduction'] = {'tools': ['propose_reproducer', 'run_reproducer'],
                 'target': 'immutable baseline only', 'max_programs': self.max_repro_programs,
                 'max_runs': self.max_repro_runs, 'trust': 'model_program_output'}
+        if self.enable_candidate_preview:
+            packet['candidate_preview'] = {'tools': ['preview_ref_edits', 'run_preview_probe', 'finalize_preview'],
+                'limits': 'Same candidate attempts and physical probe budget as baseline exploration.',
+                'scope': 'Immutable trial candidates, public inputs only; never final acceptance.'}
         while len(json.dumps(packet, ensure_ascii=False)) > 16000:
             packet['context_truncated'] = True
             if packet['files']:
@@ -143,8 +151,18 @@ class RepositoryDiagnosticSession(DiagnosticSession):
             self.repository_probe_workspace = RepositoryProbeWorkspace(
                 self.baseline, self.output / 'repository-probes', self.before['image_id'],
                 self.development_workload, max_runs=self.max_probe_runs,
-                execution_control=_SessionControl(self), admit=lambda operation: self.check_budget())
+                execution_control=_SessionControl(self), admit=lambda operation: self.check_budget(),
+                physical_admit=self._admit_shared_probe)
         return self.repository_probe_workspace
+
+    def _probe_workspaces(self):
+        baseline = [self.repository_probe_workspace] if self.repository_probe_workspace is not None else []
+        return baseline + list(self.preview_probe_workspaces.values())
+
+    def _admit_shared_probe(self):
+        self.check_budget()
+        if sum(workspace.runs for workspace in self._probe_workspaces()) >= self.max_probe_runs:
+            raise EditRejected('repository_shared_probe_limit')
 
     def run_diagnostic(self, probe, hypothesis_id=None, attempt=0, case_id=None):
         with self.lock:
@@ -153,31 +171,36 @@ class RepositoryDiagnosticSession(DiagnosticSession):
                 raise EditRejected('repository_probe_requires_baseline')
             if hypothesis_id is not None and hypothesis_id not in self.hypotheses:
                 raise EditRejected('unknown_hypothesis')
-            workspace = self._get_repository_probe_workspace()
-            try:
-                result = self.tool_runtime.invoke('local', 'run_repository_probe',
-                    {'probe': probe, 'case_id': case_id},
-                    lambda: workspace.run_probe(probe, case_id=case_id), check=_SessionControl(self).check)
-            finally:
-                self.probe_runs = workspace.runs
-                if workspace.cleanup_ok is not True:
-                    self.diagnostic_stop_reason = 'repository_probe_cleanup_unconfirmed'
-                elif workspace.blocked_reason:
-                    self.diagnostic_stop_reason = workspace.blocked_reason
-            ref = self._probe_evidence_by_report.get(result['report_ref'])
-            if ref is None:
-                observation = {key: result[key] for key in ('status', 'cleanup_ok', 'input_integrity_ok',
-                    'image_id', 'public_workload_sha256', 'workload_id', 'probe', 'case_id',
-                    'input_sha256', 'adapter_sha256', 'report_ref', 'report_sha256', 'summary')}
-                observation.update(hypothesis_id=hypothesis_id, transport='local')
-                ref = self._add_evidence('repository_probe', observation, result['snapshot_ref'])
-                self._probe_evidence_by_report[result['report_ref']] = ref
-            self.record('repository_probe_finished', probe=probe, case_id=result['case_id'],
-                evidence_ref=ref, status=result['status'], cache_hit=result['cache_hit'],
-                dispatched=result['dispatched'], cleanup_ok=result['cleanup_ok'])
-            self.save('running')
-            self.check_budget()
-            return {**visible_evidence(self.evidence[ref]), 'reused': result['cache_hit']}
+            return self._run_public_probe(self._get_repository_probe_workspace(), probe, case_id, hypothesis_id)
+
+    def _run_public_probe(self, workspace, probe, case_id, hypothesis_id, preview_ref=None):
+        try:
+            result = self.tool_runtime.invoke('local', 'run_repository_probe',
+                {'probe': probe, 'case_id': case_id, **({'preview_ref': preview_ref} if preview_ref else {})},
+                lambda: workspace.run_probe(probe, case_id=case_id), check=_SessionControl(self).check)
+        finally:
+            self.probe_runs = sum(item.runs for item in self._probe_workspaces())
+            if workspace.cleanup_ok is not True:
+                self.diagnostic_stop_reason = 'repository_probe_cleanup_unconfirmed'
+            elif workspace.blocked_reason:
+                self.diagnostic_stop_reason = workspace.blocked_reason
+        ref = self._probe_evidence_by_report.get(result['report_ref'])
+        if ref is None:
+            observation = {key: result[key] for key in ('status', 'cleanup_ok', 'input_integrity_ok',
+                'image_id', 'public_workload_sha256', 'workload_id', 'probe', 'case_id',
+                'input_sha256', 'adapter_sha256', 'report_ref', 'report_sha256', 'summary')}
+            observation.update(hypothesis_id=hypothesis_id, transport='local')
+            if preview_ref is not None:
+                observation['preview_ref'] = preview_ref
+            ref = self._add_evidence('repository_probe', observation, result['snapshot_ref'])
+            self._probe_evidence_by_report[result['report_ref']] = ref
+        self.record('repository_probe_finished', probe=probe, case_id=result['case_id'],
+            evidence_ref=ref, status=result['status'], cache_hit=result['cache_hit'],
+            dispatched=result['dispatched'], cleanup_ok=result['cleanup_ok'],
+            **({'preview_ref': preview_ref} if preview_ref else {}))
+        self.save('running')
+        self.check_budget()
+        return {**visible_evidence(self.evidence[ref]), 'reused': result['cache_hit']}
 
     def read_probe_report(self, evidence_ref, section='summary', scale=None, offset=0, limit=5):
         self.reserve_tool('read_probe_report')
@@ -185,7 +208,11 @@ class RepositoryDiagnosticSession(DiagnosticSession):
         item = self.evidence[evidence_ref]
         if item['kind'] != 'repository_probe' or scale is not None:
             raise EditRejected('not_a_repository_probe_reference')
-        workspace = self._get_repository_probe_workspace()
+        preview_ref = item['observation'].get('preview_ref')
+        if preview_ref is not None:
+            self._checked_preview(preview_ref)
+        workspace = (self.preview_probe_workspaces[preview_ref] if preview_ref is not None
+                     else self._get_repository_probe_workspace())
         ref = item['observation']['report_ref']
         # A query cache cannot waive source/implementation/report integrity.
         # Validate against the original artifacts before consulting that cache.
@@ -194,6 +221,76 @@ class RepositoryDiagnosticSession(DiagnosticSession):
             {'report_ref': ref, 'section': section, 'offset': offset, 'limit': limit},
             lambda: page,
             version=item['observation']['report_sha256'], check=_SessionControl(self).check)
+
+    def preview_ref_edits(self, edits, diagnosis):
+        if not self.enable_candidate_preview:
+            self.reserve_tool('preview_ref_edits')
+            raise EditRejected('candidate_preview_disabled')
+        with self.lock:
+            result = self._submit(lambda: self._resolve_ref_edits(edits), diagnosis, 'preview_ref_edits')
+            if result['status'] == 'preview_ready':
+                # Keep the base diagnostic result projection. Expose only the
+                # two public identity fields needed by the follow-up tools.
+                attempt = self.attempts[result['number'] - 1]
+                result.update(preview_ref=attempt['preview_ref'], candidate_ref=attempt['candidate_ref'])
+            return result
+
+    def _checked_preview(self, preview_ref):
+        if not self.enable_candidate_preview:
+            raise EditRejected('candidate_preview_disabled')
+        if type(preview_ref) is not str or preview_ref not in self.previews:
+            raise EditRejected('unknown_candidate_preview')
+        item = self.previews[preview_ref]
+        candidate = self.output / item['candidate_path']
+        patch = candidate / 'patch.diff'
+        manifest_path = candidate / 'manifest.json'
+        try:
+            valid = (candidate.resolve() == candidate and not (candidate / 'workspace').is_symlink()
+                     and not patch.is_symlink() and not manifest_path.is_symlink()
+                     and verify_snapshot(self.baseline) == self.manifest
+                     and snapshot_id(verify_snapshot(candidate)) == item['candidate_ref']
+                     and _digest(manifest_path.read_bytes()) == item['manifest_sha256']
+                     and _digest(patch.read_bytes()) == item['patch_sha256'])
+        except (OSError, ValueError):
+            valid = False
+        if not valid:
+            self.diagnostic_stop_reason = 'repository_preview_changed'
+            self.save('stopped', stop_reason=self.diagnostic_stop_reason)
+            raise BudgetExceeded(self.diagnostic_stop_reason)
+        return item, candidate
+
+    def run_preview_probe(self, preview_ref, probe, case_id=None, hypothesis_id=None):
+        with self.lock:
+            self.reserve_tool('run_preview_probe')
+            _, candidate = self._checked_preview(preview_ref)
+            if hypothesis_id is not None and hypothesis_id not in self.hypotheses:
+                raise EditRejected('unknown_hypothesis')
+            if preview_ref not in self.preview_probe_workspaces:
+                from .repository_probes import RepositoryProbeWorkspace
+                self.preview_probe_workspaces[preview_ref] = RepositoryProbeWorkspace(
+                    candidate, self.output / 'preview-probes' / preview_ref, self.before['image_id'],
+                    self.development_workload, max_runs=self.max_probe_runs,
+                    execution_control=_SessionControl(self), admit=lambda operation: self.check_budget(),
+                    physical_admit=self._admit_shared_probe)
+            result = self._run_public_probe(self.preview_probe_workspaces[preview_ref], probe, case_id,
+                                            hypothesis_id, preview_ref=preview_ref)
+            self._checked_preview(preview_ref)
+            return result
+
+    def finalize_preview(self, preview_ref):
+        with self.lock:
+            self.reserve_tool('finalize_preview')
+            item, _ = self._checked_preview(preview_ref)
+            self.check_budget()
+            self._seal('candidate', **{k: item[k] for k in ('candidate_ref', 'candidate_path', 'patch_sha256')})
+            self.submitted_number = item['attempt']
+            self.attempts[item['attempt'] - 1].update(status='submitted', phase='submission',
+                reason='awaiting_independent_repository_evaluation',
+                next_action='Stop; independent acceptance runs outside the Agent loop.')
+            self.record('repository_preview_finalized', preview_ref=preview_ref, attempt=item['attempt'])
+            self.save('running')
+            return {'status': 'submitted', 'preview_ref': preview_ref, 'candidate_ref': item['candidate_ref'],
+                    'scope': 'Sealed immutable preview, not independent acceptance.'}
 
     def _seal(self, decision, **details):
         if self.final_submission is not None:
@@ -229,6 +326,16 @@ class RepositoryDiagnosticSession(DiagnosticSession):
         candidate_path = 'attempt-%02d/verification' % number
         if destination != self.output / candidate_path:
             raise ValueError('repository_submission_path_mismatch')
+        self.check_budget()
+        if self.attempts[-1]['submission_tool'] == 'preview_ref_edits':
+            preview_ref = 'rpv-' + snapshot_id(rebuilt)[:32]
+            self.previews[preview_ref] = {'attempt': number, 'candidate_ref': snapshot_id(rebuilt),
+                'candidate_path': candidate_path, 'patch_sha256': _digest((destination / 'patch.diff').read_bytes()),
+                'manifest_sha256': _digest((destination / 'manifest.json').read_bytes())}
+            self.record('repository_preview_ready', preview_ref=preview_ref, **self.previews[preview_ref])
+            return {'status': 'preview_ready', 'reason': 'public_candidate_trial_only', 'phase': 'preview',
+                    'preview_ref': preview_ref, 'candidate_ref': snapshot_id(rebuilt),
+                    'next_action': 'Use run_preview_probe for public cases or finalize_preview to seal this version.'}
         self._seal('candidate', candidate_ref=snapshot_id(rebuilt), candidate_path=candidate_path,
                    patch_sha256=_digest((destination / 'patch.diff').read_bytes()))
         self.submitted_number = number
@@ -241,8 +348,14 @@ class RepositoryDiagnosticSession(DiagnosticSession):
         self.save('running')
         return {**result, 'status': 'proposal_sealed', 'scope': 'Review proposal, not independent acceptance.'}
 
+    def _conclusion_attempts_allowed(self):
+        if self.enable_candidate_preview:
+            return all(attempt.get('submission_tool') == 'preview_ref_edits' for attempt in self.attempts)
+        return super()._conclusion_attempts_allowed()
+
     def save(self, state, **extra):
-        probe, reproduction = self.repository_probe_workspace, getattr(self, 'reproduction_workspace', None)
+        probe_cleanup = all(workspace.cleanup_ok is True for workspace in self._probe_workspaces())
+        reproduction = getattr(self, 'reproduction_workspace', None)
         fields = {'task_type': 'repository_performance_optimization',
             'diagnostic_strategy': getattr(self, 'strategy', None),
             'diagnostic_workload': getattr(self, 'workload', None), 'diagnostic_transport': 'local',
@@ -261,15 +374,18 @@ class RepositoryDiagnosticSession(DiagnosticSession):
             'selected_attempt': self.submitted_number,
             'final_submission_ref': 'final-submission.json' if self.final_submission is not None else None,
             'final_submission_sha256': self.final_submission_sha256,
-            'probe_cleanup_ok': probe is None or probe.cleanup_ok is True,
+            'probe_cleanup_ok': probe_cleanup,
             'reproduction_cleanup_ok': reproduction is None or reproduction.cleanup_ok is True,
-            'cleanup_ok': (probe is None or probe.cleanup_ok is True)
+            'cleanup_ok': probe_cleanup
                           and (reproduction is None or reproduction.cleanup_ok is True),
             'submission_policy': 'One valid sealed submission; hidden evaluation never returns to this Agent.',
             **extra}
+        if self.enable_candidate_preview:
+            fields['candidate_previews'] = self.previews
         if self.final_submission is not None:
             if self.final_submission['decision'] == 'candidate':
-                fields.update(status='submitted', patch=self.final_submission['candidate_path'] + '/patch.diff')
+                fields.update(status='submitted', reason='awaiting_independent_repository_evaluation',
+                              patch=self.final_submission['candidate_path'] + '/patch.diff')
             else:
                 fields.update(status='proposal_sealed', reason='awaiting_independent_review')
         return RepairSession.save(self, state, **fields)

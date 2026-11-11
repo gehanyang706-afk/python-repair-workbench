@@ -46,7 +46,7 @@ def build_diagnostic_agent(session, model):
             # Probe/report operations schedule their admitted physical I/O inside
             # the session; avoid nested scheduler slots and deadlocks.
             if function.__name__ in {'run_diagnostic', 'read_probe_report',
-                                     'propose_reproducer', 'run_reproducer'}:
+                                     'propose_reproducer', 'run_reproducer', 'run_preview_probe'}:
                 return function(**kwargs)
             return session.tool_runtime.invoke('local', function.__name__, kwargs,
                                                lambda: function(**kwargs), check=session.check_budget)
@@ -151,6 +151,7 @@ def build_diagnostic_agent(session, model):
                     explanation=explanation, evidence_refs=evidence_refs)
 
     prompt = DIAGNOSTIC_PROMPT
+    preview_tools = []
     if getattr(session, 'repository_diagnostics_enabled', False):
         submit_ref_edits.description = (
             '以已读取原文提交精确替换；通过版本、权限和语法预检后独立重建并封存。'
@@ -167,6 +168,30 @@ def build_diagnostic_agent(session, model):
         prompt += ('\n当前为完整仓库公开诊断模式。只使用public_workload中的公开输入和行为契约；'
             'CPU只用于定位，内存为Python可追踪分配。注册实验与模型复现均只运行原始基线，'
             '没有候选试跑工具。no_change和insufficient_evidence只封存为待审提议，不自动通过。')
+        if session.enable_candidate_preview:
+            @tool
+            def preview_ref_edits(edits: list[RefEdit], diagnosis: str) -> dict:
+                """用已读原文生成独立试验候选，消耗一次候选额度；preview_ready不表示通过。"""
+                return safe(session.preview_ref_edits, edits=[item.model_dump() for item in edits],
+                            diagnosis=diagnosis)
+
+            @tool
+            def run_preview_probe(preview_ref: str, probe: str, case_id: str | None = None,
+                                  hypothesis_id: str | None = None) -> dict:
+                """对已登记候选运行cpu、memory或benchmark；只用公开case_id，与基线共享探针预算。"""
+                return safe(session.run_preview_probe, preview_ref=preview_ref, probe=probe,
+                            case_id=case_id, hypothesis_id=hypothesis_id)
+
+            @tool
+            def finalize_preview(preview_ref: str) -> dict:
+                """按已登记引用封存同一候选，不重新提交编辑；封存即结束本次Agent。"""
+                return safe(session.finalize_preview, preview_ref=preview_ref)
+
+            preview_tools = [preview_ref_edits, run_preview_probe, finalize_preview]
+            prompt = prompt.replace('注册实验与模型复现均只运行原始基线，没有候选试跑工具。',
+                '基线实验和复现只运行原始基线；可用preview_ref_edits登记候选，再用run_preview_probe在公开输入上试验，'
+                '与基线共用探针额度。保留候选可调用finalize_preview直接封存；改动则始终从原基线提交完整差异。'
+                '公开试验不能代替最终验收。')
     reproduction_tools = []
     if session.enable_reproduction:
         @tool
@@ -221,7 +246,7 @@ def build_diagnostic_agent(session, model):
         model=BudgetedModel(inner=model, session=session, cache=False),
         tools=[list_sources, read_source, source_outline, read_symbol, search_source,
                read_test_log, record_hypothesis, run_probe, read_evidence, read_probe_report,
-               submit_ref_edits, conclude_diagnosis, *reproduction_tools],
+               submit_ref_edits, conclude_diagnosis, *reproduction_tools, *preview_tools],
         system_prompt=prompt, backend=backend, subagents=subagents, skills=skill_sources,
         middleware=[FilesystemMiddleware(backend=backend, tools=['read_file']),
                     TodoListMiddleware(), *extra_middleware])

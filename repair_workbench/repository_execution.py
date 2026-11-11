@@ -107,6 +107,7 @@ def _grade_in_separate_process(spec, baseline, candidate, output, allowed_paths,
 def run_repository_diagnostic_task(spec, baseline, output, allowed_paths, model, *, problem_statement,
                                    strategy='adaptive', max_model_calls=12, max_probe_runs=6,
                                    deadline_seconds=180, final_seconds=900, enable_reproduction=False,
+                                   enable_candidate_preview=False,
                                    event_sink=None, cancellation_check=None, execution_control=None,
                                    identity_check=None, on_final_submission=None, test_pids_limit=64):
     """Trusted orchestration: prepare → public Agent → seal → separate grader.
@@ -151,7 +152,8 @@ def run_repository_diagnostic_task(spec, baseline, output, allowed_paths, model,
         session = RepositoryDiagnosticSession(prepared['baseline'], output / 'agent', allowed_paths,
             prepared['development_workload'], prepared['baseline_qualification'], strategy=strategy,
             max_model_calls=max_model_calls, max_probe_runs=max_probe_runs, deadline_seconds=deadline_seconds,
-            enable_reproduction=enable_reproduction, event_sink=event_sink,
+            enable_reproduction=enable_reproduction, enable_candidate_preview=enable_candidate_preview,
+            event_sink=event_sink,
             cancellation_check=cancellation_check, execution_control=poll)
         record['phase'] = 'agent'
         result = run_agent(session, model, problem_statement)

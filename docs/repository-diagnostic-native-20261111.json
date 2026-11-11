@@ -204,5 +204,12 @@
     "runtime/repository-graph-merged-regression-20261111-first.log": "305cc693067c754d8be462a0ada75b407d0dc463070a4ef9cc8e92b27ac069d4",
     "runtime/repository-public-cpu-control-20261111-first/control-summary.json": "752bdd9298483bd7c4e6addff280fce400516819174c8484648a87414a65bd05",
     "runtime/repository-native-wheel-delivery-20261111.json": "c02c517ab6c8bc7f4d3af6d9a0f1bd5ab0c314db619d973f8a6bc2cc0bf502dd"
+  },
+  "post_review_note": {
+    "adaptive_report_recall_attempted": 1,
+    "adaptive_report_recall_succeeded": 0,
+    "reason": "script used UGC hotspots section; repository page rejected it; later decision used valid initial CPU summary",
+    "original_runtime_trace_preserved": true,
+    "final_verdict_unchanged": true
   }
 }

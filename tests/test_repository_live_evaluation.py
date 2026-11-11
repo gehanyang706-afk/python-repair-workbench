@@ -160,6 +160,16 @@ class RepositoryBatchTests(unittest.TestCase):
         provider.assert_not_called(); runner.assert_not_called()
         self.assertEqual(result['stop_reason'], 'ValueError')
 
+    def test_preview_switch_and_tools_are_frozen_for_both_variants(self):
+        self.config['repository_diagnostic']['enable_candidate_preview'] = True
+        self.config['tools'] += sorted(live._PREVIEW_TOOLS)
+        def enabled(*args, **kwargs):
+            self.assertIs(kwargs['enable_candidate_preview'], True)
+            return self.orchestrate(*args, **kwargs)
+        result, provider, _ = self.run_batch(execute=enabled)
+        self.assertEqual(provider.call_count, 2)
+        self.assertEqual([row['state'] for row in result['rows']], ['completed', 'completed'])
+
 
 if __name__ == '__main__':
     unittest.main()

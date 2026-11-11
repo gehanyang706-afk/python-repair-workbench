@@ -1,0 +1,180 @@
+{
+  "date": "2026-11-11",
+  "real_model_calls": 0,
+  "controls": {
+    "repository-preview-physical-20261111-first": {
+      "scope": "known-reference, native public trial control; not model effect or final acceptance",
+      "real_model_calls": 0,
+      "scripted_calls": 6,
+      "shared_tool_calls": 6,
+      "attempts": 1,
+      "physical_public_probes": 2,
+      "agent_status": "submitted",
+      "stop_reason": "repository_submission_sealed",
+      "cleanup_ok": true,
+      "public_probe_refs": [
+        "a2539094d5a75f2424133aeb71980fd9f7c28f4bbd208021bbaca01afc7e7991",
+        "ea5cde1e6d0d3f205b68aa7234ce9d79a666a56bb526a3c13d2635a62c04dc18"
+      ],
+      "report_recall_success": true,
+      "sealed_candidate_ref": "ea5cde1e6d0d3f205b68aa7234ce9d79a666a56bb526a3c13d2635a62c04dc18",
+      "independent_scoring_started": false,
+      "source_fingerprint_preserved": true,
+      "seconds": 8.351361708017066
+    },
+    "repository-preview-memory-20261111-first": {
+      "scope": "known-reference, native public trial control; not model effect or final acceptance",
+      "real_model_calls": 0,
+      "scripted_calls": 6,
+      "shared_tool_calls": 6,
+      "attempts": 1,
+      "physical_public_probes": 2,
+      "agent_status": "submitted",
+      "stop_reason": "repository_submission_sealed",
+      "cleanup_ok": true,
+      "public_probe_refs": [
+        "b286ccb8cc57ea010f1deb2b15de15468f0d463929b69a566abd7896fa964e1b",
+        "5938f7c88d07c5c45ce6d643935dbb9d8fa7d6e9c9d44ebf74b7fde7bf5976f1"
+      ],
+      "public_observations": [
+        {
+          "metric": "python_traced_peak_bytes",
+          "median": 497548,
+          "samples": [
+            497556,
+            497548,
+            497540
+          ],
+          "output_sha256": "37270278681341122bd98142c86dee7aa2348bfc53c64b5bba1fc7e204bac36c",
+          "output_length": 4999
+        },
+        {
+          "metric": "python_traced_peak_bytes",
+          "median": 207544,
+          "samples": [
+            207560,
+            207544,
+            207528
+          ],
+          "output_sha256": "37270278681341122bd98142c86dee7aa2348bfc53c64b5bba1fc7e204bac36c",
+          "output_length": 4999
+        }
+      ],
+      "report_recall_success": true,
+      "sealed_candidate_ref": "5938f7c88d07c5c45ce6d643935dbb9d8fa7d6e9c9d44ebf74b7fde7bf5976f1",
+      "independent_scoring_started": false,
+      "source_fingerprint_preserved": true,
+      "seconds": 14.465426666196436
+    },
+    "django-public-issue-reproduction-20261111-first": {
+      "scope": "operator control derived from public Issue; no official test patch, no model or oracle call",
+      "real_model_calls": 0,
+      "official_evaluations": 0,
+      "tool_calls": 2,
+      "status": "completed",
+      "cleanup_ok": true,
+      "input_integrity_ok": true,
+      "snapshot_ref": "de824c7c1a7e5f1e23d560e1415c735eed844e10eec6e2c155b66acc34d31e7a",
+      "image_id": "sha256:4ce970c572389d6c32ffa77a2c6871e32643f32c909a8b00a5b8e5ad99519f14",
+      "trust": "model_program_output",
+      "program_sha256": "db7a1055171b9b60ddf8604f6434fb3e65c7efc8e76b16d9607018223b77b37a",
+      "observation": {
+        "eligible_id": "1",
+        "excluded_id": "2",
+        "two_join_matches": [
+          "1",
+          "1"
+        ],
+        "one_join_match": [
+          "1"
+        ],
+        "django_file": "/workspace/django/__init__.py"
+      }
+    },
+    "repository-preview-qualification-20261111-first": {
+      "scope": "one positive native control and one original-test negative, current preview build; no retries",
+      "real_model_calls": 0,
+      "developer_exposed": true,
+      "task": "sqlparse-comments-dev",
+      "contract_sha256": "6f16aaa25c60aeff1934276c55c1ba89139c3899831b97a8dc4580ebe4e7f13a",
+      "implementation_sha256": "38836cc4f942f3195d48ec0d3bc92abb8a224c769e488c217dfa2c23bf8bd561",
+      "source_fingerprint_preserved": true,
+      "thresholds_unchanged": {
+        "max_memory_ratio": 1.25,
+        "max_relative_noise": 0.25,
+        "max_time_ratio": 1.1,
+        "min_memory_reduction": 0,
+        "min_speedup": 0.15
+      },
+      "planned": [
+        {
+          "id": "positive",
+          "state": "completed",
+          "status": "passed",
+          "reason": "original_tests_semantics_and_resource_targets_met",
+          "scripted_calls": 6,
+          "cleanup_ok": true
+        },
+        {
+          "id": "negative",
+          "state": "completed",
+          "status": "failed",
+          "reason": "candidate_original_tests_rejected",
+          "completed_probes": 0,
+          "not_run": 16
+        }
+      ],
+      "eligible_for_new_development_pilot": true,
+      "reason": "physical_controls_qualified",
+      "seconds": 139.48832195904106
+    }
+  },
+  "full_regression": {
+    "total": 742,
+    "passed": 726,
+    "skipped_mysql": 16,
+    "failed": 0,
+    "seconds": 258.727
+  },
+  "archive_audit_tests": 3,
+  "wheel": {
+    "sha256": "b36671aeecf906d1c45686a845f15beb71902818dd2e2ec9bd6392c4d6bde11a",
+    "verified_files": 72
+  },
+  "qualified_for_single_exposed_dev_pilot": true,
+  "formal_holdout_ready": false,
+  "new_model_call_authorized": false,
+  "artifact_sha256": {
+    "runtime/repository-preview-physical-20261111-first/summary.json": "1d420f9d2fb7fd276fb169467b1939a583771880e692fd75a054b9ed1cdc3134",
+    "runtime/repository-preview-physical-20261111-first/implementation.json": "8ac800f9f6abe0a054740b26185ae9f53bb422f0451a51c122e9d25df7fbe004",
+    "runtime/repository-preview-physical-20261111-first/run_control.frozen.py": "d4bb90888c1069264293f2b66a802dea153d9d389f1d8711b672bd868da45754",
+    "runtime/repository-preview-physical-20261111-first/agent/result.json": "d5650282a188a34250c244a031a26045fdff95f96471fc092aed34f661e23425",
+    "runtime/repository-preview-physical-20261111-first/agent/final-submission.json": "277186ed2ea1a0ea78a976e0b046779b7919692710987e776bb3978c6f1d6d6e",
+    "runtime/repository-preview-physical-20261111-first/agent/events.jsonl": "58b2dae0399b1c4b35f4660fb4c2112e6a13357992a93988d88109006a53de1e",
+    "runtime/repository-preview-physical-20261111-first/preparation/qualification.json": "429d18a5b691b222ae5ffd16c6a60e41f325a4ab1cb1bbba4c83484982bf45b1",
+    "runtime/repository-preview-memory-20261111-first/summary.json": "49776a97c7e20d0ee688d92ad9938598eadac98320c04394bedaf985c6e80a1d",
+    "runtime/repository-preview-memory-20261111-first/implementation.json": "8ac800f9f6abe0a054740b26185ae9f53bb422f0451a51c122e9d25df7fbe004",
+    "runtime/repository-preview-memory-20261111-first/run_control.frozen.py": "3b57320d08387d6d66021cbded802ea104cc64be705662f5540490046a6dcadb",
+    "runtime/repository-preview-memory-20261111-first/agent/result.json": "efedfb49ce313ab3cab4398db3d6aa33feb5e50a33cefd2e3097c4721d5da17f",
+    "runtime/repository-preview-memory-20261111-first/agent/final-submission.json": "243aaab8cf2f3b34c1ac859fee94100a0c74c0d9502db14c882f65fa1f155d78",
+    "runtime/repository-preview-memory-20261111-first/agent/events.jsonl": "042b67c08bd397a2e826bf5c1442d27d03ee2f317e549175b41990aeb83fc78b",
+    "runtime/repository-preview-memory-20261111-first/preparation/qualification.json": "cef076ae2e4ce2626ce3fc8ca2eed03aeda1404721576c3e2396eaa56d4c609f",
+    "runtime/django-public-issue-reproduction-20261111-first/summary.json": "236032584241c319be83ec7a168280613412f60ebe0a8c2af6b373dbaf9d28e9",
+    "runtime/django-public-issue-reproduction-20261111-first/agent/result.json": "f9d642165451b0ff1a9c1a9ea83c2557e94490bc4ee7fcb86cbc7528af25a5d9",
+    "runtime/django-public-issue-reproduction-20261111-first/agent/events.jsonl": "966f55f537221d00266000439ba3a8be29b0feb35048d4a79215d294f4ee4666",
+    "runtime/django-public-issue-reproduction-20261111-first/public_reproducer.py": "db7a1055171b9b60ddf8604f6434fb3e65c7efc8e76b16d9607018223b77b37a",
+    "runtime/django-public-issue-reproduction-20261111-first/agent/reproduction/run-01/result.json": "b9d04d9b059a27d211ce175488f655f3547dedea1fd3f75cbaf43fcfb43c320c",
+    "runtime/repository-preview-qualification-20261111-first/qualification-audit.json": "9dadf8dba5f631187d84afe654c1a5b7bb3ced91cdd5020dbafe37ecf2933033",
+    "runtime/repository-preview-qualification-20261111-first/implementation.json": "8ac800f9f6abe0a054740b26185ae9f53bb422f0451a51c122e9d25df7fbe004",
+    "runtime/repository-preview-qualification-20261111-first/run_control.frozen.py": "6833a2391ffeb76c911abf4e188064e3eeb35ec6c6c13faf9ca5e29836480046",
+    "runtime/repository-preview-qualification-20261111-first/run.py": "6833a2391ffeb76c911abf4e188064e3eeb35ec6c6c13faf9ca5e29836480046",
+    "runtime/repository-preview-qualification-20261111-first/positive/execution.json": "b6e8552778e6a7827cf33c3dffb56626246053ac30fe73c4372b0c15d3d8e0b5",
+    "runtime/repository-preview-qualification-20261111-first/positive/independent-evaluation/result.json": "4c23b7d85499c6c3eb2d210448237e44c2c58acbc3328c69d86d798cae6807ec",
+    "runtime/repository-preview-qualification-20261111-first/negative/result.json": "0c27c2b57d098b40c0ce2b609f1011f075ff42fcae4b1726ebc02d1c5bcd0eb3",
+    "runtime/repository-preview-qualification-20261111-first/qualification.json": "21730226ef8b550ca58ad8513278b96196ae1305791841e56244f59728eb0814",
+    "runtime/repository-preview-full-regression-20261111-first.log": "c8a30b5a766c194ed1c82955987abb253144fe3978486a8942ec7754a0426ac7",
+    "runtime/repository-batch-audit-regression-20261111-v2.log": "0a2e1c0d7eb6ae73d8aa71b1f88bb0691d9f5e2a7919c0dd8a297b3d2f76f8f7",
+    "runtime/repository-preview-wheel-delivery-20261111.json": "7f8d87208741179292038f898a06348a077cbb182eb18a7e783750763c07aa78",
+    "runtime/repository-f0-a1-readiness-20261111-first/paired-audit.json": "92b11195154c08cdbd1a2d6c38b21ea2273f9a991aa67db110f54576fb870ad8"
+  }
+}

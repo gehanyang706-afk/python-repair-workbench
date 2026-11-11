@@ -6,7 +6,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 BUSINESS_TOOLS = {'submit_ref_edits','submit_edits','submit_candidate','read_source','read_test_log','list_sources',
                   'read_symbol','source_outline','search_source','record_behavior_summary','set_repair_plan',
                   'record_hypothesis','run_probe','read_evidence','read_probe_report','conclude_diagnosis','task',
-                  'propose_reproducer','run_reproducer'}
+                  'propose_reproducer','run_reproducer','preview_ref_edits','run_preview_probe','finalize_preview'}
 
 
 def digest(value):
@@ -39,7 +39,7 @@ def collect_errors(session, messages):
                                     r'query|symbol|force|change|preserve|related_entries|'
                                     r'probe|hypothesis_id|claim|status|evidence_refs|next_action|'
                                     r'evidence_ref|decision|explanation|description|subagent_type|'
-                                    r'code|reproducer_ref|timeout_seconds|case_id|section|scale',field):
+                                    r'code|reproducer_ref|timeout_seconds|case_id|section|scale|preview_ref',field):
                     field='arguments'
                 expected = match.group(3) if match and match.group(3) else 'tool_schema'
                 error = {'kind': 'schema', 'tool':tool,'field': field, 'expected_type': expected}
