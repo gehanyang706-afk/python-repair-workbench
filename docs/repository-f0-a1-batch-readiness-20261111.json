@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-11",
+  "real_model_calls": 0,
+  "ready_for_live_model": false,
+  "preflight": {
+    "ready": false,
+    "reason": "repository_positive_control_not_qualified",
+    "source": "runtime/repository-native-graph-20261111-first/adaptive/independent-evaluation/result.json",
+    "planned_rows": 2,
+    "states": [
+      "error",
+      "not_run"
+    ],
+    "provider_calls": 0,
+    "agent_calls": 0,
+    "token_reservations": 0,
+    "real_model_calls": 0,
+    "scope": "offline readiness check; not an authorized model plan or performance comparison",
+    "manifest_sha256": "99e45865c1b2d988c4418cd9b0cde84733dc923baa2e408793ab29466ceb2752"
+  },
+  "clock_diagnostic": {
+    "planned_processes": 4,
+    "completed_processes": 4,
+    "wall_relative_spread": 0.2122390368891264,
+    "process_cpu_relative_spread": 0.21304286031140454,
+    "cgroup_throttled_period_deltas": [
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      1,
+      4
+    ],
+    "readiness_changed": false,
+    "seconds": 10.698744083987549
+  },
+  "validation": {
+    "new_batch_tests": 8,
+    "related_regression_tests": 27,
+    "failed": 0,
+    "wheel": {
+      "sha256": "eca35191b3a8e5851f3c82ed878829181097620ddeeb04a4130a4772d2cebb9a",
+      "verified_files": 72
+    }
+  },
+  "artifact_sha256": {
+    "runtime/repository-f0-a1-readiness-20261111-first/plan.json": "ef8ea8ebf6c78b1b06fed6e6519368ebea601782e3e5e52bfbadae3b76b0ff77",
+    "runtime/repository-f0-a1-readiness-20261111-first/qualification.json": "a9d73b808550aac263720f95e8279f7af9bd7767e52ba74c6d3e8b1aff65b23d",
+    "runtime/repository-f0-a1-readiness-20261111-first/summary.json": "2929f2d03b9158dd11dea9c817ee872257301e1ed15ade2565bd4f1aac18ca37",
+    "runtime/repository-f0-a1-readiness-20261111-first/check_readiness.py": "06af243c843be8a1744802672c65563bc502294cc2314c0620b6a379a1ec0314",
+    "runtime/repository-f0-a1-readiness-20261111-first/batch/evaluation.json": "a5f9149ad5efa4004ba2d33dd2867665ea4ff2c71ccb5d476ee8f1c652e708ff",
+    "runtime/repository-f0-a1-readiness-20261111-first/batch/token-ledger.json": "a08a9923dfcd9fdd53d7ae949c668f774915d6663e81e08bbc0c158e7650a5e8",
+    "runtime/repository-noise-diagnostic-20261111-first/plan.json": "99e54e8a81badc8ec202e76d66fc416efcc7f72421e4db84ccf27ad4dc7a8241",
+    "runtime/repository-noise-diagnostic-20261111-first/job.json": "36ae9fec05b25473470b19afdabadc47b8441491ea59d7b069d9eb6b2de27a44",
+    "runtime/repository-noise-diagnostic-20261111-first/rows.json": "8cb5a84759e35c6ff9cb9c8c8b74bd7ae6896cd9172c60acec182c5ee38beaf8",
+    "runtime/repository-noise-diagnostic-20261111-first/summary.json": "ef5f7f48ddf84acea71027b94b22e4f41fded6450610cfdfdb03b1cb82a6adfa",
+    "runtime/repository-noise-diagnostic-20261111-first/run.py": "7e5e559b584e2ee6e509f52ba8dfb67aac697af9ce749cd10af62badd9f169ad",
+    "runtime/repository-noise-diagnostic-20261111-first/worker.py": "38a8500999fe181a203101381d72f053052d891b9a5ec89fa130d32bb73ddca5",
+    "runtime/repository-f0-a1-wheel-delivery-20261111.json": "bf6c55406b4bffde01549022173d0d43a1164db7773de56b85b482c7226ca119",
+    "runtime/repository-f0-a1-batch-regression-20261111-v2.log": "1654bd31f9faaab5e6ad35f7cf4ede4fb4a5d79c9946aeb03ce410a59abf7ae3",
+    "runtime/repository-f0-a1-batch-regression-20261111-v3.log": "af4472f95335c894f5a83dbdd9f69dd7c52eddcbd2ed434998a70b2016b4cb89"
+  }
+}

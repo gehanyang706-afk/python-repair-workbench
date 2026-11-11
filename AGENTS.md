@@ -16,6 +16,7 @@
 
 ## 真实任务完善交接（2026-11-11）
 
+- F0/A1冻结批次入口见docs/repository-f0-a1-batch-readiness-20261111.md/json：资格需要同契约真实原生图正控制+原测试负控制，全部绑定、暴露任务只能dev。实际SQL噪声记录在模型前拒绝，0请求/0预留，未使用旧授权。4进程墙钟/CPU配对诊断未复现59.46%幅度，也不升级资格；后续先稳定测量并预冻结，不能调低标准或选择有利复测。
 - 最新工程交接见docs/repository-diagnostic-native-20261111.md/json。RepositoryDiagnosticSession复用原生Deep Agents工具循环，仅持公开投影和受限原测试资格，CPU/内存/基准与复现只执行公开基线。首次有效补丁/提议封存后关图，repository_execution以无供应商密钥的独立Python进程执行最终验收；禁止回流隐藏结果、假SWE/UGC工作区或把未评分提议计作通过。
 - 真实SQL原生图控制使用已知参考补丁和脚本策略，非模型效果：自适应8次脚本/8工具/1公开CPU，封存后16/16物理评分、原测试及语义通过，耗时波动59.46%超25%保留inconclusive；固定路径在首次脚本请求前CPU→内存→基准，结论封存无评分。运行前绑定并归档80个实现/配置文件，0真实模型，不补跑、不改阈值。真实仓库MCP/Skills/委派/并发、公开候选迭代、健康验收及真实F0/A1批次仍待完成。
 - 基础工程交接见docs/repository-performance-and-public-probes-20261111.md/json。已合入隔离候选的参数化测量/精确原测试回执/评分，新增repository_performance独立重建验收与CLI；调用方冻结spec与修改权限，最终回执不得来自模型。只支持当前注册构造器、1CPU256MiB/Python traced/canonical JSON；RSS/额外oracle等未实现不能贴标签。
