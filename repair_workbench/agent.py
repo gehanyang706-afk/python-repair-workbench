@@ -87,7 +87,7 @@ class BudgetedModel(BaseChatModel):
             known = {'list_sources', 'read_source', 'read_test_log', 'submit_candidate',
                      'submit_edits', 'submit_ref_edits', 'read_file', 'write_todos',
                      'source_outline', 'search_source', 'read_symbol', 'set_repair_plan','record_behavior_summary',
-                     'record_hypothesis', 'run_probe', 'read_evidence', 'conclude_diagnosis', 'task',
+                     'record_hypothesis', 'run_probe', 'read_evidence', 'read_probe_report', 'conclude_diagnosis', 'task',
                      'propose_reproducer', 'run_reproducer'}
             reason = message.response_metadata.get('finish_reason')
             if reason not in {'stop', 'length', 'tool_calls', 'function_call', 'content_filter', 'null', None}:

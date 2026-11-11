@@ -122,6 +122,22 @@ def build_diagnostic_agent(session, model):
         return safe(session.read_probe_report, evidence_ref=evidence_ref, section=section,
                     scale=scale, offset=offset, limit=limit)
 
+    if getattr(session, 'repository_diagnostics_enabled', False):
+        @tool('run_probe')
+        def repository_run_probe(probe: str, hypothesis_id: str | None = None,
+                                 case_id: str | None = None) -> dict:
+            """选择cpu、memory或benchmark，在已登记公开case_id上测量原始基线；省略case_id使用首个公开输入。"""
+            return safe(session.run_diagnostic, probe=probe, hypothesis_id=hypothesis_id, case_id=case_id)
+
+        @tool('read_probe_report')
+        def repository_read_probe_report(evidence_ref: str, section: str = 'summary',
+                                         offset: StrictInt = 0, limit: StrictInt = 5) -> dict:
+            """按真实实验evidence_ref分页回查summary、samples或top_functions；不接收隐藏输入或宿主路径。"""
+            return safe(session.read_probe_report, evidence_ref=evidence_ref, section=section,
+                        offset=offset, limit=limit)
+
+        run_probe, read_probe_report = repository_run_probe, repository_read_probe_report
+
     @tool
     def submit_ref_edits(edits: list[RefEdit], diagnosis: str) -> dict:
         """以已读取原文提交精确替换，并执行独立正确性和性能复验。"""
@@ -135,6 +151,22 @@ def build_diagnostic_agent(session, model):
                     explanation=explanation, evidence_refs=evidence_refs)
 
     prompt = DIAGNOSTIC_PROMPT
+    if getattr(session, 'repository_diagnostics_enabled', False):
+        submit_ref_edits.description = (
+            '以已读取原文提交精确替换；通过版本、权限和语法预检后独立重建并封存。'
+            '不执行隐藏评分；submitted只表示封存成功。')
+        prompt = prompt.replace('工作负载规模和页码', '公开case_id对应的报告和页码')
+        prompt = prompt.replace('所有候选都由原基线派生，后续候选要包含仍应保留的改动。',
+            '候选由原基线派生；首个有效提交即封存并结束，本次不允许根据最终评分追加候选。')
+        prompt = prompt.replace(
+            '提交工具自动独立重建并复验原测试、输出语义、无profiler耗时与内存。\n'
+            '成功只以工具验证回执为准，不能自行宣称优化通过。失败后读取证据并在预算内调整。',
+            '提交只做权限、版本、语法预检和独立重建封存，submitted不表示正确性或性能通过。\n'
+            '最终验收在Agent结束后独立进行，不提供本次隐藏反馈。有效提交或结论后立即停止；'
+            '预检拒绝可在既有候选预算内纠正。')
+        prompt += ('\n当前为完整仓库公开诊断模式。只使用public_workload中的公开输入和行为契约；'
+            'CPU只用于定位，内存为Python可追踪分配。注册实验与模型复现均只运行原始基线，'
+            '没有候选试跑工具。no_change和insufficient_evidence只封存为待审提议，不自动通过。')
     reproduction_tools = []
     if session.enable_reproduction:
         @tool

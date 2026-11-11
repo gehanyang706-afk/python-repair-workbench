@@ -1,0 +1,208 @@
+{
+  "scope": "one exposed real repository; scripted engineering controls, not effect comparison",
+  "real_model_calls": 0,
+  "rows": [
+    {
+      "mode": "adaptive",
+      "execution": {
+        "status": "inconclusive",
+        "phase": "completed",
+        "reason": "measurement_unstable_or_not_measurable",
+        "agent_finished_before_final_evaluation": true,
+        "independent_evaluation_started": true,
+        "test_pids_limit": 64,
+        "cleanup_ok": true,
+        "scope": "One task execution; submitted/proposal are not independent acceptance.",
+        "agent_result": "agent/result.json",
+        "agent_status": "submitted",
+        "submission": "agent/final-submission.json",
+        "final_submission_sha256": "277186ed2ea1a0ea78a976e0b046779b7919692710987e776bb3978c6f1d6d6e",
+        "independent_verdict": "independent-evaluation/result.json"
+      },
+      "scripted_calls": 8,
+      "real_model_calls": 0,
+      "tools_selected_by_script": [
+        "propose_reproducer",
+        "run_reproducer",
+        "record_hypothesis",
+        "run_probe",
+        "read_probe_report",
+        "record_hypothesis",
+        "read_symbol",
+        "submit_ref_edits"
+      ],
+      "public_probes": [
+        {
+          "probe": "cpu",
+          "case_id": "dev-small",
+          "cache_hit": false,
+          "dispatched": true,
+          "cleanup_ok": true
+        }
+      ],
+      "shared_tool_calls": 8,
+      "phase_boundary": [
+        {
+          "submission_sha256": "277186ed2ea1a0ea78a976e0b046779b7919692710987e776bb3978c6f1d6d6e",
+          "scripted_calls_at_seal": 8
+        }
+      ],
+      "full_source_fingerprint_preserved": true
+    },
+    {
+      "mode": "fixed",
+      "execution": {
+        "status": "inconclusive",
+        "phase": "agent",
+        "reason": "sealed_proposal_requires_independent_review",
+        "agent_finished_before_final_evaluation": true,
+        "independent_evaluation_started": false,
+        "test_pids_limit": 64,
+        "cleanup_ok": true,
+        "scope": "One task execution; submitted/proposal are not independent acceptance.",
+        "agent_result": "agent/result.json",
+        "agent_status": "proposal_sealed",
+        "submission": "agent/final-submission.json"
+      },
+      "scripted_calls": 1,
+      "real_model_calls": 0,
+      "tools_selected_by_script": [
+        "conclude_diagnosis"
+      ],
+      "public_probes": [
+        {
+          "probe": "cpu",
+          "case_id": "dev-small",
+          "cache_hit": false,
+          "dispatched": true,
+          "cleanup_ok": true
+        },
+        {
+          "probe": "memory",
+          "case_id": "dev-small",
+          "cache_hit": false,
+          "dispatched": true,
+          "cleanup_ok": true
+        },
+        {
+          "probe": "benchmark",
+          "case_id": "dev-small",
+          "cache_hit": false,
+          "dispatched": true,
+          "cleanup_ok": true
+        }
+      ],
+      "shared_tool_calls": 4,
+      "phase_boundary": [],
+      "full_source_fingerprint_preserved": true
+    }
+  ],
+  "same_public_tool_schema": true,
+  "seconds": 143.36220029206015,
+  "date": "2026-11-11",
+  "frozen_implementation_files": 80,
+  "fixed_probes_before_first_model": true,
+  "adaptive_final_measurements": {
+    "planned": 16,
+    "completed": 16,
+    "not_run": 0,
+    "cleanup_and_inputs_confirmed": true,
+    "status": "inconclusive",
+    "reason": "measurement_unstable_or_not_measurable",
+    "candidate_target_timing_relative_spread": 0.5946410527128493,
+    "frozen_relative_noise_limit": 0.25,
+    "original_tests": {
+      "baseline": {
+        "passed": 496,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "xfailed": 2,
+        "xpassed": 1
+      },
+      "candidate": {
+        "passed": 496,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "xfailed": 2,
+        "xpassed": 1
+      }
+    }
+  },
+  "full_regression": {
+    "total": 726,
+    "passed": 710,
+    "skipped_mysql": 16,
+    "failed": 0,
+    "seconds": 266.655,
+    "path": "runtime/repository-native-full-regression-20261111-first.log",
+    "sha256": "7e403a5bb7723dddc2be045d5626610a46feb99067ac9b92da11fd47649427d9"
+  },
+  "wheel_delivery": {
+    "datasets": [
+      {
+        "dataset": "bugsinpy-derived-v1",
+        "tasks": 2,
+        "sha256": "ed27bfbe0aed98aa5a9d0d1f4a520c0ab45df2009163f440fea61be9cd3231eb"
+      },
+      {
+        "dataset": "cross-project-v1",
+        "tasks": 2,
+        "sha256": "4734629af8b6f5bab9953a089e257c7fa6251925d163d099a892795974ed8708"
+      },
+      {
+        "dataset": "delivery-heldout-v1",
+        "tasks": 2,
+        "sha256": "1dfdd11805005b8fab95d1b17e64d5a599084be30e6775ae11db42f19be83301"
+      },
+      {
+        "dataset": "generalization-v1",
+        "tasks": 2,
+        "sha256": "53cc892a79ea4848a8dbb7f5c505cc7b3bcfa7516dd36b0df97d24a886995e27"
+      },
+      {
+        "dataset": "real-bugs-v1",
+        "tasks": 4,
+        "sha256": "469fb897059715fc53a849459c9c1366cf4a038acba720a28ad95e9802de33fc"
+      },
+      {
+        "dataset": "ugc-diagnostics-dev-v1",
+        "tasks": 4,
+        "sha256": "2302915b4d2fa0951b22fa9347eb0076c268c6191736ab84588b98249c1f7e14",
+        "split": "dev",
+        "synthetic": true,
+        "public": true,
+        "independent_evaluation": false,
+        "verified_files": 12
+      }
+    ],
+    "real_model_calls": 0,
+    "wheel": {
+      "sha256": "b69d25d0267829abf321b134f0ef51614f9f3552c3d25d5a38357e361f9552c6",
+      "verified_files": 71
+    }
+  },
+  "true_model_evaluation_ready": false,
+  "readiness_reason": "measurement noise gate exceeded; complete frozen real-model batch and task qualification pending",
+  "artifact_sha256": {
+    "runtime/repository-native-graph-20261111-first/summary.json": "88fa868133ef57b6a2d2319159111d9518c75f1ea1898372449c430d861449fc",
+    "runtime/repository-native-graph-20261111-first/implementation.json": "893dbea18292f3da15eff4c9bd4dda7786e0a84488f23524702bebcec8927589",
+    "runtime/repository-native-graph-20261111-first/run_control.frozen.py": "79436652367b094a871f23f04b94adc0e92699d1eb6019501856ede0a3771e21",
+    "runtime/repository-native-graph-20261111-first/adaptive/execution.json": "356247298c0bf9323b745ae25dedc51be702b901c20ec2806bf7f07cc6655e94",
+    "runtime/repository-native-graph-20261111-first/adaptive/agent/result.json": "f5508c94295623022490aa9f1ba28f65c751bf0a30ee95ae364db469de9c67ab",
+    "runtime/repository-native-graph-20261111-first/adaptive/agent/events.jsonl": "72bcf80fdd2891b5965a3521e491c149a774e7bd854a63b6e1d5baf522138686",
+    "runtime/repository-native-graph-20261111-first/adaptive/agent/final-submission.json": "277186ed2ea1a0ea78a976e0b046779b7919692710987e776bb3978c6f1d6d6e",
+    "runtime/repository-native-graph-20261111-first/adaptive/independent-evaluator.log": "9f0643a8292fae9e07d87c3d75a45a729ee7667d41c748e9076bbf5c4cc0cbad",
+    "runtime/repository-native-graph-20261111-first/adaptive/independent-evaluation/result.json": "35b3e6fefb52869c1f03dbda6f2c4ab29b996d75daf1299cd3499ee49eebca6d",
+    "runtime/repository-native-graph-20261111-first/adaptive/scripted-initial-request.json": "49db5b4c5eb54439f1d0bd2ef994eb8f747db9d1f26a5be3c0d7f5391b06220c",
+    "runtime/repository-native-graph-20261111-first/fixed/execution.json": "a76eae8af9509f785bf3f5fd02011662f9b03b8b4aeb43b28ccd1e7cbbe8d0f9",
+    "runtime/repository-native-graph-20261111-first/fixed/agent/result.json": "56aaad44354d3456b7aa2689d3ae0f2200df053ce306fee5e2db00df3ce61156",
+    "runtime/repository-native-graph-20261111-first/fixed/agent/events.jsonl": "4b046c9349f5405a2e9a89521d1401c2cbc62b08a6f4544139d08204ffcba6de",
+    "runtime/repository-native-graph-20261111-first/fixed/agent/final-submission.json": "a0a8a3552cd89e93afe64e49593f40693a49ab3de541677bbf976c50ea386dd3",
+    "runtime/repository-native-graph-20261111-first/fixed/scripted-initial-request.json": "2c818a0b8cc73760407f5cac9355a8bf53be742aa787879c92ae59bf2a8d6a92",
+    "runtime/repository-graph-merged-regression-20261111-first.log": "305cc693067c754d8be462a0ada75b407d0dc463070a4ef9cc8e92b27ac069d4",
+    "runtime/repository-public-cpu-control-20261111-first/control-summary.json": "752bdd9298483bd7c4e6addff280fce400516819174c8484648a87414a65bd05",
+    "runtime/repository-native-wheel-delivery-20261111.json": "c02c517ab6c8bc7f4d3af6d9a0f1bd5ab0c314db619d973f8a6bc2cc0bf502dd"
+  }
+}

@@ -60,18 +60,12 @@ class DiagnosticSession(RepairSession):
         self.tool_concurrency = tool_concurrency
         if strategy not in {'adaptive', 'fixed'}:
             raise ValueError('诊断策略必须是 adaptive 或 fixed')
-        if workload != 'ugc-export-v1':
-            raise ValueError('未注册的诊断工作负载')
+        self._validate_workload_configuration(workload, minimum_speedup, max_memory_ratio)
         if diagnostic_transport not in {'local', 'mcp'}:
             raise ValueError('诊断工具接入方式必须是local或mcp')
         self.diagnostic_transport = diagnostic_transport
         if type(max_probe_runs) is not int or not 3 <= max_probe_runs <= 12:
             raise ValueError('诊断运行上限必须为3–12')
-        if (type(minimum_speedup) not in {int, float}
-                or not math.isfinite(minimum_speedup) or not 0 < minimum_speedup < 1
-                or type(max_memory_ratio) not in {int, float}
-                or not math.isfinite(max_memory_ratio) or not 1 <= max_memory_ratio <= 4):
-            raise ValueError('性能阈值无效')
         if kwargs.get('durability') is not None:
             raise ValueError('性能诊断尚未接入持久 Worker 恢复')
         if 'profile' in kwargs:
@@ -142,6 +136,16 @@ class DiagnosticSession(RepairSession):
             'scope': 'Original tests only; not proof of optimal performance.'},
             snapshot_id(self.manifest))
         self.save('running')
+
+    def _validate_workload_configuration(self, workload, minimum_speedup, max_memory_ratio):
+        """UGC defaults stay strict; registered task subclasses own their contract."""
+        if workload != 'ugc-export-v1':
+            raise ValueError('未注册的诊断工作负载')
+        if (type(minimum_speedup) not in {int, float}
+                or not math.isfinite(minimum_speedup) or not 0 < minimum_speedup < 1
+                or type(max_memory_ratio) not in {int, float}
+                or not math.isfinite(max_memory_ratio) or not 1 <= max_memory_ratio <= 4):
+            raise ValueError('性能阈值无效')
 
     def check_budget(self):
         if self.reproduction_workspace is not None and self.reproduction_workspace.blocked_reason:

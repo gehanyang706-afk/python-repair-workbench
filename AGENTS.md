@@ -16,8 +16,10 @@
 
 ## 真实任务完善交接（2026-11-11）
 
-- 最新工程交接见docs/repository-performance-and-public-probes-20261111.md/json。已合入隔离候选的参数化测量/精确原测试回执/评分，新增repository_performance独立重建验收与CLI；调用方冻结spec与修改权限，最终回执不得来自模型。只支持当前注册构造器、1CPU256MiB/Python traced/canonical JSON；RSS/额外oracle等未实现不能贴标签。
-- 本轮真实模型调用0。SQL已见dev的参考源差异在新独立入口通过两份原测试及16/16探针；故意错误format控制98项原测试失败、16项探针not_run。这些是验收器工程资格，不是Agent成绩。more-itertools旧噪声inconclusive不覆盖、不降门槛。仍未接入真实仓库诊断主图和正式性能最终集。
+- 最新工程交接见docs/repository-diagnostic-native-20261111.md/json。RepositoryDiagnosticSession复用原生Deep Agents工具循环，仅持公开投影和受限原测试资格，CPU/内存/基准与复现只执行公开基线。首次有效补丁/提议封存后关图，repository_execution以无供应商密钥的独立Python进程执行最终验收；禁止回流隐藏结果、假SWE/UGC工作区或把未评分提议计作通过。
+- 真实SQL原生图控制使用已知参考补丁和脚本策略，非模型效果：自适应8次脚本/8工具/1公开CPU，封存后16/16物理评分、原测试及语义通过，耗时波动59.46%超25%保留inconclusive；固定路径在首次脚本请求前CPU→内存→基准，结论封存无评分。运行前绑定并归档80个实现/配置文件，0真实模型，不补跑、不改阈值。真实仓库MCP/Skills/委派/并发、公开候选迭代、健康验收及真实F0/A1批次仍待完成。
+- 基础工程交接见docs/repository-performance-and-public-probes-20261111.md/json。已合入隔离候选的参数化测量/精确原测试回执/评分，新增repository_performance独立重建验收与CLI；调用方冻结spec与修改权限，最终回执不得来自模型。只支持当前注册构造器、1CPU256MiB/Python traced/canonical JSON；RSS/额外oracle等未实现不能贴标签。
+- 该独立入口的SQL已见dev参考源差异通过两份原测试及16/16探针；错误format控制98项原测试失败、16项探针not_run。不同控制记录不能混合成Agent成绩。more-itertools旧噪声inconclusive不覆盖、不降门槛，正式性能最终集尚未准备。
 - SWE复现默认关闭；开启时使用资格same image与固定swebench-testbed-v1，指定conda Python并遮蔽/testbed。复现仅原始公开基线，模型输出始终model_program_output，不能获取官方test patch/验收日志或试跑最终候选。swebench.reproduction及两工具须一起冻结，缺少清理回执/清理未知/输入漂移停止剩余批次。实际Django只读探针通过，不是修复成绩。
 - 高频轮询继续使用轻量control；原测试与最终评分的完整性/版本门不能削弱。原测试必须status=tests_passed、cleanup确认且精确名单匹配；包括预登记XFAIL/XPASS。评分前后都做fence，候选源文件按原始UTF-8字节重建，不能read_text隐式归一化CRLF。
 
@@ -26,7 +28,7 @@
 - 第二轮交接见docs/real-task-progress-phase23-20261110.md。Django13315仅获一个镜像下载授权并已完成两轮官方资格；xarray未下载。显式python-repository-v1仅省略文档图片链接，完整Git来源绑定仍包含它们，代码/测试链接不能放行。
 - 两个真实完整仓库性能任务为已见dev，上游参考效果和操作方复现程序不计模型能力；SQL的两项原有xfail不能删除或当作全部passed。
 - reproduction.py通过--reproduction显式进入原UGC主诊断图，默认关闭；共享根工具/取消/截止时间，程序输出必须标model_program_output，不作可信评分依据。清理未知或运行期间版本漂移封锁执行器与会话；真实仓库工作负载进入主图仍未完成。
-- WorkloadSpec已接入独立仓库验收器，开发投影排除最终输入；真实仓库主图与最终提交接线仍未完成。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
+- WorkloadSpec已接入独立仓库验收器及公开主图准备器，开发投影排除最终输入。大仓库搜索每次操作前后校验完整树、每次读取核对冻结文件哈希；不能为了速度改成无版本保护的源码缓存。
 
 - 路线见docs/real-task-improvement-plan-20261109.md；基础交接见docs/real-task-progress-20261110.md。共用冻结/预算/批次模块已接线，SWE策略为on_demand与issue_evidence，同工具/权限/提示词，仅初始Issue检索有差异；本次精确授权已执行完毕，后续新批次重新冻结范围和预算。
 - 新评测模型显式固定北京区原生endpoint，其他region未适配。输入/输出预留边界由冻结配置给出，未知usage和落盘错误停批；单批单进程账本不可恢复，不称分布式账单。
